@@ -1,0 +1,30 @@
+---
+title: "Introduction to GGPLOT2"
+author: "Cadence Fisher"
+date: '2022-02-07'
+slug: introduction-to-ggplot2
+categories: []
+tags: []
+---
+
+##Introduction
+This is a demo of creating visualization using ggplot2
+##Starwars plot
+Starwars glimpse
+```{r}
+library(tidyverse)
+glimpse(starwars)
+
+```
+
+Starwars Plot
+```{r}
+ggplot(data = starwars, mapping = aes(x = height, y = mass)) +
+  geom_point() +
+  labs(title = "Mass vs. height of Starwars characters",
+       x = "Height (cm)", y = "Weight (kg)")
+```
+
+
+       
+##Anscombe's Quartet
