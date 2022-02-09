@@ -1,0 +1,48 @@
+---
+title: "Palmer Penguins Visualizations"
+author: "Cadence Fisher"
+date: '2022-02-09'
+slug: palmer-penguins-visualizations
+categories: R
+tags:
+- Penguins
+- GGPLOT2
+---
+
+#Palmer Penguins
+
+Measurements for penguin species, island in **Palmer Archipelago**, size (flipper length, body mass, bill dimensions), and sex.
+##Call Libraries
+```{r message = FALSE}
+library(tidyverse)
+library(palmerpenguins)
+```
+##Describe the Data
+```{r}
+glimpse(penguins)
+```
+
+
+
+##Scatter Plot 
+Start with the penguins data frame, map bill depth to the x-axis and map bill length to the y-axis. Represent each observation with a point and map species to the colour of each point. Title the plot "Bill depth and length", add the subtitle "Dimensions for Adelie, Chinstrap, and Gentoo Penguins", label the x and y axes as "Bill depth (mm)" and "Bill length (mm)", respectively, label the legend "Species", and add a caption for the data source. Finally, use a discrete colour scale that is designed to be perceived by viewers with common forms of colour blindness.
+```{r warning = FALSE}
+ggplot(data = penguins, 
+       mapping = aes(x = bill_depth_mm, y = bill_length_mm,
+                     colour = species, shape = island, size = body_mass_g, alpha = flipper_length_mm)) +
+  geom_point(size = 2, alpha = 0.5) +
+  labs(title = "Bill depth and length",
+       subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+       x = "Bill depth (mm)", y = "Bill length (mm)",
+       colour = "Species",  caption = "Source: Palmer Station LTER / palmerpenguins package") +
+  scale_colour_viridis_d()
+```
+
+##Scatter Plot with Facet Grid
+Useful for exploring conditional relationships and large data.
+```{r}
+ggplot(penguins, aes(x = bill_depth_mm, y = bill_length_mm)) + 
+  geom_point() +
+  facet_grid(species ~ island)
+```
+
