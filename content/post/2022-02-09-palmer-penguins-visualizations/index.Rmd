@@ -13,7 +13,7 @@ tags:
 
 Measurements for penguin species, island in **Palmer Archipelago**, size (flipper length, body mass, bill dimensions), and sex.
 ##Call Libraries
-```{r message = FALSE}
+```{r Libraries, message=FALSE}
 library(tidyverse)
 library(palmerpenguins)
 ```
@@ -26,7 +26,7 @@ glimpse(penguins)
 
 ##Scatter Plot 
 Start with the penguins data frame, map bill depth to the x-axis and map bill length to the y-axis. Represent each observation with a point and map species to the colour of each point. Title the plot "Bill depth and length", add the subtitle "Dimensions for Adelie, Chinstrap, and Gentoo Penguins", label the x and y axes as "Bill depth (mm)" and "Bill length (mm)", respectively, label the legend "Species", and add a caption for the data source. Finally, use a discrete colour scale that is designed to be perceived by viewers with common forms of colour blindness.
-```{r warning = FALSE}
+```{r Scatter Plot, echo=FALSE, warning=FALSE}
 ggplot(data = penguins, 
        mapping = aes(x = bill_depth_mm, y = bill_length_mm,
                      colour = species, shape = island, size = body_mass_g, alpha = flipper_length_mm)) +
@@ -40,9 +40,51 @@ ggplot(data = penguins,
 
 ##Scatter Plot with Facet Grid
 Useful for exploring conditional relationships and large data.
-```{r}
+```{r Facet Plot, echo=FALSE}
 ggplot(penguins, aes(x = bill_depth_mm, y = bill_length_mm)) + 
   geom_point() +
   facet_grid(species ~ island)
+```
+
+##Visualizing Categorical Data
+```{r}
+library(openintro)
+loans <- loans_full_schema %>%
+  select(loan_amount, interest_rate, term, grade, 
+         state, annual_income, homeownership, debt_to_income)
+glimpse(loans)
+```
+
+##Bar Plot
+```{r}
+ggplot(loans, aes(x = homeownership)) +
+  geom_bar()
+```
+
+##Segmented Bar Chart
+```{r}
+ggplot(loans, aes(x = homeownership, 
+                  fill = grade)) +
+  geom_bar()
+```
+##Segmented Bar Chart Flipped
+```{r}
+ggplot(loans, aes(y = homeownership,
+                  fill = grade)) +
+  geom_bar(position = "fill") +
+  labs(
+    x = "Proportion",
+    y = "Homeownership",
+    fill = "Grade",
+    title = "Grades of Lending Club loans",
+    subtitle = "and homeownership of lendee"
+  )
+```
+
+##Ridge Plots:
+```{r}
+library(ggridges)
+ggplot(loans, aes(x = loan_amount, y = grade, fill = grade, color = grade)) + 
+  geom_density_ridges(alpha = 0.5)
 ```
 
