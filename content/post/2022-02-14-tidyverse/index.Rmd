@@ -1,0 +1,41 @@
+---
+title: TidyVerse
+author: 'Cadence Fishe'
+date: '2022-02-14'
+slug: tidyverse
+categories: []
+tags: []
+---
+
+##Import File from Github
+
+## Call libraries
+```{r}
+library(tidyverse)
+```
+
+```{r}
+url <- 'https://raw.githubusercontent.com/fisherca/tidyverse/main/hotels.csv'
+hotels <- read_csv(url)
+names(hotels)
+```
+
+## Summary of Variables
+```{r}
+glimpse(hotels)
+```
+## Select Commands
+```{r}
+select(hotels, lead_time)
+```
+```{r}
+select(hotels, hotel, lead_time)
+```
+### You can use attach(hotels) to make all the variables local you your computer. This means that the computer will try to autofill commands with hotel's variables
+##Practice with a Pipe Command
+```{r}
+hotels %>%
+  select(hotel, lead_time) %>%
+  arrange(desc(lead_time))
+```
+###you can also do this same code as a nested line of code but doing it structured as a pipe makes it easier to read and easier to understand what you are trying to do

@@ -88,3 +88,8 @@ ggplot(loans, aes(x = loan_amount, y = grade, fill = grade, color = grade)) +
   geom_density_ridges(alpha = 0.5)
 ```
 
+##Flipped Bar Plot
+```{r}
+ggplot(loans, aes())
+```
+

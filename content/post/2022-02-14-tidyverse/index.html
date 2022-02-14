@@ -1,0 +1,146 @@
+---
+title: TidyVerse
+author: 'Cadence Fishe'
+date: '2022-02-14'
+slug: tidyverse
+categories: []
+tags: []
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<p>##Import File from Github</p>
+<div id="call-libraries" class="section level2">
+<h2>Call libraries</h2>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
+<pre><code>## v ggplot2 3.3.5     v purrr   0.3.4
+## v tibble  3.1.6     v dplyr   1.0.7
+## v tidyr   1.2.0     v stringr 1.4.0
+## v readr   2.1.2     v forcats 0.5.1</code></pre>
+<pre><code>## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>url &lt;- &#39;https://raw.githubusercontent.com/fisherca/tidyverse/main/hotels.csv&#39;
+hotels &lt;- read_csv(url)</code></pre>
+<pre><code>## Rows: 119390 Columns: 32
+## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;,&quot;
+## chr  (13): hotel, arrival_date_month, meal, country, market_segment, distrib...
+## dbl  (18): is_canceled, lead_time, arrival_date_year, arrival_date_week_numb...
+## date  (1): reservation_status_date
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>names(hotels)</code></pre>
+<pre><code>##  [1] &quot;hotel&quot;                          &quot;is_canceled&quot;                   
+##  [3] &quot;lead_time&quot;                      &quot;arrival_date_year&quot;             
+##  [5] &quot;arrival_date_month&quot;             &quot;arrival_date_week_number&quot;      
+##  [7] &quot;arrival_date_day_of_month&quot;      &quot;stays_in_weekend_nights&quot;       
+##  [9] &quot;stays_in_week_nights&quot;           &quot;adults&quot;                        
+## [11] &quot;children&quot;                       &quot;babies&quot;                        
+## [13] &quot;meal&quot;                           &quot;country&quot;                       
+## [15] &quot;market_segment&quot;                 &quot;distribution_channel&quot;          
+## [17] &quot;is_repeated_guest&quot;              &quot;previous_cancellations&quot;        
+## [19] &quot;previous_bookings_not_canceled&quot; &quot;reserved_room_type&quot;            
+## [21] &quot;assigned_room_type&quot;             &quot;booking_changes&quot;               
+## [23] &quot;deposit_type&quot;                   &quot;agent&quot;                         
+## [25] &quot;company&quot;                        &quot;days_in_waiting_list&quot;          
+## [27] &quot;customer_type&quot;                  &quot;adr&quot;                           
+## [29] &quot;required_car_parking_spaces&quot;    &quot;total_of_special_requests&quot;     
+## [31] &quot;reservation_status&quot;             &quot;reservation_status_date&quot;</code></pre>
+</div>
+<div id="summary-of-variables" class="section level2">
+<h2>Summary of Variables</h2>
+<pre class="r"><code>glimpse(hotels)</code></pre>
+<pre><code>## Rows: 119,390
+## Columns: 32
+## $ hotel                          &lt;chr&gt; &quot;Resort Hotel&quot;, &quot;Resort Hotel&quot;, &quot;Resort~
+## $ is_canceled                    &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, ~
+## $ lead_time                      &lt;dbl&gt; 342, 737, 7, 13, 14, 14, 0, 9, 85, 75, ~
+## $ arrival_date_year              &lt;dbl&gt; 2015, 2015, 2015, 2015, 2015, 2015, 201~
+## $ arrival_date_month             &lt;chr&gt; &quot;July&quot;, &quot;July&quot;, &quot;July&quot;, &quot;July&quot;, &quot;July&quot;,~
+## $ arrival_date_week_number       &lt;dbl&gt; 27, 27, 27, 27, 27, 27, 27, 27, 27, 27,~
+## $ arrival_date_day_of_month      &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ~
+## $ stays_in_weekend_nights        &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+## $ stays_in_week_nights           &lt;dbl&gt; 0, 0, 1, 1, 2, 2, 2, 2, 3, 3, 4, 4, 4, ~
+## $ adults                         &lt;dbl&gt; 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, ~
+## $ children                       &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+## $ babies                         &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+## $ meal                           &lt;chr&gt; &quot;BB&quot;, &quot;BB&quot;, &quot;BB&quot;, &quot;BB&quot;, &quot;BB&quot;, &quot;BB&quot;, &quot;BB~
+## $ country                        &lt;chr&gt; &quot;PRT&quot;, &quot;PRT&quot;, &quot;GBR&quot;, &quot;GBR&quot;, &quot;GBR&quot;, &quot;GBR~
+## $ market_segment                 &lt;chr&gt; &quot;Direct&quot;, &quot;Direct&quot;, &quot;Direct&quot;, &quot;Corporat~
+## $ distribution_channel           &lt;chr&gt; &quot;Direct&quot;, &quot;Direct&quot;, &quot;Direct&quot;, &quot;Corporat~
+## $ is_repeated_guest              &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+## $ previous_cancellations         &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+## $ previous_bookings_not_canceled &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+## $ reserved_room_type             &lt;chr&gt; &quot;C&quot;, &quot;C&quot;, &quot;A&quot;, &quot;A&quot;, &quot;A&quot;, &quot;A&quot;, &quot;C&quot;, &quot;C&quot;,~
+## $ assigned_room_type             &lt;chr&gt; &quot;C&quot;, &quot;C&quot;, &quot;C&quot;, &quot;A&quot;, &quot;A&quot;, &quot;A&quot;, &quot;C&quot;, &quot;C&quot;,~
+## $ booking_changes                &lt;dbl&gt; 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+## $ deposit_type                   &lt;chr&gt; &quot;No Deposit&quot;, &quot;No Deposit&quot;, &quot;No Deposit~
+## $ agent                          &lt;chr&gt; &quot;NULL&quot;, &quot;NULL&quot;, &quot;NULL&quot;, &quot;304&quot;, &quot;240&quot;, &quot;~
+## $ company                        &lt;chr&gt; &quot;NULL&quot;, &quot;NULL&quot;, &quot;NULL&quot;, &quot;NULL&quot;, &quot;NULL&quot;,~
+## $ days_in_waiting_list           &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+## $ customer_type                  &lt;chr&gt; &quot;Transient&quot;, &quot;Transient&quot;, &quot;Transient&quot;, ~
+## $ adr                            &lt;dbl&gt; 0.00, 0.00, 75.00, 75.00, 98.00, 98.00,~
+## $ required_car_parking_spaces    &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+## $ total_of_special_requests      &lt;dbl&gt; 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 3, ~
+## $ reservation_status             &lt;chr&gt; &quot;Check-Out&quot;, &quot;Check-Out&quot;, &quot;Check-Out&quot;, ~
+## $ reservation_status_date        &lt;date&gt; 2015-07-01, 2015-07-01, 2015-07-02, 20~</code></pre>
+</div>
+<div id="select-commands" class="section level2">
+<h2>Select Commands</h2>
+<pre class="r"><code>select(hotels, lead_time)</code></pre>
+<pre><code>## # A tibble: 119,390 x 1
+##    lead_time
+##        &lt;dbl&gt;
+##  1       342
+##  2       737
+##  3         7
+##  4        13
+##  5        14
+##  6        14
+##  7         0
+##  8         9
+##  9        85
+## 10        75
+## # ... with 119,380 more rows</code></pre>
+<pre class="r"><code>select(hotels, hotel, lead_time)</code></pre>
+<pre><code>## # A tibble: 119,390 x 2
+##    hotel        lead_time
+##    &lt;chr&gt;            &lt;dbl&gt;
+##  1 Resort Hotel       342
+##  2 Resort Hotel       737
+##  3 Resort Hotel         7
+##  4 Resort Hotel        13
+##  5 Resort Hotel        14
+##  6 Resort Hotel        14
+##  7 Resort Hotel         0
+##  8 Resort Hotel         9
+##  9 Resort Hotel        85
+## 10 Resort Hotel        75
+## # ... with 119,380 more rows</code></pre>
+<div id="you-can-use-attachhotels-to-make-all-the-variables-local-you-your-computer.-this-means-that-the-computer-will-try-to-autofill-commands-with-hotels-variables" class="section level3">
+<h3>You can use attach(hotels) to make all the variables local you your computer. This means that the computer will try to autofill commands with hotel’s variables</h3>
+<p>##Practice with a Pipe Command</p>
+<pre class="r"><code>hotels %&gt;%
+  select(hotel, lead_time) %&gt;%
+  arrange(desc(lead_time))</code></pre>
+<pre><code>## # A tibble: 119,390 x 2
+##    hotel        lead_time
+##    &lt;chr&gt;            &lt;dbl&gt;
+##  1 Resort Hotel       737
+##  2 Resort Hotel       709
+##  3 City Hotel         629
+##  4 City Hotel         629
+##  5 City Hotel         629
+##  6 City Hotel         629
+##  7 City Hotel         629
+##  8 City Hotel         629
+##  9 City Hotel         629
+## 10 City Hotel         629
+## # ... with 119,380 more rows</code></pre>
+<p>###you can also do this same code as a nested line of code but doing it structured as a pipe makes it easier to read and easier to understand what you are trying to do</p>
+</div>
+</div>
