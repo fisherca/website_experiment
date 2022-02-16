@@ -1,0 +1,8 @@
+---
+title: Working With Single Data Frame
+author: Cadence Fisher
+date: '2022-02-14'
+slug: working-with-single-data-frame
+categories: []
+tags: []
+---

@@ -1,0 +1,355 @@
+---
+title: Practice With Single Data Frame
+author: Cadence Fisher
+date: '2022-02-14'
+slug: practice-with-single-data-frame
+categories: []
+tags: []
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<p>##Inserting Data Frame</p>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
+<pre><code>## v ggplot2 3.3.5     v purrr   0.3.4
+## v tibble  3.1.6     v dplyr   1.0.7
+## v tidyr   1.2.0     v stringr 1.4.0
+## v readr   2.1.2     v forcats 0.5.1</code></pre>
+<pre><code>## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>url &lt;- &#39;https://raw.githubusercontent.com/fisherca/tidyverse/main/hotels.csv&#39;
+hotels &lt;- read_csv(url)</code></pre>
+<pre><code>## Rows: 119390 Columns: 32</code></pre>
+<pre><code>## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;,&quot;
+## chr  (13): hotel, arrival_date_month, meal, country, market_segment, distrib...
+## dbl  (18): is_canceled, lead_time, arrival_date_year, arrival_date_week_numb...
+## date  (1): reservation_status_date
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<p>##Select to Exclude Variables</p>
+<pre class="r"><code>hotels %&gt;%
+  select(-agent)</code></pre>
+<pre><code>## # A tibble: 119,390 x 31
+##    hotel        is_canceled lead_time arrival_date_year arrival_date_month
+##    &lt;chr&gt;              &lt;dbl&gt;     &lt;dbl&gt;             &lt;dbl&gt; &lt;chr&gt;             
+##  1 Resort Hotel           0       342              2015 July              
+##  2 Resort Hotel           0       737              2015 July              
+##  3 Resort Hotel           0         7              2015 July              
+##  4 Resort Hotel           0        13              2015 July              
+##  5 Resort Hotel           0        14              2015 July              
+##  6 Resort Hotel           0        14              2015 July              
+##  7 Resort Hotel           0         0              2015 July              
+##  8 Resort Hotel           0         9              2015 July              
+##  9 Resort Hotel           1        85              2015 July              
+## 10 Resort Hotel           1        75              2015 July              
+## # ... with 119,380 more rows, and 26 more variables:
+## #   arrival_date_week_number &lt;dbl&gt;, arrival_date_day_of_month &lt;dbl&gt;,
+## #   stays_in_weekend_nights &lt;dbl&gt;, stays_in_week_nights &lt;dbl&gt;, adults &lt;dbl&gt;,
+## #   children &lt;dbl&gt;, babies &lt;dbl&gt;, meal &lt;chr&gt;, country &lt;chr&gt;,
+## #   market_segment &lt;chr&gt;, distribution_channel &lt;chr&gt;, is_repeated_guest &lt;dbl&gt;,
+## #   previous_cancellations &lt;dbl&gt;, previous_bookings_not_canceled &lt;dbl&gt;,
+## #   reserved_room_type &lt;chr&gt;, assigned_room_type &lt;chr&gt;, ...</code></pre>
+<p>##Select a Range of Variables</p>
+<pre class="r"><code>hotels %&gt;%
+  select(hotel:arrival_date_month)</code></pre>
+<pre><code>## # A tibble: 119,390 x 5
+##    hotel        is_canceled lead_time arrival_date_year arrival_date_month
+##    &lt;chr&gt;              &lt;dbl&gt;     &lt;dbl&gt;             &lt;dbl&gt; &lt;chr&gt;             
+##  1 Resort Hotel           0       342              2015 July              
+##  2 Resort Hotel           0       737              2015 July              
+##  3 Resort Hotel           0         7              2015 July              
+##  4 Resort Hotel           0        13              2015 July              
+##  5 Resort Hotel           0        14              2015 July              
+##  6 Resort Hotel           0        14              2015 July              
+##  7 Resort Hotel           0         0              2015 July              
+##  8 Resort Hotel           0         9              2015 July              
+##  9 Resort Hotel           1        85              2015 July              
+## 10 Resort Hotel           1        75              2015 July              
+## # ... with 119,380 more rows</code></pre>
+<p>##Select Variables With Certain Characteristics</p>
+<pre class="r"><code>hotels %&gt;%
+  select(starts_with(&quot;arrival&quot;))</code></pre>
+<pre><code>## # A tibble: 119,390 x 4
+##    arrival_date_year arrival_date_month arrival_date_week_numb~ arrival_date_da~
+##                &lt;dbl&gt; &lt;chr&gt;                                &lt;dbl&gt;            &lt;dbl&gt;
+##  1              2015 July                                    27                1
+##  2              2015 July                                    27                1
+##  3              2015 July                                    27                1
+##  4              2015 July                                    27                1
+##  5              2015 July                                    27                1
+##  6              2015 July                                    27                1
+##  7              2015 July                                    27                1
+##  8              2015 July                                    27                1
+##  9              2015 July                                    27                1
+## 10              2015 July                                    27                1
+## # ... with 119,380 more rows</code></pre>
+<p>##Arrange in Ascending vs Descending Order</p>
+<pre class="r"><code>hotels %&gt;%
+  select(adults, children, babies) %&gt;%
+  arrange(babies)</code></pre>
+<pre><code>## # A tibble: 119,390 x 3
+##    adults children babies
+##     &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;
+##  1      2        0      0
+##  2      2        0      0
+##  3      1        0      0
+##  4      1        0      0
+##  5      2        0      0
+##  6      2        0      0
+##  7      2        0      0
+##  8      2        0      0
+##  9      2        0      0
+## 10      2        0      0
+## # ... with 119,380 more rows</code></pre>
+<pre class="r"><code>hotels %&gt;%
+  select(adults, children, babies) %&gt;%
+  arrange(desc(babies))</code></pre>
+<pre><code>## # A tibble: 119,390 x 3
+##    adults children babies
+##     &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;
+##  1      2        0     10
+##  2      1        0      9
+##  3      2        0      2
+##  4      2        0      2
+##  5      2        0      2
+##  6      2        0      2
+##  7      2        0      2
+##  8      2        0      2
+##  9      2        0      2
+## 10      2        0      2
+## # ... with 119,380 more rows</code></pre>
+<div id="slice-for-certain-rows" class="section level2">
+<h2>Slice for certain rows</h2>
+<pre class="r"><code>hotels %&gt;%
+  slice(1:5)</code></pre>
+<pre><code>## # A tibble: 5 x 32
+##   hotel is_canceled lead_time arrival_date_ye~ arrival_date_mo~ arrival_date_we~
+##   &lt;chr&gt;       &lt;dbl&gt;     &lt;dbl&gt;            &lt;dbl&gt; &lt;chr&gt;                       &lt;dbl&gt;
+## 1 Reso~           0       342             2015 July                           27
+## 2 Reso~           0       737             2015 July                           27
+## 3 Reso~           0         7             2015 July                           27
+## 4 Reso~           0        13             2015 July                           27
+## 5 Reso~           0        14             2015 July                           27
+## # ... with 26 more variables: arrival_date_day_of_month &lt;dbl&gt;,
+## #   stays_in_weekend_nights &lt;dbl&gt;, stays_in_week_nights &lt;dbl&gt;, adults &lt;dbl&gt;,
+## #   children &lt;dbl&gt;, babies &lt;dbl&gt;, meal &lt;chr&gt;, country &lt;chr&gt;,
+## #   market_segment &lt;chr&gt;, distribution_channel &lt;chr&gt;, is_repeated_guest &lt;dbl&gt;,
+## #   previous_cancellations &lt;dbl&gt;, previous_bookings_not_canceled &lt;dbl&gt;,
+## #   reserved_room_type &lt;chr&gt;, assigned_room_type &lt;chr&gt;, booking_changes &lt;dbl&gt;,
+## #   deposit_type &lt;chr&gt;, agent &lt;chr&gt;, company &lt;chr&gt;, ...</code></pre>
+<p>##Filter to select a subset of rows</p>
+<pre class="r"><code>hotels %&gt;%
+  filter(hotel == &quot;City Hotel&quot;)</code></pre>
+<pre><code>## # A tibble: 79,330 x 32
+##    hotel      is_canceled lead_time arrival_date_year arrival_date_month
+##    &lt;chr&gt;            &lt;dbl&gt;     &lt;dbl&gt;             &lt;dbl&gt; &lt;chr&gt;             
+##  1 City Hotel           0         6              2015 July              
+##  2 City Hotel           1        88              2015 July              
+##  3 City Hotel           1        65              2015 July              
+##  4 City Hotel           1        92              2015 July              
+##  5 City Hotel           1       100              2015 July              
+##  6 City Hotel           1        79              2015 July              
+##  7 City Hotel           0         3              2015 July              
+##  8 City Hotel           1        63              2015 July              
+##  9 City Hotel           1        62              2015 July              
+## 10 City Hotel           1        62              2015 July              
+## # ... with 79,320 more rows, and 27 more variables:
+## #   arrival_date_week_number &lt;dbl&gt;, arrival_date_day_of_month &lt;dbl&gt;,
+## #   stays_in_weekend_nights &lt;dbl&gt;, stays_in_week_nights &lt;dbl&gt;, adults &lt;dbl&gt;,
+## #   children &lt;dbl&gt;, babies &lt;dbl&gt;, meal &lt;chr&gt;, country &lt;chr&gt;,
+## #   market_segment &lt;chr&gt;, distribution_channel &lt;chr&gt;, is_repeated_guest &lt;dbl&gt;,
+## #   previous_cancellations &lt;dbl&gt;, previous_bookings_not_canceled &lt;dbl&gt;,
+## #   reserved_room_type &lt;chr&gt;, assigned_room_type &lt;chr&gt;, ...</code></pre>
+<p>##Filtering for many conditions at once</p>
+<pre class="r"><code>hotels %&gt;%
+  filter( 
+    adults == 0,
+    children &gt;= 1
+    ) %&gt;% 
+  select(adults, babies, children)</code></pre>
+<pre><code>## # A tibble: 223 x 3
+##    adults babies children
+##     &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;
+##  1      0      0        3
+##  2      0      0        2
+##  3      0      0        2
+##  4      0      0        2
+##  5      0      0        2
+##  6      0      0        3
+##  7      0      1        2
+##  8      0      0        2
+##  9      0      0        2
+## 10      0      0        2
+## # ... with 213 more rows</code></pre>
+<p>##Filtering for complex conditions</p>
+<pre class="r"><code># bookings with no adults and some children or babies in the room
+hotels %&gt;%
+  filter( 
+    adults == 0,     
+    children &gt;= 1 | babies &gt;= 1     # | means or
+    ) %&gt;%
+  select(adults, babies, children)</code></pre>
+<pre><code>## # A tibble: 223 x 3
+##    adults babies children
+##     &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;
+##  1      0      0        3
+##  2      0      0        2
+##  3      0      0        2
+##  4      0      0        2
+##  5      0      0        2
+##  6      0      0        3
+##  7      0      1        2
+##  8      0      0        2
+##  9      0      0        2
+## 10      0      0        2
+## # ... with 213 more rows</code></pre>
+<p>##Using “distinct” to filter for unique rows</p>
+<pre class="r"><code>hotels %&gt;% 
+  distinct(hotel, market_segment) %&gt;%
+  arrange(hotel, market_segment)</code></pre>
+<pre><code>## # A tibble: 14 x 2
+##    hotel        market_segment
+##    &lt;chr&gt;        &lt;chr&gt;         
+##  1 City Hotel   Aviation      
+##  2 City Hotel   Complementary 
+##  3 City Hotel   Corporate     
+##  4 City Hotel   Direct        
+##  5 City Hotel   Groups        
+##  6 City Hotel   Offline TA/TO 
+##  7 City Hotel   Online TA     
+##  8 City Hotel   Undefined     
+##  9 Resort Hotel Complementary 
+## 10 Resort Hotel Corporate     
+## 11 Resort Hotel Direct        
+## 12 Resort Hotel Groups        
+## 13 Resort Hotel Offline TA/TO 
+## 14 Resort Hotel Online TA</code></pre>
+<p>##Use count to create frequency tables</p>
+<pre class="r"><code># alphabetical order by default
+hotels %&gt;%
+  count(market_segment)</code></pre>
+<pre><code>## # A tibble: 8 x 2
+##   market_segment     n
+##   &lt;chr&gt;          &lt;int&gt;
+## 1 Aviation         237
+## 2 Complementary    743
+## 3 Corporate       5295
+## 4 Direct         12606
+## 5 Groups         19811
+## 6 Offline TA/TO  24219
+## 7 Online TA      56477
+## 8 Undefined          2</code></pre>
+<pre class="r"><code># descending frequency order
+hotels %&gt;%
+  count(market_segment, sort = TRUE)</code></pre>
+<pre><code>## # A tibble: 8 x 2
+##   market_segment     n
+##   &lt;chr&gt;          &lt;int&gt;
+## 1 Online TA      56477
+## 2 Offline TA/TO  24219
+## 3 Groups         19811
+## 4 Direct         12606
+## 5 Corporate       5295
+## 6 Complementary    743
+## 7 Aviation         237
+## 8 Undefined          2</code></pre>
+<p>##Using count and arrange</p>
+<pre class="r"><code># ascending frequency order
+hotels %&gt;%
+  count(market_segment) %&gt;%
+  arrange(n)</code></pre>
+<pre><code>## # A tibble: 8 x 2
+##   market_segment     n
+##   &lt;chr&gt;          &lt;int&gt;
+## 1 Undefined          2
+## 2 Aviation         237
+## 3 Complementary    743
+## 4 Corporate       5295
+## 5 Direct         12606
+## 6 Groups         19811
+## 7 Offline TA/TO  24219
+## 8 Online TA      56477</code></pre>
+<pre class="r"><code># descending frequency order
+# just like adding sort = TRUE
+hotels %&gt;%
+  count(market_segment) %&gt;%
+  arrange(desc(n))</code></pre>
+<pre><code>## # A tibble: 8 x 2
+##   market_segment     n
+##   &lt;chr&gt;          &lt;int&gt;
+## 1 Online TA      56477
+## 2 Offline TA/TO  24219
+## 3 Groups         19811
+## 4 Direct         12606
+## 5 Corporate       5295
+## 6 Complementary    743
+## 7 Aviation         237
+## 8 Undefined          2</code></pre>
+<p>##Count for multivariate</p>
+<pre class="r"><code>hotels %&gt;%
+  #order matters!
+  count(hotel, market_segment)</code></pre>
+<pre><code>## # A tibble: 14 x 3
+##    hotel        market_segment     n
+##    &lt;chr&gt;        &lt;chr&gt;          &lt;int&gt;
+##  1 City Hotel   Aviation         237
+##  2 City Hotel   Complementary    542
+##  3 City Hotel   Corporate       2986
+##  4 City Hotel   Direct          6093
+##  5 City Hotel   Groups         13975
+##  6 City Hotel   Offline TA/TO  16747
+##  7 City Hotel   Online TA      38748
+##  8 City Hotel   Undefined          2
+##  9 Resort Hotel Complementary    201
+## 10 Resort Hotel Corporate       2309
+## 11 Resort Hotel Direct          6513
+## 12 Resort Hotel Groups          5836
+## 13 Resort Hotel Offline TA/TO   7472
+## 14 Resort Hotel Online TA      17729</code></pre>
+<p>#Mutate to add new variable</p>
+<pre class="r"><code>hotels %&gt;%
+  mutate(little_ones = children + babies) %&gt;%
+  select(children, babies, little_ones) %&gt;%
+  arrange(desc(little_ones))</code></pre>
+<pre><code>## # A tibble: 119,390 x 3
+##    children babies little_ones
+##       &lt;dbl&gt;  &lt;dbl&gt;       &lt;dbl&gt;
+##  1       10      0          10
+##  2        0     10          10
+##  3        0      9           9
+##  4        2      1           3
+##  5        2      1           3
+##  6        2      1           3
+##  7        3      0           3
+##  8        2      1           3
+##  9        2      1           3
+## 10        3      0           3
+## # ... with 119,380 more rows</code></pre>
+<p>##Summary stats</p>
+<pre class="r"><code>hotels %&gt;%
+  summarise(
+    min_adr = min(adr),
+    mean_adr = mean(adr),
+    median_adr = median(adr),
+    max_adr = max(adr)
+    )</code></pre>
+<pre><code>## # A tibble: 1 x 4
+##   min_adr mean_adr median_adr max_adr
+##     &lt;dbl&gt;    &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;
+## 1   -6.38     102.       94.6    5400</code></pre>
+<p>##Group by: for grouped operations</p>
+<pre class="r"><code># mean average daily rate for all booking at city and resort hotels
+hotels %&gt;%
+  group_by(hotel) %&gt;%
+  summarise(mean_adr = mean(adr))</code></pre>
+<pre><code>## # A tibble: 2 x 2
+##   hotel        mean_adr
+##   &lt;chr&gt;           &lt;dbl&gt;
+## 1 City Hotel      105. 
+## 2 Resort Hotel     95.0</code></pre>
+</div>
