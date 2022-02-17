@@ -1,0 +1,22 @@
+---
+title: Tidying Data
+author: Cadence Fisher
+date: '2022-02-16'
+slug: tidying-data
+categories: []
+tags: []
+---
+##Tidying: The goal of tidyr is to help you tidy your data via: 1. pivoting for going between wide and long data 2. splitting and combining character columns 3. nesting and unnesting columns, and 4.clarifying how NAs should be treated
+
+##Wider means more columns, longer means more rows
+##Pivoting longer
+```{r}
+purchases <- customers %>%
+  pivot_longer(
+    cols = item_1:item_3,  # variables item_1 to item_3
+    names_to = "item_no",  # column names -> new column called item_no
+    values_to = "item"     # values in columns -> new column called item
+    )
+purchases
+```
+

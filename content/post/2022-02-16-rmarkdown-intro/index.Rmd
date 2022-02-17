@@ -1,0 +1,8 @@
+---
+title: Rmarkdown Intro
+author: Cadence Fisher
+date: '2022-02-16'
+slug: rmarkdown-intro
+categories: []
+tags: []
+---
