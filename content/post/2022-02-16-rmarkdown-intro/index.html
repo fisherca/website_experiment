@@ -1,12 +1,423 @@
 ---
-title: Rmarkdown Intro
-author: Cadence Fisher
-date: '2022-02-16'
-slug: rmarkdown-intro
-categories: []
-tags: []
+title: "Rmarkdown_Practice"
+author: "Cadence Fisher"
+date: "2/16/2022"
+output: 
+  html_document:
+    theme: yeti
+    highlight: espresso
+    df_print: paged
+  toc: true
+  toc_float: true
 ---
 
 <script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
 
 
+<pre class="r"><code>library(datasets)
+data(iris)
+#load packages
+pkgs &lt;- c(&quot;rstatix&quot;, &quot;emmeans&quot;, &quot;psych&quot;, &quot;tidyr&quot;, &quot;tidyverse&quot;, &quot;psych&quot;, &quot;dplyr&quot;, &quot;ggplot2&quot;, &quot;lm.beta&quot;, &quot;car&quot;, &quot;Hmisc&quot;, &quot;skimr&quot;, &quot;janitor&quot;)
+lapply(pkgs, library, character.only = TRUE)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;rstatix&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:stats&#39;:
+## 
+##     filter</code></pre>
+<pre><code>## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
+<pre><code>## v ggplot2 3.3.5     v dplyr   1.0.7
+## v tibble  3.1.6     v stringr 1.4.0
+## v readr   2.1.2     v forcats 0.5.1
+## v purrr   0.3.4</code></pre>
+<pre><code>## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## x ggplot2::%+%()   masks psych::%+%()
+## x ggplot2::alpha() masks psych::alpha()
+## x dplyr::filter()  masks rstatix::filter(), stats::filter()
+## x dplyr::lag()     masks stats::lag()</code></pre>
+<pre><code>## Loading required package: carData</code></pre>
+<pre><code>## 
+## Attaching package: &#39;car&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     recode</code></pre>
+<pre><code>## The following object is masked from &#39;package:purrr&#39;:
+## 
+##     some</code></pre>
+<pre><code>## The following object is masked from &#39;package:psych&#39;:
+## 
+##     logit</code></pre>
+<pre><code>## Loading required package: lattice</code></pre>
+<pre><code>## Loading required package: survival</code></pre>
+<pre><code>## Loading required package: Formula</code></pre>
+<pre><code>## 
+## Attaching package: &#39;Hmisc&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:dplyr&#39;:
+## 
+##     src, summarize</code></pre>
+<pre><code>## The following object is masked from &#39;package:psych&#39;:
+## 
+##     describe</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     format.pval, units</code></pre>
+<pre><code>## 
+## Attaching package: &#39;janitor&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:rstatix&#39;:
+## 
+##     make_clean_names</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     chisq.test, fisher.test</code></pre>
+<pre><code>## [[1]]
+## [1] &quot;rstatix&quot;   &quot;stats&quot;     &quot;graphics&quot;  &quot;grDevices&quot; &quot;utils&quot;     &quot;datasets&quot; 
+## [7] &quot;methods&quot;   &quot;base&quot;     
+## 
+## [[2]]
+## [1] &quot;emmeans&quot;   &quot;rstatix&quot;   &quot;stats&quot;     &quot;graphics&quot;  &quot;grDevices&quot; &quot;utils&quot;    
+## [7] &quot;datasets&quot;  &quot;methods&quot;   &quot;base&quot;     
+## 
+## [[3]]
+##  [1] &quot;psych&quot;     &quot;emmeans&quot;   &quot;rstatix&quot;   &quot;stats&quot;     &quot;graphics&quot;  &quot;grDevices&quot;
+##  [7] &quot;utils&quot;     &quot;datasets&quot;  &quot;methods&quot;   &quot;base&quot;     
+## 
+## [[4]]
+##  [1] &quot;tidyr&quot;     &quot;psych&quot;     &quot;emmeans&quot;   &quot;rstatix&quot;   &quot;stats&quot;     &quot;graphics&quot; 
+##  [7] &quot;grDevices&quot; &quot;utils&quot;     &quot;datasets&quot;  &quot;methods&quot;   &quot;base&quot;     
+## 
+## [[5]]
+##  [1] &quot;forcats&quot;   &quot;stringr&quot;   &quot;dplyr&quot;     &quot;purrr&quot;     &quot;readr&quot;     &quot;tibble&quot;   
+##  [7] &quot;ggplot2&quot;   &quot;tidyverse&quot; &quot;tidyr&quot;     &quot;psych&quot;     &quot;emmeans&quot;   &quot;rstatix&quot;  
+## [13] &quot;stats&quot;     &quot;graphics&quot;  &quot;grDevices&quot; &quot;utils&quot;     &quot;datasets&quot;  &quot;methods&quot;  
+## [19] &quot;base&quot;     
+## 
+## [[6]]
+##  [1] &quot;forcats&quot;   &quot;stringr&quot;   &quot;dplyr&quot;     &quot;purrr&quot;     &quot;readr&quot;     &quot;tibble&quot;   
+##  [7] &quot;ggplot2&quot;   &quot;tidyverse&quot; &quot;tidyr&quot;     &quot;psych&quot;     &quot;emmeans&quot;   &quot;rstatix&quot;  
+## [13] &quot;stats&quot;     &quot;graphics&quot;  &quot;grDevices&quot; &quot;utils&quot;     &quot;datasets&quot;  &quot;methods&quot;  
+## [19] &quot;base&quot;     
+## 
+## [[7]]
+##  [1] &quot;forcats&quot;   &quot;stringr&quot;   &quot;dplyr&quot;     &quot;purrr&quot;     &quot;readr&quot;     &quot;tibble&quot;   
+##  [7] &quot;ggplot2&quot;   &quot;tidyverse&quot; &quot;tidyr&quot;     &quot;psych&quot;     &quot;emmeans&quot;   &quot;rstatix&quot;  
+## [13] &quot;stats&quot;     &quot;graphics&quot;  &quot;grDevices&quot; &quot;utils&quot;     &quot;datasets&quot;  &quot;methods&quot;  
+## [19] &quot;base&quot;     
+## 
+## [[8]]
+##  [1] &quot;forcats&quot;   &quot;stringr&quot;   &quot;dplyr&quot;     &quot;purrr&quot;     &quot;readr&quot;     &quot;tibble&quot;   
+##  [7] &quot;ggplot2&quot;   &quot;tidyverse&quot; &quot;tidyr&quot;     &quot;psych&quot;     &quot;emmeans&quot;   &quot;rstatix&quot;  
+## [13] &quot;stats&quot;     &quot;graphics&quot;  &quot;grDevices&quot; &quot;utils&quot;     &quot;datasets&quot;  &quot;methods&quot;  
+## [19] &quot;base&quot;     
+## 
+## [[9]]
+##  [1] &quot;lm.beta&quot;   &quot;forcats&quot;   &quot;stringr&quot;   &quot;dplyr&quot;     &quot;purrr&quot;     &quot;readr&quot;    
+##  [7] &quot;tibble&quot;    &quot;ggplot2&quot;   &quot;tidyverse&quot; &quot;tidyr&quot;     &quot;psych&quot;     &quot;emmeans&quot;  
+## [13] &quot;rstatix&quot;   &quot;stats&quot;     &quot;graphics&quot;  &quot;grDevices&quot; &quot;utils&quot;     &quot;datasets&quot; 
+## [19] &quot;methods&quot;   &quot;base&quot;     
+## 
+## [[10]]
+##  [1] &quot;car&quot;       &quot;carData&quot;   &quot;lm.beta&quot;   &quot;forcats&quot;   &quot;stringr&quot;   &quot;dplyr&quot;    
+##  [7] &quot;purrr&quot;     &quot;readr&quot;     &quot;tibble&quot;    &quot;ggplot2&quot;   &quot;tidyverse&quot; &quot;tidyr&quot;    
+## [13] &quot;psych&quot;     &quot;emmeans&quot;   &quot;rstatix&quot;   &quot;stats&quot;     &quot;graphics&quot;  &quot;grDevices&quot;
+## [19] &quot;utils&quot;     &quot;datasets&quot;  &quot;methods&quot;   &quot;base&quot;     
+## 
+## [[11]]
+##  [1] &quot;Hmisc&quot;     &quot;Formula&quot;   &quot;survival&quot;  &quot;lattice&quot;   &quot;car&quot;       &quot;carData&quot;  
+##  [7] &quot;lm.beta&quot;   &quot;forcats&quot;   &quot;stringr&quot;   &quot;dplyr&quot;     &quot;purrr&quot;     &quot;readr&quot;    
+## [13] &quot;tibble&quot;    &quot;ggplot2&quot;   &quot;tidyverse&quot; &quot;tidyr&quot;     &quot;psych&quot;     &quot;emmeans&quot;  
+## [19] &quot;rstatix&quot;   &quot;stats&quot;     &quot;graphics&quot;  &quot;grDevices&quot; &quot;utils&quot;     &quot;datasets&quot; 
+## [25] &quot;methods&quot;   &quot;base&quot;     
+## 
+## [[12]]
+##  [1] &quot;skimr&quot;     &quot;Hmisc&quot;     &quot;Formula&quot;   &quot;survival&quot;  &quot;lattice&quot;   &quot;car&quot;      
+##  [7] &quot;carData&quot;   &quot;lm.beta&quot;   &quot;forcats&quot;   &quot;stringr&quot;   &quot;dplyr&quot;     &quot;purrr&quot;    
+## [13] &quot;readr&quot;     &quot;tibble&quot;    &quot;ggplot2&quot;   &quot;tidyverse&quot; &quot;tidyr&quot;     &quot;psych&quot;    
+## [19] &quot;emmeans&quot;   &quot;rstatix&quot;   &quot;stats&quot;     &quot;graphics&quot;  &quot;grDevices&quot; &quot;utils&quot;    
+## [25] &quot;datasets&quot;  &quot;methods&quot;   &quot;base&quot;     
+## 
+## [[13]]
+##  [1] &quot;janitor&quot;   &quot;skimr&quot;     &quot;Hmisc&quot;     &quot;Formula&quot;   &quot;survival&quot;  &quot;lattice&quot;  
+##  [7] &quot;car&quot;       &quot;carData&quot;   &quot;lm.beta&quot;   &quot;forcats&quot;   &quot;stringr&quot;   &quot;dplyr&quot;    
+## [13] &quot;purrr&quot;     &quot;readr&quot;     &quot;tibble&quot;    &quot;ggplot2&quot;   &quot;tidyverse&quot; &quot;tidyr&quot;    
+## [19] &quot;psych&quot;     &quot;emmeans&quot;   &quot;rstatix&quot;   &quot;stats&quot;     &quot;graphics&quot;  &quot;grDevices&quot;
+## [25] &quot;utils&quot;     &quot;datasets&quot;  &quot;methods&quot;   &quot;base&quot;</code></pre>
+<div id="code-chunks" class="section level2">
+<h2>Code chunks</h2>
+<pre class="r"><code>summary(iris)</code></pre>
+<pre><code>##   Sepal.Length    Sepal.Width     Petal.Length    Petal.Width   
+##  Min.   :4.300   Min.   :2.000   Min.   :1.000   Min.   :0.100  
+##  1st Qu.:5.100   1st Qu.:2.800   1st Qu.:1.600   1st Qu.:0.300  
+##  Median :5.800   Median :3.000   Median :4.350   Median :1.300  
+##  Mean   :5.843   Mean   :3.057   Mean   :3.758   Mean   :1.199  
+##  3rd Qu.:6.400   3rd Qu.:3.300   3rd Qu.:5.100   3rd Qu.:1.800  
+##  Max.   :7.900   Max.   :4.400   Max.   :6.900   Max.   :2.500  
+##        Species  
+##  setosa    :50  
+##  versicolor:50  
+##  virginica :50  
+##                 
+##                 
+## </code></pre>
+<pre class="r"><code>#sum of 2+2
+2+2</code></pre>
+<pre><code>## [1] 4</code></pre>
+<pre class="r"><code>#Avg. sepal length
+mean(iris$Sepal.Length)</code></pre>
+<pre><code>## [1] 5.843333</code></pre>
+<pre class="r"><code>#Levels of Species
+unique(iris$Species)</code></pre>
+<pre><code>## [1] setosa     versicolor virginica 
+## Levels: setosa versicolor virginica</code></pre>
+</div>
+<div id="inline-code" class="section level2">
+<h2>Inline Code</h2>
+<p>Two plus two equals 4
+The average Sepal Length is 5.8433333</p>
+</div>
+<div id="basics" class="section level1">
+<h1>Basics</h1>
+<div id="text" class="section level2">
+<h2>Text</h2>
+<p>Plain text
+End a line with two spaces to start a new paragraph.
+<em>italics</em> and <em>italics</em>
+<strong>bold</strong> and <strong>bold</strong>
+superscript <sup>2</sup>
+<del>strikethrough</del>
+<a href="www.rstudio.com">link</a></p>
+</div>
+<div id="headers-level-2" class="section level2">
+<h2>Headers (level 2)</h2>
+<pre class="r"><code>Make sure to leave a space between # and your text
+# Header 1
+##Header 2
+It goes all the way to six</code></pre>
+</div>
+<div id="symbols" class="section level2">
+<h2>Symbols</h2>
+<p>endash: –
+emdash: —
+ellipsis: …
+inline equation: <span class="math inline">\(A = \pi*r^{2}\)</span></p>
+<p>horixontal rule (or slide break):
+***</p>
+</div>
+<div id="formatting" class="section level2">
+<h2>Formatting</h2>
+<blockquote>
+<p>block quote</p>
+</blockquote>
+<p><em>unorderd list
+</em>item 2
++ sub-item 1
++ sum-item 2</p>
+<ol style="list-style-type: decimal">
+<li>ordered list</li>
+<li>item 2</li>
+</ol>
+<ul>
+<li>sub item 1</li>
+<li>sub item 2</li>
+</ul>
+<p>Table:
+First Header | Second Header
+———— | ————-
+Table Cell 1 | Cell 2
+Cell 3 | Cell 4</p>
+</div>
+<div id="date" class="section level2">
+<h2>Date</h2>
+<pre class="r"><code>##Add this to date so that today&#39;s date is printed whenever doc is knitted
+date: &quot;`r Sys.Date()`&quot;</code></pre>
+</div>
+</div>
+<div id="code-specifications" class="section level1">
+<h1>Code Specifications</h1>
+<div id="display-code" class="section level2">
+<h2>Display Code</h2>
+<pre><code>##   Sepal.Length    Sepal.Width     Petal.Length    Petal.Width   
+##  Min.   :4.300   Min.   :2.000   Min.   :1.000   Min.   :0.100  
+##  1st Qu.:5.100   1st Qu.:2.800   1st Qu.:1.600   1st Qu.:0.300  
+##  Median :5.800   Median :3.000   Median :4.350   Median :1.300  
+##  Mean   :5.843   Mean   :3.057   Mean   :3.758   Mean   :1.199  
+##  3rd Qu.:6.400   3rd Qu.:3.300   3rd Qu.:5.100   3rd Qu.:1.800  
+##  Max.   :7.900   Max.   :4.400   Max.   :6.900   Max.   :2.500  
+##        Species  
+##  setosa    :50  
+##  versicolor:50  
+##  virginica :50  
+##                 
+##                 
+## </code></pre>
+</div>
+<div id="display-warnings" class="section level2">
+<h2>Display Warnings</h2>
+<pre class="r"><code>warning=TRUE: wether to display warnings</code></pre>
+</div>
+<div id="with-warning" class="section level2">
+<h2>With Warning</h2>
+<pre class="r"><code>data &lt;- data.frame(x = 1:5, y = 1:5)
+ggp &lt;- ggplot(data, aes(x,y)) + geom_point()</code></pre>
+</div>
+<div id="without-warning" class="section level2">
+<h2>Without Warning</h2>
+<pre class="r"><code>data &lt;- data.frame(x = 1:5, y = 1:5)
+ggp &lt;- ggplot(data, aes(x,y)) + geom_point()
+ggp + scale_x_continuous(limits = c(2,5))</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-11-1.png" width="672" />
+## Display Errors</p>
+<pre class="r"><code>error=FALSE: Wether to display error msgs
+Default is error=TRUE</code></pre>
+</div>
+<div id="display-output" class="section level2">
+<h2>Display Output</h2>
+<pre class="r"><code>default results=FALSE</code></pre>
+</div>
+<div id="output-not-included" class="section level2">
+<h2>Output Not Included</h2>
+<pre class="r"><code>summary(iris)</code></pre>
+</div>
+<div id="display-messages" class="section level2">
+<h2>Display Messages</h2>
+<pre class="r"><code>default is message=TRUE</code></pre>
+<div id="messages-not-included" class="section level3">
+<h3>Messages Not Included</h3>
+</div>
+</div>
+<div id="other-specifications" class="section level2">
+<h2>Other Specifications</h2>
+<pre class="r"><code>message=TRUE (wether to display messages)
+eval=TRUE: Whether to eval the code and include its results
+tidy=FALSE: wether to reformat code in a tidy way when displaying
+fig.width=7: width in inches for plots created in Chunk
+fig.height=7: height in inches for plots created in chunk</code></pre>
+</div>
+<div id="global-specifications" class="section level2">
+<h2>Global Specifications</h2>
+</div>
+<div id="bold-code" class="section level2">
+<h2>Bold Code</h2>
+<pre class="r"><code>### &lt;b&gt;
+x &lt;- 10
+y &lt;- x*2
+### &lt;b&gt;</code></pre>
+</div>
+</div>
+<div id="table-of-contents" class="section level1">
+<h1>Table of Contents</h1>
+<div id="basic-toc" class="section level2">
+<h2>Basic TOC</h2>
+<pre class="r"><code>title: &quot;Rmarkdown_Practice&quot;
+author: &quot;Cadence Fisher&quot;
+date: &quot;2/16/2022&quot;
+output: html_document
+toc: true
+toc_depth: 2 #this includes up to 2 headers</code></pre>
+</div>
+<div id="floating-toc" class="section level2">
+<h2>Floating TOC</h2>
+<pre class="r"><code>set toc_float: true
+collaps: true #If toc appears with only top-level headers
+smooth_scroll: TRUE #wether page scrolls are animated with mouse clicks
+toc_depth: 3</code></pre>
+</div>
+</div>
+<div id="tabs" class="section level1 tabset">
+<h1>Tabs</h1>
+<p>*You can make it so that all subheadings are tabbed using the {.tabset} command after your heading title</p>
+<div id="study-1" class="section level2">
+<h2>Study 1</h2>
+<pre class="r"><code>e.g. = study 1 graph</code></pre>
+</div>
+<div id="study-2" class="section level2">
+<h2>Study 2</h2>
+<pre class="r"><code>e.g. = study 2 graph</code></pre>
+</div>
+</div>
+<div id="appearance" class="section level1">
+<h1>Appearance</h1>
+<div id="themes" class="section level2">
+<h2>Themes</h2>
+<div id="built-in-themes" class="section level3">
+<h3>Built-In Themes</h3>
+<p>*there is a gallery of different themes at <a href="https://datadreaming.org/post/r-markdown-theme-gallary/">gallary</a></p>
+</div>
+</div>
+<div id="highlight" class="section level2">
+<h2>Highlight</h2>
+<pre class="r"><code>#specify this at beginning of doc
+highlight: specifies syntax highlighting stype
+multiple types: default, tango, pygments, kate, monochrome, espresso, zenburn, haddock, breezedark, and textmate (use null for no highlight)</code></pre>
+</div>
+<div id="smart" class="section level2">
+<h2>Smart</h2>
+<pre class="r"><code>#also specify at beginning
+smart changes: straight quotes to curly quotes, --- to em-dashes, ... to ellipses
+smart is default enabled</code></pre>
+</div>
+<div id="data-frame-printing" class="section level2">
+<h2>Data Frame Printing</h2>
+<pre class="r"><code>#df_print: specifies how data is printed
+#df_print = paged, greated pageable table
+
+output:
+  html_document:
+    df_print: paged</code></pre>
+</div>
+</div>
+<div id="figures" class="section level1">
+<h1>Figures</h1>
+<div id="embed-images" class="section level2">
+<h2>Embed Images</h2>
+<p>image: <img src="nyu.jpeg" style="width:50.0%" />
+### Added the width command to make it half the page, but not necessary</p>
+</div>
+<div id="creating-images" class="section level2">
+<h2>Creating Images</h2>
+<pre class="r"><code>#specify at beginning of doc
+fig_width: 7
+fig_height: 7
+fig_caption: TRUE
+dev: png #specifies type of images figures will be</code></pre>
+</div>
+</div>
+<div id="advanced-inline-code" class="section level1">
+<h1>Advanced Inline Code</h1>
+<pre class="r"><code>#run anova
+model &lt;- aov(Sepal.Length ~ Species, data = iris)
+summary(model)</code></pre>
+<pre><code>##              Df Sum Sq Mean Sq F value Pr(&gt;F)    
+## Species       2  63.21  31.606   119.3 &lt;2e-16 ***
+## Residuals   147  38.96   0.265                   
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code>#Create clean tibble from output using broom package
+library(broom)
+modelmatrix &lt;- broom::tidy(model)
+
+#round to 3 decimals
+modelmatrix$statistic &lt;- sprintf(modelmatrix$statistic, fmt = &#39;%#.3f&#39;)
+modelmatrix$p.value &lt;-sprintf(modelmatrix$p.value, fmt = &#39;%#.3f&#39;)
+modelmatrix</code></pre>
+<pre><code>## # A tibble: 2 x 6
+##   term         df sumsq meansq statistic p.value
+##   &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt;  
+## 1 Species       2  63.2 31.6   119.265   0.000  
+## 2 Residuals   147  39.0  0.265 NA        NA</code></pre>
+<pre class="r"><code>#From this table we can say that there is a significant main effect of species on sepal length</code></pre>
+</div>
+<div id="notes" class="section level1">
+<h1>Notes</h1>
+<blockquote>
+<ol style="list-style-type: decimal">
+<li>using ~ in paths doesnt work with rmd</li>
+<li>be mindful of the pathways/working directory you are using</li>
+<li>make sure you are knitting the right type of doc</li>
+<li>make sure using ` and not ’</li>
+<li>make sure capitalizing all letters necessary (False is not right, must be FALSE)</li>
+<li>the knitted doc is different dep on which type of rmarkdown script is used (html vs pdf)</li>
+<li>dont forget to add a space between # and header</li>
+<li>to hide library loadings us both results=FALSE and message=FALSE</li>
+</ol>
+</blockquote>
+<pre class="r"><code>library(datasets)</code></pre>
+</div>

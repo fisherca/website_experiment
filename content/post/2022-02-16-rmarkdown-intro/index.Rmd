@@ -146,11 +146,6 @@ default is message=TRUE
 ```
 
 ### Messages Not Included
-```{r, message=FALSE, results=FALSE}
-#load packages
-pkgs <- c("rstatix", "emmeans", "psych", "tidyr", "tidyverse", "psych", "dplyr", "ggplot2", "lm.beta", "car", "Hmisc", "skimr", "janitor")
-lapply(pgks, library, character.only = TRUE)
-```
 
 ## Other Specifications
 ```{r, eval=FALSE}
