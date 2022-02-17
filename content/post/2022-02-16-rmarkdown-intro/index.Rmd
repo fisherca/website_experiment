@@ -1,8 +1,287 @@
 ---
-title: Rmarkdown Intro
-author: Cadence Fisher
-date: '2022-02-16'
-slug: rmarkdown-intro
-categories: []
-tags: []
+title: "Rmarkdown_Practice"
+author: "Cadence Fisher"
+date: "2/16/2022"
+output: 
+  html_document:
+    theme: yeti
+    highlight: espresso
+    df_print: paged
+  toc: true
+  toc_float: true
 ---
+```{r}
+library(datasets)
+data(iris)
+#load packages
+pkgs <- c("rstatix", "emmeans", "psych", "tidyr", "tidyverse", "psych", "dplyr", "ggplot2", "lm.beta", "car", "Hmisc", "skimr", "janitor")
+lapply(pkgs, library, character.only = TRUE)
+```
+
+## Code chunks
+```{r}
+summary(iris)
+```
+```{r}
+#sum of 2+2
+2+2
+#Avg. sepal length
+mean(iris$Sepal.Length)
+```
+```{r}
+#Levels of Species
+unique(iris$Species)
+```
+
+## Inline Code
+Two plus two equals `r 2+2`
+The average Sepal Length is `r mean(iris$Sepal.Length)`
+
+# Basics
+
+## Text
+Plain text
+End a line with two spaces to start a new paragraph.
+*italics* and _italics_
+**bold** and __bold__
+superscript ^2^
+~~strikethrough~~
+[link](www.rstudio.com)
+
+## Headers (level 2)
+```{r, eval = FALSE}
+Make sure to leave a space between # and your text
+# Header 1
+##Header 2
+It goes all the way to six
+
+```
+
+## Symbols
+endash: --
+emdash: ---
+ellipsis: ...
+inline equation: $A = \pi*r^{2}$
+
+horixontal rule (or slide break):
+***
+
+## Formatting
+
+>block quote
+
+*unorderd list
+*item 2
+  + sub-item 1
+  + sum-item 2
+  
+1. ordered list
+2. item 2
+  + sub item 1
+  + sub item 2
+
+Table:
+First Header | Second Header
+------------ | -------------
+Table Cell 1 | Cell 2
+Cell 3       | Cell 4
+
+## Date
+```{r, eval = FALSE}
+##Add this to date so that today's date is printed whenever doc is knitted
+date: "`r Sys.Date()`"
+```
+
+# Code Specifications
+
+## Display Code
+```{r, echo = FALSE, eval = FALSE}
+echo = TRUE: Wether to display code along with results
+Default is echo = TRUE
+```
+
+```{r, echo = FALSE}
+summary(iris)
+
+```
+
+## Display Warnings
+```{r, warning = FALSE, eval=FALSE}
+warning=TRUE: wether to display warnings
+```
+
+## With Warning
+```{r, warning=TRUE}
+data <- data.frame(x = 1:5, y = 1:5)
+ggp <- ggplot(data, aes(x,y)) + geom_point()
+
+```
+
+## Without Warning
+```{r, warning=FALSE}
+data <- data.frame(x = 1:5, y = 1:5)
+ggp <- ggplot(data, aes(x,y)) + geom_point()
+ggp + scale_x_continuous(limits = c(2,5))
+```
+## Display Errors
+```{r, error=FALSE, eval=FALSE}
+error=FALSE: Wether to display error msgs
+Default is error=TRUE
+
+```
+
+## Display Output
+```{r, results=FALSE, eval=FALSE}
+default results=FALSE
+```
+
+## Output Not Included
+```{r, results=FALSE}
+summary(iris)
+```
+
+## Display Messages
+```{r, message=FALSE, eval=FALSE}
+default is message=TRUE
+```
+
+### Messages Not Included
+```{r, message=FALSE, results=FALSE}
+#load packages
+pkgs <- c("rstatix", "emmeans", "psych", "tidyr", "tidyverse", "psych", "dplyr", "ggplot2", "lm.beta", "car", "Hmisc", "skimr", "janitor")
+lapply(pgks, library, character.only = TRUE)
+```
+
+## Other Specifications
+```{r, eval=FALSE}
+message=TRUE (wether to display messages)
+eval=TRUE: Whether to eval the code and include its results
+tidy=FALSE: wether to reformat code in a tidy way when displaying
+fig.width=7: width in inches for plots created in Chunk
+fig.height=7: height in inches for plots created in chunk
+```
+
+## Global Specifications
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE)#This sets all chunks to include code unless specified
+```
+
+## Bold Code
+```{r}
+### <b>
+x <- 10
+y <- x*2
+### <b>
+```
+
+# Table of Contents
+
+## Basic TOC
+```{r, eval=FALSE}
+title: "Rmarkdown_Practice"
+author: "Cadence Fisher"
+date: "2/16/2022"
+output: html_document
+toc: true
+toc_depth: 2 #this includes up to 2 headers
+```
+
+## Floating TOC
+```{r, eval=FALSE}
+set toc_float: true
+collaps: true #If toc appears with only top-level headers
+smooth_scroll: TRUE #wether page scrolls are animated with mouse clicks
+toc_depth: 3
+```
+
+# Tabs {.tabset}
+*You can make it so that all subheadings are tabbed using the {.tabset} command after your heading title
+
+## Study 1
+```{r, eval=FALSE}
+e.g. = study 1 graph
+```
+## Study 2
+```{r, eval=FALSE}
+e.g. = study 2 graph
+```
+
+# Appearance
+
+## Themes
+
+### Built-In Themes
+*there is a gallery of different themes at [gallary](https://datadreaming.org/post/r-markdown-theme-gallary/)
+
+## Highlight
+```{r, eval=FALSE}
+#specify this at beginning of doc
+highlight: specifies syntax highlighting stype
+multiple types: default, tango, pygments, kate, monochrome, espresso, zenburn, haddock, breezedark, and textmate (use null for no highlight)
+```
+
+## Smart
+```{r, eval=FALSE}
+#also specify at beginning
+smart changes: straight quotes to curly quotes, --- to em-dashes, ... to ellipses
+smart is default enabled
+```
+
+## Data Frame Printing
+```{r, eval=FALSE}
+#df_print: specifies how data is printed
+#df_print = paged, greated pageable table
+
+output:
+  html_document:
+    df_print: paged
+```
+
+# Figures
+
+## Embed Images
+image: ![](nyu.jpeg){width=50%}
+### Added the width command to make it half the page, but not necessary
+
+## Creating Images
+```{r, eval=FALSE}
+#specify at beginning of doc
+fig_width: 7
+fig_height: 7
+fig_caption: TRUE
+dev: png #specifies type of images figures will be
+```
+
+# Advanced Inline Code
+```{r}
+#run anova
+model <- aov(Sepal.Length ~ Species, data = iris)
+summary(model)
+
+#Create clean tibble from output using broom package
+library(broom)
+modelmatrix <- broom::tidy(model)
+
+#round to 3 decimals
+modelmatrix$statistic <- sprintf(modelmatrix$statistic, fmt = '%#.3f')
+modelmatrix$p.value <-sprintf(modelmatrix$p.value, fmt = '%#.3f')
+modelmatrix
+#From this table we can say that there is a significant main effect of species on sepal length
+```
+
+# Notes
+>
+1. using ~ in paths doesnt work with rmd
+2. be mindful of the pathways/working directory you are using
+3. make sure you are knitting the right type of doc
+4. make sure using ` and not '
+5. make sure capitalizing all letters necessary (False is not right, must be FALSE)
+6. the knitted doc is different dep on which type of rmarkdown script is used (html vs pdf)
+7. dont forget to add a space between # and header
+8. to hide library loadings us both results=FALSE and message=FALSE
+
+
+```{r}
+library(datasets)
+```
+
