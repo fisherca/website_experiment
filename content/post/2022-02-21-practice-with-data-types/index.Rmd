@@ -1,0 +1,124 @@
+---
+title: "Practice with Data Types"
+author: ''
+date: '2022-02-21'
+slug: practice-with-data-types
+categories: []
+tags: []
+---
+# First, install the readr package to be able to read csvs, and then load it using library(tidyverse)
+```{r}
+library(tidyverse)
+```
+
+# Load the Cat lovers data from github using its raw data's url
+```{r}
+cat_lovers <- read_csv("https://raw.githubusercontent.com/fisherca/tidyverse/main/cat-lovers.csv")
+```
+
+# Summarizing the Data
+## A survey asked respondents their name and number of cats. The instructions said to enter the number of cats as a numerical value
+## Try to take the mean:
+```{r}
+cat_lovers %>%
+  summarise(mean_cats = mean(number_of_cats))
+```
+##Glimpse the data to see if there is a reason it is not working:
+```{r}
+glimpse(cat_lovers)
+```
+
+### The first assumption would be that maybe some did not enter a value, or entered "three" instead of "3" so enter na.rm that removes these values automatically:
+```{r}
+cat_lovers %>%
+  summarise(mean_cats = mean(number_of_cats, na.rm = TRUE))
+```
+## Glimpse revealed that these "numeric" values are actually stored as character strings, so we need to convert the variables to numeric
+```{r}
+cat_lovers %>%
+  mutate(number_of_cats = case_when(
+    name == "Ginger Clark" ~ 2,
+    name == "Doug Bass"    ~ 3,
+    TRUE                   ~ as.numeric(number_of_cats)
+    )) %>%
+  summarise(mean_cats = mean(number_of_cats))
+```
+##Finally, make the function work so that ALL variables are converted to numeric
+
+```{r}
+cat_lovers %>%
+  mutate(
+    number_of_cats = case_when(
+      name == "Ginger Clark" ~ "2",
+      name == "Doug Bass"    ~ "3",
+      TRUE                   ~ number_of_cats
+      ),
+    number_of_cats = as.numeric(number_of_cats)
+    ) %>%
+  summarise(mean_cats = mean(number_of_cats))
+```
+
+# Data Types
+## Logical: TRUE and FALSE; boolean values (internally stored as 1 or 0)
+```{r}
+typeof(TRUE)
+```
+## Character: most flexible form
+```{r}
+typeof("hello")
+```
+
+##Double: floating point numerical values (the default type of numeric)
+```{r}
+#doubles are aka real numbers, but we call them doubles because the computer gives them double the space (a memory chain for the numbers before the decimal, and a memory chain for the numbers after the decimal). The precision you can achieve decreases the more numbers you have after the decimal
+typeof(1.335)
+typeof(7)
+```
+
+##Integer: 
+```{r}
+#integer numerical values (sometimes indicated with an L).
+#byte is a collection of 8 binary digits (0s and 1s); there are 256 total distinct types of bytes. all data is stored in different multiples of bytes, typically 4 bytes per piece of data. The L for integer values indicates that the computer should "make space" for computations to be made with the integer, and give it double the space it needs. L aka "Large" integer
+#signed integers (negative or specifically indicated to be positive) have slightly less capacity than unsigned integers. We have integers stored as signed in default
+typeof(7L)
+typeof(1:3)
+```
+
+##Info about how computers store things
+```{r}
+#A cluster is a collection of bytes (like 32 mb) that the computer reads, instead of reading data byte by byte. This allows the computer to be way faster
+#r automatically assigns data to clusters, wheras its parent language c++ makes you do it manually
+```
+## Concatenation aka combining variables
+
+##Explicit Coercion
+```{r}
+# Implicit vs explicit coercion: implicit is when the program automatically stores variables as one type, like if you have a data set with 1, 1.2, and 2, it will store the whole thing as a double, even though 2/3 are simple integers. Explicit is when we do this ourselves, like when we converted the cat data so we could analyze it
+```
+
+```{r}
+#this is how you construct vectors, using the c() function
+c(1, 2, 3)
+c("Hello", "World!")
+c(c("hi", "hello"), c("bye", "jello"))
+```
+```{r}
+#convert with as.variabletype functions
+x <- 1:3
+typeof(x)
+typeof(as.character(x))
+y <- as.character(x)
+y
+
+a <- c(TRUE, FALSE)
+a
+b <- as.numeric(a)
+b
+```
+```{r}
+typeof(x)
+typeof(y)
+typeof(a)
+typeof(b)
+```
+
