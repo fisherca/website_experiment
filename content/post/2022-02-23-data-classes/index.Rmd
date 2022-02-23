@@ -1,0 +1,151 @@
+---
+title: "Data Classes"
+author: "Cadence Fisher"
+date: '2022-02-23'
+slug: data-classes
+categories: []
+tags: []
+---
+```{r}
+library(tidyverse)
+```
+
+# Factors
+```{r}
+#R uses factors to handle categorical variables, variables that have a fixed and known set of possible values
+
+x <- factor(c("BS", "MS", "PhD", "MS"))
+x
+typeof(x)
+class(x)
+glimpse(x)
+as.integer(x)
+```
+
+# Dates
+```{r}
+y <- as.Date("2020-01-01")
+y
+typeof(y)
+class(y)
+as.integer(y)
+```
+
+##Making a date
+```{r}
+#lubridate is the tidyverse-friendly package that makes dealing with dates a little easier
+library(lubridate)
+```
+
+```{r}
+#Need to upload hotels data first
+hotels <- read_csv("https://raw.githubusercontent.com/dearbharat/tidyverse/main/hotels.csv")
+
+```
+
+```{r}
+hotels %>%
+  select(starts_with("arrival_"))
+```
+
+## Step 1: Constructing Dates
+```{r}
+library(glue)
+hotels %>%
+  mutate(
+    arrival_date = glue("{arrival_date_year} {arrival_date_month} {arrival_date_day_of_month}")
+    ) %>% 
+  relocate(arrival_date)
+```
+##Step 2: Count bookings per date
+```{r}
+hotels %>%
+  mutate(arrival_date = glue("{arrival_date_year} {arrival_date_month} {arrival_date_day_of_month}")) %>%
+  count(arrival_date)
+```
+## Step 3. Visualise bookings per date
+```{r}
+hotels %>%
+  mutate(arrival_date = glue("{arrival_date_year} {arrival_date_month} {arrival_date_day_of_month}")) %>%
+  count(arrival_date) %>%
+  ggplot(aes(x = arrival_date, y = n, group = 1)) +
+  geom_line()
+```
+
+## Step 1. REVISED Construct dates "as dates"
+```{r}
+library(lubridate)
+hotels %>%
+  mutate(
+    arrival_date = ymd(glue("{arrival_date_year} {arrival_date_month} {arrival_date_day_of_month}"))
+    ) %>% 
+  relocate(arrival_date)
+```
+#Repeat other steps
+```{r}
+hotels %>%
+  mutate(arrival_date = ymd(glue("{arrival_date_year} {arrival_date_month} {arrival_date_day_of_month}"))) %>% 
+  count(arrival_date)
+```
+```{r}
+hotels %>%
+  mutate(arrival_date = ymd(glue("{arrival_date_year} {arrival_date_month} {arrival_date_day_of_month}"))) %>% 
+  count(arrival_date) %>%
+  ggplot(aes(x = arrival_date, y = n, group = 1)) +
+  geom_line()
+```
+## Smooth the curve
+```{r}
+hotels %>%
+  mutate(arrival_date = ymd(glue("{arrival_date_year} {arrival_date_month} {arrival_date_day_of_month}"))) %>% 
+  count(arrival_date) %>%
+  ggplot(aes(x = arrival_date, y = n, group = 1)) +
+  geom_smooth()
+```
+
+# Data Frames
+```{r}
+df <- data.frame(x = 1:2, y = 3:4)
+df
+typeof(df)
+class(df)
+```
+
+```{r}
+#A data frame is a special list containing vectors of equal length
+#When we use the pull() function, we extract a vector from the data frame
+df %>%
+  pull(y)
+```
+
+# Lists
+```{r}
+l <- list(
+  x = 1:4,
+  y = c("hi", "hello", "jello"),
+  z = c(TRUE, FALSE)
+)
+l
+```
+
+# Working with Factors
+## Read data
+```{r}
+#need to upload necessary packages first
+cat_lovers <- read_csv("https://raw.githubusercontent.com/fisherca/tidyverse/main/cat-lovers.csv")
+glimpse(cat_lovers)
+```
+##Coerce when plotting
+```{r}
+ggplot(cat_lovers, mapping = aes(x = handedness)) +
+  geom_bar()
+```
+## Use forcats to manipulate factors
+```{r}
+#The forcats package provides a suite of useful tools that solve common problems with factors
+cat_lovers %>%
+  mutate(handedness = fct_infreq(handedness)) %>%
+  ggplot(mapping = aes(x = handedness)) +
+  geom_bar()
+```
+
