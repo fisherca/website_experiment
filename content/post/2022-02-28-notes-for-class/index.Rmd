@@ -1,0 +1,8 @@
+---
+title: Notes for Class
+author: Cadence Fisher
+date: '2022-02-28'
+slug: notes-for-class
+categories: []
+tags: []
+---

@@ -1,0 +1,8 @@
+---
+title: Data IO
+author: Cadence Fisher
+date: '2022-02-23'
+slug: data-io
+categories: []
+tags: []
+---
