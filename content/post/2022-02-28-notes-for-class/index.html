@@ -1,0 +1,203 @@
+---
+title: "Professor Evaluations"
+author: "Cadence Fisher"
+date: '2022-02-28'
+slug: notes-for-class
+categories: []
+tags: []
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<div id="class-notes-about-different-statistics-terms" class="section level1">
+<h1>Class notes about different statistics terms</h1>
+<p>For restraunt case study: you have 6 people, 6 different order numbers, and 6 different tip amounts.You decide the equation connecting them is
+Tip = 1.11*O + 0 + error(redidual)
+standard error of estimate SE (Beta): this is basically how much you think the B or the 1.11 can vary</p>
+<p>tss = rss(explained) + ess(unexplained)
+regression coefficient(0-1)</p>
+<p>p-values measure (probability of not seeing the same estimate values again if you take a new sample of diff people/orders/tips)</p>
+<p>How is ANOVA used in regression?
+He wants us to look up who created, when created, and why it was created
+- F statistic: F-value in an ANOVA is calculated as: variation between sample means / variation within the samples. The higher the F-value in an ANOVA, the higher the variation between sample means relative to the variation within the samples. The higher the F-value, the lower the corresponding p-value. The name was coined by George W. Snedecor, in honour of Sir Ronald A. Fisher. Fisher initially developed the statistic as the variance ratio in the 1920
+- Adjusted R square: With a multiple regression made up of several independent variables, the R-Squared must be adjusted.</p>
+<p>The adjusted R-squared compares the descriptive power of regression models that include diverse numbers of predictors. Every predictor added to a model increases R-squared and never decreases it. Thus, a model with more terms may seem to have a better fit just for the fact that it has more terms, while the adjusted R-squared compensates for the addition of variables and only increases if the new term enhances the model
+- BIC (Bayesian information criterion): a criterion for model selection among a finite set of models; models with lower BIC are generally preferred. The BIC was developed by Gideon E. Schwarz and published in a 1978 paper. Unexplained variation in the dependent variable and the number of explanatory variables increase the value of BIC.BIC can be used to compare estimated models only when the numerical values of the dependent variableare identical for all models being compared.
+- AIC: Akaike information criterion (AIC) is an estimator of prediction error and thereby relative quality of statistical models for a given set of data. The Akaike information criterion is named after the Japanese statistician Hirotugu Akaike, who formulated it in the early 1970s
+- Cp: Mallows’s Cp, named for Colin Lingwood Mallows, is used to assess the fit of a regression model that has been estimated using ordinary least squares. A small value of Cp means that the model is relatively precise.</p>
+<p>predictor variables aka independent variables
+predicted variables aka dependent variables
+##More notes - The flow if information from Rstudio to netlify website
+- levels of organization: r scripts within r chunks within r markdown.
+- we then knit the rmd using pandocs to create an output file (HTML, PDF, Word, etc)
+- this knitted file is pushed to github (your local repository to the cloud repository) by the porcess of continuous integration
+- this is then hosted on netlify (rendering cloud HTML of web server through process called continuous deployment)
+- if we want to have an interactive website, we use something called shiny, which we wont go over in this class</p>
+</div>
+<div id="preliminaries" class="section level1">
+<h1>Preliminaries</h1>
+<div id="add-package-modern-dive-and-load" class="section level2">
+<h2>Add Package Modern Dive and load</h2>
+<pre class="r"><code>library(moderndive)
+library(tidyverse)</code></pre>
+<pre><code>## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
+<pre><code>## v ggplot2 3.3.5     v purrr   0.3.4
+## v tibble  3.1.6     v dplyr   1.0.7
+## v tidyr   1.2.0     v stringr 1.4.0
+## v readr   2.1.2     v forcats 0.5.1</code></pre>
+<pre><code>## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(skimr)
+library(gapminder)</code></pre>
+</div>
+<div id="importing-data" class="section level2">
+<h2>Importing Data</h2>
+<pre class="r"><code>evals_ch5 &lt;- evals %&gt;%
+  select(ID, score, bty_avg, age)</code></pre>
+</div>
+<div id="explore-the-data" class="section level2">
+<h2>Explore the Data</h2>
+<pre class="r"><code>glimpse(evals_ch5)</code></pre>
+<pre><code>## Rows: 463
+## Columns: 4
+## $ ID      &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,~
+## $ score   &lt;dbl&gt; 4.7, 4.1, 3.9, 4.8, 4.6, 4.3, 2.8, 4.1, 3.4, 4.5, 3.8, 4.5, 4.~
+## $ bty_avg &lt;dbl&gt; 5.000, 5.000, 5.000, 5.000, 3.000, 3.000, 3.000, 3.333, 3.333,~
+## $ age     &lt;int&gt; 36, 36, 36, 36, 59, 59, 59, 51, 51, 40, 40, 40, 40, 40, 40, 40~</code></pre>
+<pre class="r"><code>#it is a good idea to maybe take some notes about what you see when you glimpse data, like what variables are numeric</code></pre>
+<pre class="r"><code>evals_ch5 %&gt;%
+  sample_n(size = 5)</code></pre>
+<pre><code>## # A tibble: 5 x 4
+##      ID score bty_avg   age
+##   &lt;int&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;
+## 1   226   4.7    4.83    35
+## 2   179   4      4.33    47
+## 3   343   4.6    3.5     43
+## 4   239   3.1    7       33
+## 5   386   3.7    4.33    43</code></pre>
+<pre class="r"><code># Every time you run this will show a different value because it just randomly grabs values</code></pre>
+</div>
+<div id="mean-and-median" class="section level2">
+<h2>Mean and Median</h2>
+<pre class="r"><code>evals_ch5 %&gt;%
+  summarize(mean_bty_avg = mean(bty_avg), mean_score = mean(score),
+            median_bty_avg = median(bty_avg), median_score = median(score))</code></pre>
+<pre><code>## # A tibble: 1 x 4
+##   mean_bty_avg mean_score median_bty_avg median_score
+##          &lt;dbl&gt;      &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt;
+## 1         4.42       4.17           4.33          4.3</code></pre>
+<pre class="r"><code>#functionally, tibbles are more advanced than data frames, but for our use there is not much of a difference
+#difference between mean and median means that data is skewed just a little</code></pre>
+</div>
+<div id="five-number-summary" class="section level2">
+<h2>Five Number Summary</h2>
+<pre class="r"><code>evals_ch5 %&gt;% select(score, bty_avg) %&gt;% skim()</code></pre>
+<table>
+<caption><span id="tab:unnamed-chunk-6">Table 1: </span>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td align="left">Name</td>
+<td align="left">Piped data</td>
+</tr>
+<tr class="even">
+<td align="left">Number of rows</td>
+<td align="left">463</td>
+</tr>
+<tr class="odd">
+<td align="left">Number of columns</td>
+<td align="left">2</td>
+</tr>
+<tr class="even">
+<td align="left">_______________________</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Column type frequency:</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">numeric</td>
+<td align="left">2</td>
+</tr>
+<tr class="odd">
+<td align="left">________________________</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">Group variables</td>
+<td align="left">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">skim_variable</th>
+<th align="right">n_missing</th>
+<th align="right">complete_rate</th>
+<th align="right">mean</th>
+<th align="right">sd</th>
+<th align="right">p0</th>
+<th align="right">p25</th>
+<th align="right">p50</th>
+<th align="right">p75</th>
+<th align="right">p100</th>
+<th align="left">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">score</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">4.17</td>
+<td align="right">0.54</td>
+<td align="right">2.30</td>
+<td align="right">3.80</td>
+<td align="right">4.30</td>
+<td align="right">4.6</td>
+<td align="right">5.00</td>
+<td align="left">▁▁▅▇▇</td>
+</tr>
+<tr class="even">
+<td align="left">bty_avg</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">4.42</td>
+<td align="right">1.53</td>
+<td align="right">1.67</td>
+<td align="right">3.17</td>
+<td align="right">4.33</td>
+<td align="right">5.5</td>
+<td align="right">8.17</td>
+<td align="left">▃▇▇▃▂</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="scatter-plot-of-score-vs-bty_avg" class="section level2">
+<h2>Scatter plot of score vs bty_avg</h2>
+<pre class="r"><code>plot(evals_ch5$score, evals_ch5$bty_avg)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-1.png" width="672" />
+Cross sectional data tends to have people accept correlation as low as .4, wheras longitudinal data typically needs .7 or more to be considered valid. This is just kindof a rule of thumb about what has been normalized in the data science community
+## Correlation</p>
+<pre class="r"><code>evals_ch5 %&gt;% 
+  get_correlation(formula = score ~ bty_avg)</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##     cor
+##   &lt;dbl&gt;
+## 1 0.187</code></pre>
+<div id="alternate-way-to-do-it" class="section level3">
+<h3>Alternate Way to Do it</h3>
+<pre class="r"><code>evals_ch5 %&gt;% 
+  summarize(correlation = cor(score, bty_avg))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   correlation
+##         &lt;dbl&gt;
+## 1       0.187</code></pre>
+</div>
+</div>
+</div>

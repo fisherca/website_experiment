@@ -1,8 +1,92 @@
 ---
-title: Notes for Class
-author: Cadence Fisher
+title: "Professor Evaluations"
+author: "Cadence Fisher"
 date: '2022-02-28'
 slug: notes-for-class
 categories: []
 tags: []
 ---
+# Class notes about different statistics terms
+For restraunt case study: you have 6 people, 6 different order numbers, and 6 different tip amounts.You decide the equation connecting them is
+Tip = 1.11*O + 0 + error(redidual)
+standard error of estimate SE (Beta): this is basically how much you think the B or the 1.11 can vary
+
+tss = rss(explained) + ess(unexplained)
+regression coefficient(0-1)
+
+p-values measure (probability of not seeing the same estimate values again if you take a new sample of diff people/orders/tips)
+
+How is ANOVA used in regression? 
+He wants us to look up who created, when created, and why it was created
+- F statistic:  F-value in an ANOVA is calculated as: variation between sample means / variation within the samples. The higher the F-value in an ANOVA, the higher the variation between sample means relative to the variation within the samples. The higher the F-value, the lower the corresponding p-value. The name was coined by George W. Snedecor, in honour of Sir Ronald A. Fisher. Fisher initially developed the statistic as the variance ratio in the 1920
+- Adjusted R square: With a multiple regression made up of several independent variables, the R-Squared must be adjusted.
+
+The adjusted R-squared compares the descriptive power of regression models that include diverse numbers of predictors. Every predictor added to a model increases R-squared and never decreases it. Thus, a model with more terms may seem to have a better fit just for the fact that it has more terms, while the adjusted R-squared compensates for the addition of variables and only increases if the new term enhances the model 
+- BIC (Bayesian information criterion):  a criterion for model selection among a finite set of models; models with lower BIC are generally preferred. The BIC was developed by Gideon E. Schwarz and published in a 1978 paper. Unexplained variation in the dependent variable and the number of explanatory variables increase the value of BIC.BIC can be used to compare estimated models only when the numerical values of the dependent variableare identical for all models being compared. 
+- AIC: Akaike information criterion (AIC) is an estimator of prediction error and thereby relative quality of statistical models for a given set of data. The Akaike information criterion is named after the Japanese statistician Hirotugu Akaike, who formulated it in the early 1970s
+- Cp: Mallows’s Cp, named for Colin Lingwood Mallows, is used to assess the fit of a regression model that has been estimated using ordinary least squares. A small value of Cp means that the model is relatively precise.
+
+predictor variables aka independent variables
+predicted variables aka dependent variables
+##More notes - The flow if information from Rstudio to netlify website
+- levels of organization: r scripts within r chunks within r markdown. 
+- we then knit the rmd using pandocs to create an output file (HTML, PDF, Word, etc)
+- this knitted file is pushed to github (your local repository to the cloud repository) by the porcess of continuous integration
+- this is then hosted on netlify (rendering cloud HTML of web server through process called continuous deployment)
+- if we want to have an interactive website, we use something called shiny, which we wont go over in this class
+
+# Preliminaries
+## Add Package Modern Dive and load 
+```{r}
+library(moderndive)
+library(tidyverse)
+library(skimr)
+library(gapminder)
+```
+## Importing Data
+```{r}
+evals_ch5 <- evals %>%
+  select(ID, score, bty_avg, age)
+```
+
+## Explore the Data
+```{r}
+glimpse(evals_ch5)
+#it is a good idea to maybe take some notes about what you see when you glimpse data, like what variables are numeric
+```
+
+```{r}
+evals_ch5 %>%
+  sample_n(size = 5)
+# Every time you run this will show a different value because it just randomly grabs values
+```
+## Mean and Median
+```{r}
+evals_ch5 %>%
+  summarize(mean_bty_avg = mean(bty_avg), mean_score = mean(score),
+            median_bty_avg = median(bty_avg), median_score = median(score))
+#functionally, tibbles are more advanced than data frames, but for our use there is not much of a difference
+#difference between mean and median means that data is skewed just a little
+```
+## Five Number Summary
+```{r}
+evals_ch5 %>% select(score, bty_avg) %>% skim()
+```
+## Scatter plot of score vs bty_avg
+
+```{r}
+plot(evals_ch5$score, evals_ch5$bty_avg)
+```
+Cross sectional data tends to have people accept correlation as low as .4, wheras longitudinal data typically needs .7 or more to be considered valid. This is just kindof a rule of thumb about what has been normalized in the data science community
+## Correlation
+```{r}
+evals_ch5 %>% 
+  get_correlation(formula = score ~ bty_avg)
+```
+### Alternate Way to Do it
+```{r}
+evals_ch5 %>% 
+  summarize(correlation = cor(score, bty_avg))
+```
+
+
