@@ -1,8 +1,12 @@
 ---
-title: Statistics in Google Colab
-author: Cadence Fisher
+title: "Statistics in Google Colab"
+author: "Cadence Fisher"
 date: '2022-03-02'
 slug: statistics-in-google-colab
 categories: []
 tags: []
 ---
+
+## Using R in Google Colab for Statistics
+<script src="https://gist.github.com/fisherca/a6ef1d03546b09f830da7fb3adcf7dfb.js"></script>
+
