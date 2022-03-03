@@ -72,11 +72,11 @@ library(gapminder)</code></pre>
 <pre><code>## # A tibble: 5 x 4
 ##      ID score bty_avg   age
 ##   &lt;int&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;
-## 1   226   4.7    4.83    35
-## 2   179   4      4.33    47
-## 3   343   4.6    3.5     43
-## 4   239   3.1    7       33
-## 5   386   3.7    4.33    43</code></pre>
+## 1    56   4.6    5.5     47
+## 2   120   3.4    4.33    57
+## 3   334   3.7    7.17    50
+## 4     3   3.9    5       36
+## 5   309   3.6    3.67    35</code></pre>
 <pre class="r"><code># Every time you run this will show a different value because it just randomly grabs values</code></pre>
 </div>
 <div id="mean-and-median" class="section level2">
@@ -183,7 +183,7 @@ library(gapminder)</code></pre>
 <pre class="r"><code>plot(evals_ch5$score, evals_ch5$bty_avg)</code></pre>
 <p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-1.png" width="672" />
 Cross sectional data tends to have people accept correlation as low as .4, wheras longitudinal data typically needs .7 or more to be considered valid. This is just kindof a rule of thumb about what has been normalized in the data science community
-## Correlation</p>
+## Correlation between score and bty_avg</p>
 <pre class="r"><code>evals_ch5 %&gt;% 
   get_correlation(formula = score ~ bty_avg)</code></pre>
 <pre><code>## # A tibble: 1 x 1
@@ -199,5 +199,61 @@ Cross sectional data tends to have people accept correlation as low as .4, whera
 ##         &lt;dbl&gt;
 ## 1       0.187</code></pre>
 </div>
+</div>
+<div id="scatter-plot-score-vs-bty_score" class="section level2">
+<h2>Scatter Plot: Score vs BTY_score</h2>
+<pre class="r"><code>ggplot(evals_ch5, aes(x = bty_avg, y = score)) +
+  geom_point() +
+  labs(x = &quot;Beauty Score&quot;, 
+       y = &quot;Teaching Score&quot;,
+       title = &quot;Scatterplot of relationship of teaching and beauty scores&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-10-1.png" width="672" />
+### Plot Jittered</p>
+<pre class="r"><code>ggplot(evals_ch5, aes(x = bty_avg, y = score)) +
+  geom_jitter() +
+  labs(x = &quot;Beauty Score&quot;, y = &quot;Teaching Score&quot;,
+       title = &quot;Scatterplot of relationship of teaching and beauty scores&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<div id="plot-with-regression-line-added" class="section level3">
+<h3>Plot with Regression Line Added</h3>
+<pre class="r"><code>ggplot(evals_ch5, aes(x = bty_avg, y = score)) +
+  geom_point() +
+  labs(x = &quot;Beauty Score&quot;, y = &quot;Teaching Score&quot;,
+       title = &quot;Relationship between teaching and beauty scores&quot;) +  
+  geom_smooth(method = &quot;lm&quot;, se = FALSE)</code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+</div>
+</div>
+</div>
+<div id="linear-regression" class="section level1">
+<h1>Linear Regression</h1>
+<pre class="r"><code># Fit regression model:
+score_model &lt;- lm(score ~ bty_avg, data = evals_ch5)
+# Get regression table:
+get_regression_table(score_model)</code></pre>
+<pre><code>## # A tibble: 2 x 7
+##   term      estimate std_error statistic p_value lower_ci upper_ci
+##   &lt;chr&gt;        &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+## 1 intercept    3.88      0.076     51.0        0    3.73     4.03 
+## 2 bty_avg      0.067     0.016      4.09       0    0.035    0.099</code></pre>
+<div id="fitting-the-regression-model" class="section level2">
+<h2>Fitting the Regression Model</h2>
+<pre class="r"><code>regression_points &lt;- get_regression_points(score_model)
+regression_points</code></pre>
+<pre><code>## # A tibble: 463 x 5
+##       ID score bty_avg score_hat residual
+##    &lt;int&gt; &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+##  1     1   4.7    5         4.21    0.486
+##  2     2   4.1    5         4.21   -0.114
+##  3     3   3.9    5         4.21   -0.314
+##  4     4   4.8    5         4.21    0.586
+##  5     5   4.6    3         4.08    0.52 
+##  6     6   4.3    3         4.08    0.22 
+##  7     7   2.8    3         4.08   -1.28 
+##  8     8   4.1    3.33      4.10   -0.002
+##  9     9   3.4    3.33      4.10   -0.702
+## 10    10   4.5    3.17      4.09    0.409
+## # ... with 453 more rows</code></pre>
 </div>
 </div>

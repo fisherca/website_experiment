@@ -78,7 +78,7 @@ evals_ch5 %>% select(score, bty_avg) %>% skim()
 plot(evals_ch5$score, evals_ch5$bty_avg)
 ```
 Cross sectional data tends to have people accept correlation as low as .4, wheras longitudinal data typically needs .7 or more to be considered valid. This is just kindof a rule of thumb about what has been normalized in the data science community
-## Correlation
+## Correlation between score and bty_avg
 ```{r}
 evals_ch5 %>% 
   get_correlation(formula = score ~ bty_avg)
@@ -87,6 +87,45 @@ evals_ch5 %>%
 ```{r}
 evals_ch5 %>% 
   summarize(correlation = cor(score, bty_avg))
+```
+
+## Scatter Plot: Score vs BTY_score
+```{r}
+ggplot(evals_ch5, aes(x = bty_avg, y = score)) +
+  geom_point() +
+  labs(x = "Beauty Score", 
+       y = "Teaching Score",
+       title = "Scatterplot of relationship of teaching and beauty scores")
+```
+### Plot Jittered
+```{r}
+ggplot(evals_ch5, aes(x = bty_avg, y = score)) +
+  geom_jitter() +
+  labs(x = "Beauty Score", y = "Teaching Score",
+       title = "Scatterplot of relationship of teaching and beauty scores")
+```
+
+### Plot with Regression Line Added
+```{r}
+ggplot(evals_ch5, aes(x = bty_avg, y = score)) +
+  geom_point() +
+  labs(x = "Beauty Score", y = "Teaching Score",
+       title = "Relationship between teaching and beauty scores") +  
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+# Linear Regression
+```{r}
+# Fit regression model:
+score_model <- lm(score ~ bty_avg, data = evals_ch5)
+# Get regression table:
+get_regression_table(score_model)
+```
+
+## Fitting the Regression Model
+```{r}
+regression_points <- get_regression_points(score_model)
+regression_points
 ```
 
 
