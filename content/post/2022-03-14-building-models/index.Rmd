@@ -1,8 +1,51 @@
 ---
-title: Building Models
-author: Cadence Fisher
+title: "Building Models"
+author: "Cadence Fisher"
 date: '2022-03-14'
 slug: building-models
 categories: []
 tags: []
 ---
+# Types of Models:
+all models follow the general form y = f(x) = f(x1, x2, x3, ..., xn)
+Linear Regression model: both x and y are metric data
+Logistic Regression Model: X is metric but Y is categorical
+- Classification models:  
+    1. Association methods like correlation (causality models) uses methods of parametric modeling, because it utilizes specific paramaters of X before predicting Y **we are mostly going to work with this type of model, and we will build it similar to a linear regression model
+    2. partition model: non parametric methods - not trying to characterize x variable to predictive summary variables (mean, median, etc)
+    
+ 
+## Explanation Models
+When building a model for explanation, we use the entire data set
+Model for explanation also has a focus on the estimation of parameters: e.g. if equarion is y = a1x1 + a2x2 +... anxn + e, we are trying to build a mathematical function to optimize all of these "a" values so that error in Y is minimized. each of the coefficients will have an associated standard error (SE), and if you know this you can use it to predict the z and t values
+## Prediction Models
+A model for prediction is built to make sense of data that is not included in the data set, which is done by partitioning the data into train and test.
+Prediction models focus on test error rate so that difference between test and train error is minimum
+- the test data set will give some certain error, and the train data set (the initial data set the model is based upon) should be pretty similar to it
+- if model is over fitting on train data set, the test data set might have greater error than desired
+- if model is under fitting on the train data set, the train data set itself will have a higher error rate than desired
+- if you have a graph that has a very different test rate from train error rate, then you want to fit the data less to the train data set
+### Cross Validation
+Prediction models also have us invoke cross validation and bootstrapping
+
+Cross validation: seperate data into multiple "folds" (say we do 5 for eg), and then build the model multiple times, each time excluding a different fold of the data. Then, take the average of all the parameters that the different models predicted, and combine them to use one final compiled prediction model on the test data
+- two fold cross validation: test on training and then test on the test data and then test new model on the training (basically only dividing data into 2 folds)
+- LOOCV (leave one out cross validation): separate data into n folds and then build n number of models, each with n-1 data points 
+- typically a "k" between 5 and 10 folds is a good value, any higher that 10 does not have a significant improvement on the quality of the predictor model
+
+### Bootstrapping
+Do sampling with replacement, so if a data set has 10 values, take one or more randomly to pick up and another sample (or multiple) to randomly replace. Do this with a bunch of samples to manufacture many different data sets. You expect all these models to have a similar mean and distribution
+
+Used more often than cross validation
+invented by brad efron
+
+## How to Detect Overfitting and Underfitting
+analogized to human emotions
+Underfitting: you are biased that external factors are the cause of something deviating far from the norm; basically, you will lead to model having low or no variance, because you dont trust enough that the independent variable is affecting the value of the dependent variable
+Overfitting: you  focus too much on internal factors of the train data; you let each data point control the model too much, and your model will have high variance
+A Good fit will account for some of the variance among data points and also not have a bias against the independent variable, and thus will work well on the test data
+
+# Other Measures of Machine Learning Model Performance
+- Sensitivity = what is proportion of true positives to false negatives (how many that should be positive are correctly identified as being positive)
+- Specificity = what is proportion of false positives to true negatives (how many negative elements are truly negative)
+- accuracy = what percentage of Y values were correctly predicted by the model? this is sometimes not as good as combining with measuring sensitivity and specificity
