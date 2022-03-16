@@ -1,0 +1,153 @@
+---
+title: Class Exercise on Validation
+author: Cadence Fisher
+date: '2022-03-16'
+slug: class-exercise-on-validation
+categories: []
+tags: []
+---
+## Setup
+```{r}
+library(ISLR)
+library(boot)
+```
+
+## Cross Validation
+First, set seed to reproduce the sampling for the train-test split
+```{r}
+set.seed(1)
+```
+Load up head of dataset auto
+```{r}
+head(Auto)
+```
+```{r}
+dim(Auto)
+```
+Create an index to randomly sample 50% records from Auto
+```{r}
+train <- sample(392, 196)
+#these numbers are arbitrary,you are just sampling a certian proportion of the total to become the train data. in this case, we are using 50%
+```
+Make the variables in Auto dataset become locally accessible objects (so we do not have to use $ operator every time)
+```{r}
+attach(Auto)
+lm.fit <- lm(mpg~horsepower, data = Auto, subset = train)
+lm.fit
+```
+Calculate the error of the samples coefficient values:
+```{r}
+#the subset minus train will allow us to only try this predictive calculation on the test data
+#we are taking the residual, and then taking the square of it
+mean((mpg - predict(lm.fit, Auto))[-train]^2)
+```
+
+```{r}
+plot(mpg, horsepower)
+```
+### Trying to fit a nonlinear model
+```{r}
+lm.fit.poly <- lm(mpg~poly(horsepower, 2), data = Auto, subset = train)
+lm.fit.poly
+#follows equation: mpg = a(horsepower) + b^2 + c
+```
+calculating error
+```{r}
+mean((mpg - predict(lm.fit.poly, Auto))[-train]^2)
+```
+Clearly, a polynomial nonlinear function was a better fit, because the error has decreased. If you increase the degree of the polynomial to a value greater than 2, we can test the accuracy of other graphs (from tests in class it looks like 2 is the best fit)
+
+### Consolidation of data - allows to test the values of other seeds
+```{r}
+set.seed(2)
+train <- sample(392, 100)
+lm.fit <- lm(mpg~horsepower, data = Auto, subset = train)
+lm.fit.poly <- lm(mpg~poly(horsepower, 2), data = Auto, subset = train)
+mean((mpg - predict(lm.fit, Auto))[-train]^2)
+mean((mpg - predict(lm.fit.poly, Auto))[-train]^2)
+
+```
+## LOOCV: Leave One Out Cross Validation
+glm = generalized linear model(s)
+```{r}
+#Glm by default fits the model onto the entire dataset. Glm defaults to lm when passed without any arguments
+glm.fit <- glm(mpg~horsepower, data = Auto)
+coef(glm.fit)
+
+```
+
+```{r}
+lm.fit <- lm(mpg~horsepower, data = Auto)
+coef(lm.fit)
+```
+
+```{r}
+#cross validation error:
+cv.err <- cv.glm(Auto, glm.fit)
+cv.err$delta
+```
+the first number above is when doing just normal cross validation where you take a number out and use the rest of the dataset, and then repeat this a few times. the second number is when a LOOCV model is applied
+
+```{r}
+#Create an empty array
+cv.error <- rep(0,5)
+#change degrees
+degree <- 1:5
+#create a for function to cycle over datasets and collect 5 different values for error for different polynomial functions
+for(d in degree){
+  glm.fit <- glm(mpg~poly(horsepower, d), data = Auto)
+  cv.error[d] <- cv.glm(Auto, glm.fit)$delta[1]
+}
+cv.error
+```
+look at plot:
+```{r}
+plot(degree, cv.error, type = "b")
+```
+
+## K fold Cross Validation
+K folds are when you take the train data and divide it further into K number of folds, and then build models out of each individual fold. There are many variations of this strategy, such as doing a stratified cross validation (which ensures that test and train data both have good representation of data)
+```{r}
+K = 10
+cv.error.10 <- rep(0,5)
+degree <- 1:5
+for(d in degree){
+  glm.fit <- glm(mpg~poly(horsepower, d), data = Auto)
+  cv.error.10[d] <- cv.glm(Auto, glm.fit, K = K)$delta[1]
+}
+cv.error.10
+```
+
+```{r}
+plot(degree, cv.error, type = "b")
+lines(degree, cv.error.10, type = "b", col = "red")
+```
+
+## Bootstraping Validation Method
+First, we are going to try to build a function that we can call again and again
+```{r}
+## Estimation of Accuracy of a Linear Model
+boot.fn <- function(data, index){
+  return(coef(lm(mpg~horsepower, data = data, sebset = index)))
+}
+```
+
+```{r}
+boot.fn(Auto, 1:392)
+```
+
+```{r, warning= FALSE}
+set.seed(1)
+boot.fn(Auto, sample(392, 392, replace = T))
+```
+```{r, warning=FALSE}
+#running the above code many times
+boot.out <- boot(Auto, boot.fn, 100)
+boot.out
+```
+the proportion that each data value gets represented is actually e^-1 = 0.632. We arent going to get into the math, but it is important to note that the representation of all the values are proportional at the end, and that there is no dataset that gets more represented
+
+```{r}
+plot(boot.out)
+```
+I dont think the above thing is what is supposed to happen, but all my code follows the code in class so maybe it is because my r version is older than the package?

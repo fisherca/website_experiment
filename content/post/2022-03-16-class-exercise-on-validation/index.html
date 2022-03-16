@@ -1,0 +1,172 @@
+---
+title: Class Exercise on Validation
+author: Cadence Fisher
+date: '2022-03-16'
+slug: class-exercise-on-validation
+categories: []
+tags: []
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<div id="setup" class="section level2">
+<h2>Setup</h2>
+<pre class="r"><code>library(ISLR)</code></pre>
+<pre><code>## Warning: package &#39;ISLR&#39; was built under R version 4.1.3</code></pre>
+<pre class="r"><code>library(boot)</code></pre>
+</div>
+<div id="cross-validation" class="section level2">
+<h2>Cross Validation</h2>
+<p>First, set seed to reproduce the sampling for the train-test split</p>
+<pre class="r"><code>set.seed(1)</code></pre>
+<p>Load up head of dataset auto</p>
+<pre class="r"><code>head(Auto)</code></pre>
+<pre><code>##   mpg cylinders displacement horsepower weight acceleration year origin
+## 1  18         8          307        130   3504         12.0   70      1
+## 2  15         8          350        165   3693         11.5   70      1
+## 3  18         8          318        150   3436         11.0   70      1
+## 4  16         8          304        150   3433         12.0   70      1
+## 5  17         8          302        140   3449         10.5   70      1
+## 6  15         8          429        198   4341         10.0   70      1
+##                        name
+## 1 chevrolet chevelle malibu
+## 2         buick skylark 320
+## 3        plymouth satellite
+## 4             amc rebel sst
+## 5               ford torino
+## 6          ford galaxie 500</code></pre>
+<pre class="r"><code>dim(Auto)</code></pre>
+<pre><code>## [1] 392   9</code></pre>
+<p>Create an index to randomly sample 50% records from Auto</p>
+<pre class="r"><code>train &lt;- sample(392, 196)
+#these numbers are arbitrary,you are just sampling a certian proportion of the total to become the train data. in this case, we are using 50%</code></pre>
+<p>Make the variables in Auto dataset become locally accessible objects (so we do not have to use $ operator every time)</p>
+<pre class="r"><code>attach(Auto)
+lm.fit &lt;- lm(mpg~horsepower, data = Auto, subset = train)
+lm.fit</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = mpg ~ horsepower, data = Auto, subset = train)
+## 
+## Coefficients:
+## (Intercept)   horsepower  
+##     41.2835      -0.1697</code></pre>
+<p>Calculate the error of the samples coefficient values:</p>
+<pre class="r"><code>#the subset minus train will allow us to only try this predictive calculation on the test data
+#we are taking the residual, and then taking the square of it
+mean((mpg - predict(lm.fit, Auto))[-train]^2)</code></pre>
+<pre><code>## [1] 23.26601</code></pre>
+<pre class="r"><code>plot(mpg, horsepower)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-8-1.png" width="672" />
+### Trying to fit a nonlinear model</p>
+<pre class="r"><code>lm.fit.poly &lt;- lm(mpg~poly(horsepower, 2), data = Auto, subset = train)
+lm.fit.poly</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = mpg ~ poly(horsepower, 2), data = Auto, subset = train)
+## 
+## Coefficients:
+##          (Intercept)  poly(horsepower, 2)1  poly(horsepower, 2)2  
+##                23.55               -123.59                 47.72</code></pre>
+<pre class="r"><code>#follows equation: mpg = a(horsepower) + b^2 + c</code></pre>
+<p>calculating error</p>
+<pre class="r"><code>mean((mpg - predict(lm.fit.poly, Auto))[-train]^2)</code></pre>
+<pre><code>## [1] 18.71646</code></pre>
+<p>Clearly, a polynomial nonlinear function was a better fit, because the error has decreased. If you increase the degree of the polynomial to a value greater than 2, we can test the accuracy of other graphs (from tests in class it looks like 2 is the best fit)</p>
+<div id="consolidation-of-data---allows-to-test-the-values-of-other-seeds" class="section level3">
+<h3>Consolidation of data - allows to test the values of other seeds</h3>
+<pre class="r"><code>set.seed(2)
+train &lt;- sample(392, 100)
+lm.fit &lt;- lm(mpg~horsepower, data = Auto, subset = train)
+lm.fit.poly &lt;- lm(mpg~poly(horsepower, 2), data = Auto, subset = train)
+mean((mpg - predict(lm.fit, Auto))[-train]^2)</code></pre>
+<pre><code>## [1] 23.92927</code></pre>
+<pre class="r"><code>mean((mpg - predict(lm.fit.poly, Auto))[-train]^2)</code></pre>
+<pre><code>## [1] 18.77201</code></pre>
+</div>
+</div>
+<div id="loocv-leave-one-out-cross-validation" class="section level2">
+<h2>LOOCV: Leave One Out Cross Validation</h2>
+<p>glm = generalized linear model(s)</p>
+<pre class="r"><code>#Glm by default fits the model onto the entire dataset. Glm defaults to lm when passed without any arguments
+glm.fit &lt;- glm(mpg~horsepower, data = Auto)
+coef(glm.fit)</code></pre>
+<pre><code>## (Intercept)  horsepower 
+##  39.9358610  -0.1578447</code></pre>
+<pre class="r"><code>lm.fit &lt;- lm(mpg~horsepower, data = Auto)
+coef(lm.fit)</code></pre>
+<pre><code>## (Intercept)  horsepower 
+##  39.9358610  -0.1578447</code></pre>
+<pre class="r"><code>#cross validation error:
+cv.err &lt;- cv.glm(Auto, glm.fit)
+cv.err$delta</code></pre>
+<pre><code>## [1] 24.23151 24.23114</code></pre>
+<p>the first number above is when doing just normal cross validation where you take a number out and use the rest of the dataset, and then repeat this a few times. the second number is when a LOOCV model is applied</p>
+<pre class="r"><code>#Create an empty array
+cv.error &lt;- rep(0,5)
+#change degrees
+degree &lt;- 1:5
+#create a for function to cycle over datasets and collect 5 different values for error for different polynomial functions
+for(d in degree){
+  glm.fit &lt;- glm(mpg~poly(horsepower, d), data = Auto)
+  cv.error[d] &lt;- cv.glm(Auto, glm.fit)$delta[1]
+}
+cv.error</code></pre>
+<pre><code>## [1] 24.23151 19.24821 19.33498 19.42443 19.03321</code></pre>
+<p>look at plot:</p>
+<pre class="r"><code>plot(degree, cv.error, type = &quot;b&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+</div>
+<div id="k-fold-cross-validation" class="section level2">
+<h2>K fold Cross Validation</h2>
+<p>K folds are when you take the train data and divide it further into K number of folds, and then build models out of each individual fold. There are many variations of this strategy, such as doing a stratified cross validation (which ensures that test and train data both have good representation of data)</p>
+<pre class="r"><code>K = 10
+cv.error.10 &lt;- rep(0,5)
+degree &lt;- 1:5
+for(d in degree){
+  glm.fit &lt;- glm(mpg~poly(horsepower, d), data = Auto)
+  cv.error.10[d] &lt;- cv.glm(Auto, glm.fit, K = K)$delta[1]
+}
+cv.error.10</code></pre>
+<pre><code>## [1] 24.31575 19.30402 19.42355 19.44640 19.18650</code></pre>
+<pre class="r"><code>plot(degree, cv.error, type = &quot;b&quot;)
+lines(degree, cv.error.10, type = &quot;b&quot;, col = &quot;red&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+</div>
+<div id="bootstraping-validation-method" class="section level2">
+<h2>Bootstraping Validation Method</h2>
+<p>First, we are going to try to build a function that we can call again and again</p>
+<pre class="r"><code>## Estimation of Accuracy of a Linear Model
+boot.fn &lt;- function(data, index){
+  return(coef(lm(mpg~horsepower, data = data, sebset = index)))
+}</code></pre>
+<pre class="r"><code>boot.fn(Auto, 1:392)</code></pre>
+<pre><code>## Warning: In lm.fit(x, y, offset = offset, singular.ok = singular.ok, ...) :
+##  extra argument &#39;sebset&#39; will be disregarded</code></pre>
+<pre><code>## (Intercept)  horsepower 
+##  39.9358610  -0.1578447</code></pre>
+<pre class="r"><code>set.seed(1)
+boot.fn(Auto, sample(392, 392, replace = T))</code></pre>
+<pre><code>## (Intercept)  horsepower 
+##  39.9358610  -0.1578447</code></pre>
+<pre class="r"><code>#running the above code many times
+boot.out &lt;- boot(Auto, boot.fn, 100)
+boot.out</code></pre>
+<pre><code>## 
+## ORDINARY NONPARAMETRIC BOOTSTRAP
+## 
+## 
+## Call:
+## boot(data = Auto, statistic = boot.fn, R = 100)
+## 
+## 
+## Bootstrap Statistics :
+##       original  bias    std. error
+## t1* 39.9358610       0           0
+## t2* -0.1578447       0           0</code></pre>
+<p>the proportion that each data value gets represented is actually e^-1 = 0.632. We arent going to get into the math, but it is important to note that the representation of all the values are proportional at the end, and that there is no dataset that gets more represented</p>
+<pre class="r"><code>plot(boot.out)</code></pre>
+<pre><code>## [1] &quot;All values of t* are equal to  39.9358610211705&quot;</code></pre>
+<p>I dont think the above thing is what is supposed to happen, but all my code follows the code in class so maybe it is because my r version is older than the package?</p>
+</div>
