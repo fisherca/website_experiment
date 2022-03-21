@@ -1,0 +1,293 @@
+---
+title: 'A01: Modeling for Prediction'
+author: "Cadence Fisher"
+date: '2022-03-19'
+slug: a01-modeling-for-prediction
+categories: []
+tags: []
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<p>The Goal of this exercise is to apply Cross Validation and Bootstrap validation to build linear regression based predictive model on data set
+# K Fold Cross Validation Advantages and Disadvantages relative to..
+1. Single Split Validation set approach (1)
+K fold splits in a way that all of the data is taken into account in the training and testing phase of the model, so one advantage is that K folds are more thorough. Using all the data for training also makes K fold validation more reliable as a model. However, for large data sets, splitting into K-folds would take far longer than doing a single split, so it has a disadvantage of time. K folds also make it so that the randomness of what data is chosen to train (such as in single split) is not an issue, which makes it more likely for the train data to create a better model for the test.
+2. LOOCV? (1)
+LOOCV is even more time consuming than a typical K-fold validation, so K fold has an advantage of time. Another advantage of K-fold is that it often more accurately estimates test error rate. However, LOOCV also uses the data in training in such a way that each data point is weighed exactly the same amount, but also are able to be represented more than just once in one training fold such as in K fold validation. Thus, LOOCV is actually more representative of all of the data. LOOCV also allows the model to be able to better predict data that is not involved in the training data, so K is disadvantaged in its applicibility past its training data sets.K fold also has the disadvantage of creating more bias in the data than LOOCV does.<br />
+# Pros and cons of Bootstrapping (2)
+In bootstrapping, random sampling with replacement is used in a way that each data point is represented in a proportion of 0.623. One pro of bootstrapping is that it takes samples in a way that it can better reflect the variability of a population from the sample data then other models. Another pro is that bootstrapping is overall more accurate than simple standard intervals, and can better represent data that is not completely normal.
+Some cons of bootstrapping are that it heavily relies on the data in the sample in order to predict values/variance of the population, which may give the data scientist a false sense of security about their model. It can also be relatively time consuming. It is particularly weak as a model if the sample size is too small or the distribution of the population does not have finite moments.
+# Uploading the data in your GitHub account and directly access in your solution file (2)</p>
+<pre class="r"><code>library(readr)
+library(readxl)</code></pre>
+<pre class="r"><code>real_estate &lt;- read_excel(&quot;/Users/cfish/Downloads/Real_estate_data.xlsx&quot;)
+real_estate</code></pre>
+<pre><code>## # A tibble: 414 x 8
+##       No `X1 transaction date` `X2 house age` `X3 distance to~` `X4 number of ~`
+##    &lt;dbl&gt;                 &lt;dbl&gt;          &lt;dbl&gt;             &lt;dbl&gt;            &lt;dbl&gt;
+##  1     1                 2013.           32                84.9               10
+##  2     2                 2013.           19.5             307.                 9
+##  3     3                 2014.           13.3             562.                 5
+##  4     4                 2014.           13.3             562.                 5
+##  5     5                 2013.            5               391.                 5
+##  6     6                 2013.            7.1            2175.                 3
+##  7     7                 2013.           34.5             623.                 7
+##  8     8                 2013.           20.3             288.                 6
+##  9     9                 2014.           31.7            5512.                 1
+## 10    10                 2013.           17.9            1783.                 3
+## # ... with 404 more rows, and 3 more variables: `X5 latitude` &lt;dbl&gt;,
+## #   `X6 longitude` &lt;dbl&gt;, `Y house price of unit area` &lt;dbl&gt;</code></pre>
+<pre class="r"><code>dim(real_estate)</code></pre>
+<pre><code>## [1] 414   8</code></pre>
+<div id="changing-the-column-names-to-1-string" class="section level2">
+<h2>Changing the Column names to 1 string</h2>
+<pre class="r"><code>attach(real_estate)</code></pre>
+</div>
+<div id="build-a-k-fold-cross-validation-method-based-predictive-model-to-find-a-good-model.-2-try-different-polynomials-different-ks-different-variables" class="section level1">
+<h1>Build a k-fold cross validation method based predictive model to find a good model. (2) (Try different polynomials, different Ks, different variables)</h1>
+<pre class="r"><code>library(ISLR)</code></pre>
+<pre><code>## Warning: package &#39;ISLR&#39; was built under R version 4.1.3</code></pre>
+<pre class="r"><code>library(boot)</code></pre>
+<pre class="r"><code>set.seed(1)</code></pre>
+<pre class="r"><code>train1 &lt;- sample(414, 207)</code></pre>
+<ol style="list-style-type: decimal">
+<li>X1 Transaction Date</li>
+</ol>
+<pre class="r"><code>plot(real_estate$`X1 transaction date`, real_estate$`Y house price of unit area`)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-8-1.png" width="672" />
+This simple plot indicates that this correlation has hardly any linearity or pattern at all, so it is not a good independent variable to explore</p>
+<ol start="2" style="list-style-type: decimal">
+<li>X2 House Age</li>
+</ol>
+<pre class="r"><code>plot(real_estate$`X2 house age`, real_estate$`Y house price of unit area` )</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+K at 5</p>
+<pre class="r"><code>K = 5
+cv.error.5 &lt;- rep(0,5)
+degree &lt;- 1:5
+for(d in degree){
+  glm.fit &lt;- glm(`X2 house age`~poly(`Y house price of unit area`, d), data = real_estate)
+  cv.error.5[d] &lt;- cv.glm(real_estate, glm.fit, K = K)$delta[1]
+}
+cv.error.5</code></pre>
+<pre><code>## [1]  124.9176  124.5281  165.6146 1672.8447  281.3565</code></pre>
+<pre class="r"><code>plot(degree, cv.error.5, type = &quot;b&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p>Setting the Degree at 3 for the above function seemed to minimize the error
+K at 10</p>
+<pre class="r"><code>K = 10
+cv.error.10 &lt;- rep(0,10)
+degree &lt;- 1:11
+for(d in degree){
+  glm.fit &lt;- glm(`X1 transaction date`~poly(`Y house price of unit area`, d), data = real_estate)
+  cv.error.10[d] &lt;- cv.glm(real_estate, glm.fit, K = K)$delta[1]
+}
+cv.error.10</code></pre>
+<pre><code>##  [1] 7.937556e-02 7.943252e-02 9.448701e-02 7.986021e-02 1.055508e-01
+##  [6] 8.134799e-02 6.404063e+01 1.947596e+04 9.353170e+03 1.445497e+07
+## [11] 6.177670e+07</code></pre>
+<pre class="r"><code>plot(degree, cv.error.10, type = &quot;b&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-13-1.png" width="672" />
+Error was minimized at the 1st degree, so possibly a simple linear fit and not a polynomial at all with a K of 10 is best for this model</p>
+<ol start="3" style="list-style-type: decimal">
+<li>X3 distance to the nearest MRT station</li>
+</ol>
+<pre class="r"><code>plot(real_estate$`X3 distance to the nearest MRT station` , real_estate$`Y house price of unit area` )</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-14-1.png" width="672" />
+K at 5</p>
+<pre class="r"><code>K = 5
+cv.error.53 &lt;- rep(0,5)
+degree &lt;- 1:5
+for(d in degree){
+  glm.fit &lt;- glm(log(`X3 distance to the nearest MRT station`)~poly(`Y house price of unit area`, d), data = real_estate)
+  cv.error.53[d] &lt;- cv.glm(real_estate, glm.fit, K = K)$delta[1]
+}
+cv.error.53</code></pre>
+<pre><code>## [1] 0.5884507 0.4983824 0.9160568 1.7426852 7.3031766</code></pre>
+<p>K at 10</p>
+<pre class="r"><code>K = 10
+cv.error.103 &lt;- rep(0,10)
+degree &lt;- 1:10
+for(d in degree){
+  glm.fit &lt;- glm(log(`X3 distance to the nearest MRT station`)~poly(`Y house price of unit area`, d), data = real_estate)
+  cv.error.103[d] &lt;- cv.glm(real_estate, glm.fit, K = K)$delta[1]
+}
+cv.error.103</code></pre>
+<pre><code>##  [1] 6.009210e-01 5.065361e-01 1.013631e+00 1.344334e+00 5.328893e-01
+##  [6] 8.088787e+00 4.219232e+01 1.333131e+04 8.605859e+05 6.824699e+04</code></pre>
+<pre class="r"><code>plot(degree, cv.error.103, type = &quot;b&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-17-1.png" width="672" />
+It looks like using 1st degree polynomial and taking a log of the X was the best way to reduct CV error
+4. X4 number of convenience stores</p>
+<pre class="r"><code>plot(real_estate$`X4 number of convenience stores` , real_estate$`Y house price of unit area` )</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-18-1.png" width="672" />
+This simple plot indicates that this correlation has hardly any linearity or pattern at all, so it is not a good independent variable to explore</p>
+<ol start="5" style="list-style-type: decimal">
+<li>X5 latitude</li>
+</ol>
+<pre class="r"><code>plot(real_estate$`X5 latitude`, real_estate$`Y house price of unit area`)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+<p>K at 5</p>
+<pre class="r"><code>K = 5
+cv.error.55 &lt;- rep(0,5)
+degree &lt;- 1:5
+for(d in degree){
+  glm.fit &lt;- glm(`X5 latitude`~poly(`Y house price of unit area`, d), data = real_estate)
+  cv.error.55[d] &lt;- cv.glm(real_estate, glm.fit, K = K)$delta[1]
+}
+cv.error.55</code></pre>
+<pre><code>## [1] 1.090630e-04 1.005880e-04 9.053543e-05 4.096057e-04 4.610226e-03</code></pre>
+<pre class="r"><code>plot(degree, cv.error.55, type = &quot;b&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
+<p>K at 10</p>
+<pre class="r"><code>K = 10
+cv.error.105 &lt;- rep(0,10)
+degree &lt;- 1:10
+for(d in degree){
+  glm.fit &lt;- glm(`X5 latitude`~poly(`Y house price of unit area`, d), data = real_estate)
+  cv.error.105[d] &lt;- cv.glm(real_estate, glm.fit, K = K)$delta[1]
+}
+cv.error.105</code></pre>
+<pre><code>##  [1] 1.091859e-04 1.047342e-04 8.865130e-05 4.660455e-04 5.198108e-03
+##  [6] 1.193811e-04 3.294172e-01 3.949762e+00 1.888669e+01 9.742195e+02</code></pre>
+<pre class="r"><code>plot(degree, cv.error.105, type = &quot;b&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-23-1.png" width="672" />
+This model out of all the variabes has the lowest cv error so far, and a 1st degree polynomial has the absolute least error. This indicates that out of all the variables, latitude might be the best predictor of house price of unit area</p>
+<ol start="6" style="list-style-type: decimal">
+<li>X6 longitude</li>
+</ol>
+<pre class="r"><code>plot(real_estate$`X6 longitude` , real_estate$`Y house price of unit area`)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-24-1.png" width="672" />
+K at 5</p>
+<pre class="r"><code>K = 5
+cv.error.56 &lt;- rep(0,5)
+degree &lt;- 1:5
+for(d in degree){
+  glm.fit &lt;- glm(`X6 longitude`~poly(`Y house price of unit area`, d), data = real_estate)
+  cv.error.56[d] &lt;- cv.glm(real_estate, glm.fit, K = K)$delta[1]
+}
+cv.error.56</code></pre>
+<pre><code>## [1] 0.0001730713 0.0001572022 0.0001589860 0.0001952182 0.0064569441</code></pre>
+<pre class="r"><code>plot(degree, cv.error.55, type = &quot;b&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-26-1.png" width="672" /></p>
+<p>K at 10</p>
+<pre class="r"><code>K = 10
+cv.error.106 &lt;- rep(0,10)
+degree &lt;- 1:10
+for(d in degree){
+  glm.fit &lt;- glm(`X6 longitude`~poly(`Y house price of unit area`, d), data = real_estate)
+  cv.error.106[d] &lt;- cv.glm(real_estate, glm.fit, K = K)$delta[1]
+}
+cv.error.106</code></pre>
+<pre><code>##  [1] 1.737906e-04 1.574194e-04 1.683450e-04 2.664783e-04 6.235655e-03
+##  [6] 1.123174e-01 1.932691e+00 4.378504e+00 1.859952e+01 3.141863e+03</code></pre>
+<pre class="r"><code>plot(degree, cv.error.105, type = &quot;b&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
+</div>
+<div id="build-a-bootstrapping-validation-method-based-predictive-model-to-find-a-good-model.-try-different-polynomials-different-number-of-samples-different-variables-2" class="section level1">
+<h1>Build a bootstrapping validation method based predictive model to find a good model. (Try different polynomials, different number of samples, different variables) (2)</h1>
+<p>Again, based on the simple graphs of all the Xs compared to Y, X1, X4, and X6 seem to have no correlation, so they are not worth exploring for their predictive capacity]</p>
+<p>X2:</p>
+<pre class="r"><code>boot.fn2 &lt;- function(data, index){
+  return(coef(lm(`X2 house age`~poly(`Y house price of unit area`,2), data = data, subset = index)))
+}</code></pre>
+<pre class="r"><code>set.seed(3)
+boot.fn2(real_estate, sample(414, 414, replace = T))</code></pre>
+<pre><code>##                            (Intercept) poly(`Y house price of unit area`, 2)1 
+##                            18.04656165                           -43.34400597 
+## poly(`Y house price of unit area`, 2)2 
+##                            -0.05145517</code></pre>
+<pre class="r"><code>boot.out2 &lt;- boot(Auto, boot.fn2, 100)
+boot.out2</code></pre>
+<pre><code>## 
+## ORDINARY NONPARAMETRIC BOOTSTRAP
+## 
+## 
+## Call:
+## boot(data = Auto, statistic = boot.fn2, R = 100)
+## 
+## 
+## Bootstrap Statistics :
+##        original      bias    std. error
+## t1*  17.7407132 -0.06425217   0.6225996
+## t2* -48.6643962 -3.55301108  14.7438059
+## t3*  -0.6315879 -6.61935959  21.8820309</code></pre>
+<pre class="r"><code>plot(boot.out2)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-31-1.png" width="672" /></p>
+<p>X3:</p>
+<pre class="r"><code>boot.fn3 &lt;- function(data, index){
+  return(coef(lm(log(`X3 distance to the nearest MRT station`)~`Y house price of unit area`, data = data, subset = index)))
+}</code></pre>
+<pre class="r"><code>boot.fn3(real_estate, 1:414)</code></pre>
+<pre><code>##                  (Intercept) `Y house price of unit area` 
+##                   8.68687154                  -0.06043044</code></pre>
+<pre class="r"><code>boot.fn3(real_estate, sample(414, 414, replace = T))</code></pre>
+<pre><code>##                  (Intercept) `Y house price of unit area` 
+##                   8.54003767                  -0.05725431</code></pre>
+<pre class="r"><code>boot.out3 &lt;- boot(Auto, boot.fn3, 100)
+boot.out3</code></pre>
+<pre><code>## 
+## ORDINARY NONPARAMETRIC BOOTSTRAP
+## 
+## 
+## Call:
+## boot(data = Auto, statistic = boot.fn3, R = 100)
+## 
+## 
+## Bootstrap Statistics :
+##        original        bias    std. error
+## t1*  8.66435704 -0.0105995979 0.163875737
+## t2* -0.05948563  0.0004914912 0.004751486</code></pre>
+<pre class="r"><code>plot(boot.out3)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-35-1.png" width="672" /></p>
+<p>X5:</p>
+<pre class="r"><code>boot.fn5 &lt;- function(data, index){
+  return(coef(lm(`X5 latitude`~`Y house price of unit area`, data = data, subset = index)))
+}</code></pre>
+<pre class="r"><code>boot.fn5(real_estate, sample(414, 414, replace = T))</code></pre>
+<pre><code>##                  (Intercept) `Y house price of unit area` 
+##                 2.494917e+01                 5.300978e-04</code></pre>
+<pre class="r"><code>boot.out5 &lt;- boot(Auto, boot.fn5, 100)
+boot.out5</code></pre>
+<pre><code>## 
+## ORDINARY NONPARAMETRIC BOOTSTRAP
+## 
+## 
+## Call:
+## boot(data = Auto, statistic = boot.fn5, R = 100)
+## 
+## 
+## Bootstrap Statistics :
+##         original        bias     std. error
+## t1* 2.494995e+01 -3.143911e-04 2.200525e-03
+## t2* 4.981692e-04  7.107215e-06 5.609363e-05</code></pre>
+<pre class="r"><code>plot(boot.out5)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-38-1.png" width="672" /></p>
+<p>X6:</p>
+<pre class="r"><code>boot.fn6 &lt;- function(data, index){
+  return(coef(lm(`X6 longitude`~poly(`Y house price of unit area`, 2), data = data, subset = index)))
+}</code></pre>
+<pre class="r"><code>boot.fn6(real_estate, sample(414, 414, replace = T))</code></pre>
+<pre><code>##                            (Intercept) poly(`Y house price of unit area`, 2)1 
+##                           121.53258552                             0.17405400 
+## poly(`Y house price of unit area`, 2)2 
+##                            -0.08274402</code></pre>
+<pre class="r"><code>boot.out6 &lt;- boot(Auto, boot.fn5, 100)
+boot.out6</code></pre>
+<pre><code>## 
+## ORDINARY NONPARAMETRIC BOOTSTRAP
+## 
+## 
+## Call:
+## boot(data = Auto, statistic = boot.fn5, R = 100)
+## 
+## 
+## Bootstrap Statistics :
+##         original        bias     std. error
+## t1* 2.494995e+01 -3.198677e-04 1.960918e-03
+## t2* 4.981692e-04  8.612291e-06 5.151509e-05</code></pre>
+<pre class="r"><code>plot(boot.out6)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-41-1.png" width="672" /></p>
+</div>

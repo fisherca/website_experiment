@@ -1,0 +1,275 @@
+---
+title: 'A01: Modeling for Prediction'
+author: "Cadence Fisher"
+date: '2022-03-19'
+slug: a01-modeling-for-prediction
+categories: []
+tags: []
+---
+The Goal of this exercise is to apply Cross Validation and Bootstrap validation to build linear regression based predictive model on data set
+# K Fold Cross Validation Advantages and Disadvantages relative to..
+1. Single Split Validation set approach (1)
+K fold splits in a way that all of the data is taken into account in the training and testing phase of the model, so one advantage is that K folds are more thorough. Using all the data for training also makes K fold validation more reliable as a model. However, for large data sets, splitting into K-folds would take far longer than doing a single split, so it has a disadvantage of time. K folds also make it so that the randomness of what data is chosen to train (such as in single split) is not an issue, which makes it more likely for the train data to create a better model for the test. 
+2. LOOCV? (1)
+LOOCV is even more time consuming than a typical K-fold validation, so K fold has an advantage of time. Another advantage of K-fold is that it often more accurately estimates test error rate. However, LOOCV also uses the data in training in such a way that each data point is weighed exactly the same amount, but also are able to be represented more than just once in one training fold such as in K fold validation. Thus, LOOCV is actually more representative of all of the data. LOOCV also allows the model to be able to better predict data that is not involved in the training data, so K is disadvantaged in its applicibility past its training data sets.K fold also has the disadvantage of creating more bias in the data than LOOCV does.  
+# Pros and cons of Bootstrapping (2)
+In bootstrapping, random sampling with replacement is used in a way that each data point is represented in a proportion of 0.623. One pro of bootstrapping is that it takes samples in a way that it can better reflect the variability of a population from the sample data then other models. Another pro is that bootstrapping is overall more accurate than simple standard intervals, and can better represent data that is not completely normal. 
+Some cons of bootstrapping are that it heavily relies on the data in the sample in order to predict values/variance of the population, which may give the data scientist a false sense of security about their model. It can also be relatively time consuming. It is particularly weak as a model if the sample size is too small or the distribution of the population does not have finite moments. 
+# Uploading the data in your GitHub account and directly access in your solution file (2)
+```{r}
+library(readr)
+library(readxl)
+```
+
+```{r}
+real_estate <- read_excel("/Users/cfish/Downloads/Real_estate_data.xlsx")
+real_estate
+```
+
+```{r}
+dim(real_estate)
+```
+## Changing the Column names to 1 string
+
+```{r}
+attach(real_estate)
+```
+
+
+#  Build a k-fold cross validation method based predictive model to find a good model. (2) (Try different polynomials, different Ks, different variables)
+```{r}
+library(ISLR)
+library(boot)
+```
+
+```{r}
+set.seed(1)
+```
+```{r}
+train1 <- sample(414, 207)
+```
+
+1. X1 Transaction Date
+```{r}
+plot(real_estate$`X1 transaction date`, real_estate$`Y house price of unit area`)
+```
+This simple plot indicates that this correlation has hardly any linearity or pattern at all, so it is not a good independent variable to explore
+
+
+2. X2 House Age
+```{r}
+plot(real_estate$`X2 house age`, real_estate$`Y house price of unit area` )
+```
+K at 5
+```{r, warning = FALSE}
+K = 5
+cv.error.5 <- rep(0,5)
+degree <- 1:5
+for(d in degree){
+  glm.fit <- glm(`X2 house age`~poly(`Y house price of unit area`, d), data = real_estate)
+  cv.error.5[d] <- cv.glm(real_estate, glm.fit, K = K)$delta[1]
+}
+cv.error.5
+```
+```{r}
+plot(degree, cv.error.5, type = "b")
+```
+
+Setting the Degree at 3 for the above function seemed to minimize the error
+K at 10
+```{r, warning=FALSE}
+K = 10
+cv.error.10 <- rep(0,10)
+degree <- 1:11
+for(d in degree){
+  glm.fit <- glm(`X1 transaction date`~poly(`Y house price of unit area`, d), data = real_estate)
+  cv.error.10[d] <- cv.glm(real_estate, glm.fit, K = K)$delta[1]
+}
+cv.error.10
+```
+```{r}
+plot(degree, cv.error.10, type = "b")
+```
+Error was minimized at the 1st degree, so possibly a simple linear fit and not a polynomial at all with a K of 10 is best for this model
+
+3. X3  distance to the nearest MRT station
+```{r}
+plot(real_estate$`X3 distance to the nearest MRT station` , real_estate$`Y house price of unit area` )
+```
+K at 5
+```{r, warning = FALSE}
+K = 5
+cv.error.53 <- rep(0,5)
+degree <- 1:5
+for(d in degree){
+  glm.fit <- glm(log(`X3 distance to the nearest MRT station`)~poly(`Y house price of unit area`, d), data = real_estate)
+  cv.error.53[d] <- cv.glm(real_estate, glm.fit, K = K)$delta[1]
+}
+cv.error.53
+```
+K at 10
+```{r, warning=FALSE}
+K = 10
+cv.error.103 <- rep(0,10)
+degree <- 1:10
+for(d in degree){
+  glm.fit <- glm(log(`X3 distance to the nearest MRT station`)~poly(`Y house price of unit area`, d), data = real_estate)
+  cv.error.103[d] <- cv.glm(real_estate, glm.fit, K = K)$delta[1]
+}
+cv.error.103
+```
+```{r}
+plot(degree, cv.error.103, type = "b")
+```
+It looks like using 1st degree polynomial and taking a log of the X was the best way to reduct CV error
+4. X4 number of convenience stores
+```{r}
+plot(real_estate$`X4 number of convenience stores` , real_estate$`Y house price of unit area` )
+```
+This simple plot indicates that this correlation has hardly any linearity or pattern at all, so it is not a good independent variable to explore
+
+5. X5 latitude
+```{r}
+plot(real_estate$`X5 latitude`, real_estate$`Y house price of unit area`)
+```
+
+K at 5
+```{r, warning = FALSE}
+K = 5
+cv.error.55 <- rep(0,5)
+degree <- 1:5
+for(d in degree){
+  glm.fit <- glm(`X5 latitude`~poly(`Y house price of unit area`, d), data = real_estate)
+  cv.error.55[d] <- cv.glm(real_estate, glm.fit, K = K)$delta[1]
+}
+cv.error.55
+```
+```{r}
+plot(degree, cv.error.55, type = "b")
+```
+
+K at 10
+```{r, warning=FALSE}
+K = 10
+cv.error.105 <- rep(0,10)
+degree <- 1:10
+for(d in degree){
+  glm.fit <- glm(`X5 latitude`~poly(`Y house price of unit area`, d), data = real_estate)
+  cv.error.105[d] <- cv.glm(real_estate, glm.fit, K = K)$delta[1]
+}
+cv.error.105
+```
+```{r}
+plot(degree, cv.error.105, type = "b")
+```
+This model out of all the variabes has the lowest cv error so far, and a 1st degree polynomial has the absolute least error. This indicates that out of all the variables, latitude might be the best predictor of house price of unit area
+
+6. X6 longitude
+```{r}
+plot(real_estate$`X6 longitude` , real_estate$`Y house price of unit area`)
+```
+K at 5
+```{r, warning = FALSE}
+K = 5
+cv.error.56 <- rep(0,5)
+degree <- 1:5
+for(d in degree){
+  glm.fit <- glm(`X6 longitude`~poly(`Y house price of unit area`, d), data = real_estate)
+  cv.error.56[d] <- cv.glm(real_estate, glm.fit, K = K)$delta[1]
+}
+cv.error.56
+```
+```{r}
+plot(degree, cv.error.55, type = "b")
+```
+
+K at 10
+```{r, warning=FALSE}
+K = 10
+cv.error.106 <- rep(0,10)
+degree <- 1:10
+for(d in degree){
+  glm.fit <- glm(`X6 longitude`~poly(`Y house price of unit area`, d), data = real_estate)
+  cv.error.106[d] <- cv.glm(real_estate, glm.fit, K = K)$delta[1]
+}
+cv.error.106
+```
+```{r}
+plot(degree, cv.error.105, type = "b")
+```
+
+
+  
+
+# Build a bootstrapping validation method based predictive model to find a good model. (Try different polynomials, different number of samples, different variables)  (2)
+Again, based on the simple graphs of all the Xs compared to Y, X1, X4, and X6 seem to have no correlation, so they are not worth exploring for their predictive capacity]
+
+X2:
+```{r}
+boot.fn2 <- function(data, index){
+  return(coef(lm(`X2 house age`~poly(`Y house price of unit area`,2), data = data, subset = index)))
+}
+```
+
+
+```{r, warning= FALSE}
+set.seed(3)
+boot.fn2(real_estate, sample(414, 414, replace = T))
+boot.out2 <- boot(Auto, boot.fn2, 100)
+boot.out2
+```
+```{r}
+plot(boot.out2)
+```
+
+
+X3:
+```{r}
+boot.fn3 <- function(data, index){
+  return(coef(lm(log(`X3 distance to the nearest MRT station`)~`Y house price of unit area`, data = data, subset = index)))
+}
+```
+
+```{r}
+boot.fn3(real_estate, 1:414)
+```
+```{r}
+boot.fn3(real_estate, sample(414, 414, replace = T))
+boot.out3 <- boot(Auto, boot.fn3, 100)
+boot.out3
+```
+```{r}
+plot(boot.out3)
+```
+
+X5:
+```{r}
+boot.fn5 <- function(data, index){
+  return(coef(lm(`X5 latitude`~`Y house price of unit area`, data = data, subset = index)))
+}
+```
+
+```{r}
+boot.fn5(real_estate, sample(414, 414, replace = T))
+boot.out5 <- boot(Auto, boot.fn5, 100)
+boot.out5
+```
+```{r}
+plot(boot.out5)
+```
+
+X6: 
+```{r}
+boot.fn6 <- function(data, index){
+  return(coef(lm(`X6 longitude`~poly(`Y house price of unit area`, 2), data = data, subset = index)))
+}
+```
+
+```{r}
+boot.fn6(real_estate, sample(414, 414, replace = T))
+boot.out6 <- boot(Auto, boot.fn5, 100)
+boot.out6
+```
+```{r}
+plot(boot.out6)
+```
