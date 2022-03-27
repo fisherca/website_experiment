@@ -1,0 +1,32 @@
+---
+title: 'A02: Professor Diamond Data Regression Models'
+author: "Cadence Fisher"
+date: '2022-03-26'
+slug: a02-professor-diamond-data-regression-models
+categories: []
+tags: []
+---
+```{r}
+library(readr)
+library(readxl)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+diamonds <- read_excel("/Users/cfish/Downloads/Professor_Proposes_Data.xlsx")
+diamonds
+```
+```{r}
+attach(diamonds)
+```
+
+
+```{r}
+
+```
+```{r}
+
+```
+

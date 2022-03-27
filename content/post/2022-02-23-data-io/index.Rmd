@@ -6,3 +6,131 @@ slug: data-io
 categories: []
 tags: []
 ---
+# Reading rectangular dat into R
+```{r}
+# Will use packages readr and readxl
+#readr:
+#read_csv() - comma delimited files
+#read_csv2() - semicolon separated files (common in countries where , is used as the decimal place)
+#read_tsv() - tab delimited files
+#read_delim() - reads in files with any delimiter
+#read_fwf() - fixed width files
+
+#readxl
+#read_excel() - read xls or xlsx files
+```
+
+# Reading Data
+```{r}
+nobel <- read_csv("https://raw.githubusercontent.com/dearbharat/tidyverse/main/nobel.csv")
+nobel
+```
+
+# Writing Data
+```{r}
+df <- tribble(
+  ~x, ~y,
+  1,  "a",
+  2,  "b",
+  3,  "c"
+)
+write_csv(df, file = "/Users/cfish/OneDrive/Documents/GitHub/website_experiment/content/post/2022-02-23-data-io/df.csv")
+```
+## Reading the file we just wrote:
+```{r}
+read_csv("/Users/cfish/OneDrive/Documents/GitHub/website_experiment/content/post/2022-02-23-data-io/df.csv")
+```
+
+# Practicing with Noble
+```{r}
+#already imported noble, but need to import sales too
+sales <- read_csv("https://raw.githubusercontent.com/dearbharat/tidyverse/main/sales.csv")
+```
+## Split nobel into stem and non stem
+```{r}
+head(nobel)
+```
+```{r}
+library(dplyr)
+nobel %>%
+  count(category)
+```
+
+```{r}
+nobel_stem <- nobel %>%
+  filter(category %in% "Physics" | category %in% "Medicine"| category %in% "Chemistry" | category %in% "Economics")
+nobel_stem
+
+```
+```{r}
+write_csv(nobel_stem, file = "/Users/cfish/OneDrive/Documents/GitHub/website_experiment/content/post/2022-02-23-data-io/noble_stem.csv")
+```
+
+
+```{r}
+nobel_nonstem <- nobel %>%
+  filter(category %in% "Literature" | category %in% "Peace")
+nobel_nonstem
+```
+```{r}
+write_csv(nobel_nonstem, file = "/Users/cfish/OneDrive/Documents/GitHub/website_experiment/content/post/2022-02-23-data-io/noble_nonstem.csv")
+```
+
+#Variable Names
+## Data with bad names
+```{r}
+edibnb_badnames <- read_csv("https://raw.githubusercontent.com/dearbharat/tidyverse/main/edibnb-badnames.csv")
+names(edibnb_badnames)
+```
+### R doesnt like spaces in variable names
+```{r}
+#ggplot(edibnb_badnames, aes(x = Number of bathrooms, y = Price)) +  geom_point()
+#This will cause an error because of the names
+```
+## Option 1: define column names
+```{r}
+edibnb_col_names <- read_csv("https://raw.githubusercontent.com/dearbharat/tidyverse/main/edibnb-badnames.csv",
+                             col_names = c("id", "price", 
+                                           "neighbourhood", "accommodates",
+                                           "bathroom", "bedroom", 
+                                           "bed", "review_scores_rating", 
+                                           "n_reviews", "url"))
+names(edibnb_col_names)
+```
+## Option 2 - Format text to snake_case
+```{r}
+edibnb_clean_names <- read_csv("https://raw.githubusercontent.com/dearbharat/tidyverse/main/edibnb-badnames.csv") %>%
+  janitor::clean_names()
+names(edibnb_clean_names)
+```
+
+# Variable Types: if a data set is being read and one shows up as non applicable, how can we problem solve
+## Option 1. Explicit NAs
+```{r}
+read_csv("https://raw.githubusercontent.com/dearbharat/tidyverse/main/df-na.csv", 
+         na = c("", "NA", ".", "9999", "Not applicable"))
+```
+## Option 2. Specify column types
+```{r}
+read_csv("https://raw.githubusercontent.com/dearbharat/tidyverse/main/df-na.csv", col_types = list(col_double(), 
+                                            col_character(), 
+                                            col_character()))
+```
+
+# Case study: favourite foods:handle NAs, variable names, and make age numeric
+```{r}
+library(readxl)
+```
+
+```{r}
+fav_food <- read_excel("C:/Users/cfish/OneDrive/Documents/favourite-food.xlsx",
+                       na = c("N/A", "99999")) %>%
+  janitor::clean_names()
+fav_food <- fav_food %>%
+  mutate(
+    age = if_else(age == "five", "5", age),
+    age = as.numeric(age)
+    )
+glimpse(fav_food)
+```
+

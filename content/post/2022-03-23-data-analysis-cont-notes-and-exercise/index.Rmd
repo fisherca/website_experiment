@@ -1,0 +1,95 @@
+---
+title: Data Analysis Cont. Notes and Exercise
+author: Cadence Fisher
+date: '2022-03-23'
+slug: data-analysis-cont-notes-and-exercise
+categories: []
+tags: []
+---
+
+#Last Class Topics Covered:
+univariate analysis
+exploratory data analysis (EDA)
+bivariate [x1, x2] all predictor variable analysis
+- pca factor analysis / dimension reduction / latent variable analysis
+- clustering using K means
+
+# Bivariate Analysis Types Table
+x | y       metric              nonmetric
+metric    correlation/regression Logistic regression|classification
+
+nonmetric   ANOVA|Z tests       chi-square test of independence
+
+#New Material
+Unsupervised learning: where the Y is not necessarily known?
+** We should feel comfortable discussing differences between supervised and unsupervised learning
+
+#Algorithmic Modeling Culture
+##Random forest: 
+- does not look at correlation, but tries to divide space between data points into homogenous groups. 
+- Basically, groups data more and more specifically. eg. could start as a group of plants and a group of animals and then both groups could get further divided into cats and dogs and trees and bushes and so on. 
+- began as a data analysis document called d3ds, which I think is available as a packet
+- you keep partitioning the data until you reach a point where the data is specifically classified as much as you want (like for the animals and plants example, all the way down to specific cat species or specific coat patterns of cats)
+- you build millions of trees that classify by slightly different criteria and then combine all the data the create a comperhensive understanding of each significant point of data
+- not trying to look at means or standard deviations or anything like that, unless maybe comparing significant points found between the forest analysis of distinct data sets (like in microbiome paper)
+-not very concerned about missing information or dependent on having complete data, and will just classify using something that it does have. this is a weakness of this because if there is a lot of data stuff missing, it will just try to classify it anyways
+- look at paper about data modelling culture vs algorithmic modelling culture (information based theory vs modelling)
+## Support Vector Machines
+Didnt get into that much, but said that these could solve some of the shortcomings of random forest
+## Reinforcement learning models
+machine randomly acts and automatically optimizes as it analyzes data
+He is starting to work on something like this through the morton fellowship
+## Neural netwotks and deep learning
+neural networks are just a combination of many logistic regression models. A few models combine to form another model, and then a few of those combined models combine again, and so on
+movements are being made to understand exactly how the algorithms create the results that they do
+ultimately, this class moves us one step closer to being able to understand messy, real world data. 
+*He wants us to read a paper called "Using and Interpreting Logistic Regression"
+# EDA exercise
+1. install and load packages
+```{r}
+if(!require("pacman")) install.packages("pacman")
+
+#packages (including pacman) with pacman
+pacman:: p_load(pacman, magrittr, productplots, psych, RColorBrewer, tidyverse)
+```
+happy dataset:
+```{r}
+names(happy)
+```
+```{r}
+happy_df <- happy %>%
+  as_tibble() %>%
+  print()
+```
+delete the ID column, and the
+```{r}
+happy_df %>%
+  select(happy:health) %>%
+  print()
+```
+```{r}
+levels(happy_df$happy)
+```
+
+```{r}
+mutate(happy = fct_rev(happy))
+
+levels(df$happy)
+```
+
+##Visual Exploration
+```{r}
+happy_df %>%
+  ggplot() +
+  geom_bar(aes(happy, fill = happy)) +
+  theme( axis.title.x = element_blank(), legend.position = "none")
+
+df %>% count(happy)
+```
+
+```{r}
+happy_df %<>%
+  filter(!is.na(happy))
+```
+
+He wants us to complete some exercise along with the a02 and do bootstrapping on it but i do not remember what he said
