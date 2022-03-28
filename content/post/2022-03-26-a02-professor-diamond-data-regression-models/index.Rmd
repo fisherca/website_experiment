@@ -12,6 +12,7 @@ library(readxl)
 library(tidyverse)
 library(dplyr)
 library(ggplot2)
+
 ```
 
 ```{r}
@@ -24,9 +25,86 @@ attach(diamonds)
 
 
 ```{r}
+colnames(diamonds)
+```
+
+# Converting the Data to Metric
+```{r}
+library(caret)
+```
+
+```{r}
+dummy1 <- dummyVars("~ .", data = diamonds)
+diamonds_mod <- data.frame((predict(dummy1, newdata = diamonds)))
+diamonds_mod
+```
+
+
+# Graphing the Data
+```{r}
+ggplot(diamonds_mod,aes(Carat, Price)) +
+  geom_point() +
+  geom_smooth(method='lm', se=FALSE, color='turquoise4') +
+  theme_minimal() +
+  labs(x='Carat', y='Price', title='Plot of Carat v.s. Price') +
+  theme(plot.title = element_text(hjust=0.5, size=20, face='bold')) 
+```
+Splitting Price into higher and lower:
+```{r}
+Price_low <- Price[Price < -2100000000]
 
 ```
-```{r}
 
+```{r}
+ggplot(diamonds_mod,aes(Colour, Price)) +
+  geom_point() +
+  geom_smooth(method='lm', se=FALSE, color='turquoise4') +
+  labs(x='Colour', y='Price', title='Plot of Colour v.s. Price')+ theme_minimal() +
+  theme(plot.title = element_text(hjust=0.5, size=20, face='bold')) 
+```
+
+```{r}
+ggplot(diamonds_mod,aes(Clarity, Price)) +
+  geom_point() +
+  geom_smooth(method='lm', se=FALSE, color='red') +
+  theme_minimal() +
+  labs(x='Clarity', y='Price', title='Plot of Clarity v.s. Price') +
+  theme(plot.title = element_text(hjust=0.5, size=20, face='bold')) 
+```
+
+```{r}
+ggplot(diamonds_mod,aes(Cut, Price)) +
+  geom_point() +
+  geom_smooth(method='lm', se=FALSE, color='turquoise4') +
+  theme_minimal() +
+  labs(x='Cut', y='Price', title='Plot of Cut v.s. Price') +
+  theme(plot.title = element_text(hjust=0.5, size=20, face='bold')) 
+```
+
+```{r}
+ggplot(diamonds_mod,aes(Certification, Price)) +
+  geom_point() +
+  geom_smooth(method='lm', se=FALSE, color='blue') +
+  theme_minimal() +
+  labs(x='Clarity', y='Price', title='Plot of Certification v.s. Price') +
+  theme(plot.title = element_text(hjust=0.5, size=20, face='bold')) 
+```
+
+```{r}
+ggplot(diamonds_mod,aes(Polish, Price)) +
+  geom_point() +
+  geom_smooth(method='lm', se=FALSE, color='green') +
+  theme_minimal() +
+  labs(x='Polish', y='Price', title='Plot of Polish v.s. Price') +
+  theme(plot.title = element_text(hjust=0.5, size=20, face='bold')) 
+```
+
+```{r}
+ggplot(diamonds_mod,aes(Symmetry, Price)) +
+  geom_point() +
+  geom_smooth(method='lm', se=FALSE, color='turquoise4') +
+  theme_minimal() +
+  labs(x='Symmetry', y='Price', title='Plot of Symmetry v.s. Price') +
+  theme(plot.title = element_text(hjust=0.5, size=20, face='bold')) 
 ```
 
