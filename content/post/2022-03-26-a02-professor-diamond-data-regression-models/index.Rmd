@@ -41,6 +41,11 @@ diamonds_mod
 
 
 # Graphing the Data
+## Carat
+```{r}
+lm(Price ~ Carat, data = diamonds_mod)
+```
+
 ```{r}
 ggplot(diamonds_mod,aes(Carat, Price)) +
   geom_point() +
@@ -51,27 +56,60 @@ ggplot(diamonds_mod,aes(Carat, Price)) +
 ```
 Splitting Price into higher and lower:
 ```{r}
-Price_low <- Price[Price < -2100000000]
-
+range(Price)
 ```
 
 ```{r}
-ggplot(diamonds_mod,aes(Colour, Price)) +
-  geom_point() +
-  geom_smooth(method='lm', se=FALSE, color='turquoise4') +
-  labs(x='Colour', y='Price', title='Plot of Colour v.s. Price')+ theme_minimal() +
-  theme(plot.title = element_text(hjust=0.5, size=20, face='bold')) 
+diamonds_low <- diamonds_mod[diamonds_mod$Price < 1500,]
+diamonds_high <- diamonds_mod[diamonds_mod$Price > 1500,]
+
+```
+## Color
+```{r}
+lm(Price ~ Colour, data = diamonds_mod)
 ```
 
 ```{r}
-ggplot(diamonds_mod,aes(Clarity, Price)) +
-  geom_point() +
+lm(Price ~ Colour, data = diamonds_mod)
+```
+```{r}
+diamonds_low %>% mutate_all(~replace(., is.na(.), 0))
+glimpse(diamonds_low)
+```
+
+
+```{r}
+library(ggpubr)
+```
+
+```{r}
+colourd <- ggplot(diamonds_low, aes(ColourD, Price)) + geom_point() 
+coloure <- ggplot(diamonds_low, aes(ColourE, Price)) + geom_point()
+colourf<- ggplot(diamonds_low, aes(ColourF, Price)) + geom_point()
+colourg<- ggplot(diamonds_low, aes(ColourG, Price)) + geom_point()
+colourh <- ggplot(diamonds_low, aes(ColourH, Price)) + geom_point()
+colouri <- ggplot(diamonds_low, aes(ColourI, Price)) + geom_point()
+colourj <- ggplot(diamonds_low, aes(ColourJ, Price)) + geom_point()
+colourk<- ggplot(diamonds_low, aes(ColourK, Price)) + geom_point()
+
+colours <- ggarrange(coloure,colourf,colourg,  colourh,colouri,colourj, colourk) + geom_smooth(method='lm', se=FALSE) + labs(x='Colour', y='Price', title='Plot of Colour v.s. Price')
+```
+## Clarity
+```{r}
+lm(Price ~ Clarity, data = diamonds_mod)
+```
+```{r}
+ggplot(diamonds_mod, aes(Clarity, Price)) +
+  geom_point(aes(color = Clarity)) +
   geom_smooth(method='lm', se=FALSE, color='red') +
   theme_minimal() +
   labs(x='Clarity', y='Price', title='Plot of Clarity v.s. Price') +
   theme(plot.title = element_text(hjust=0.5, size=20, face='bold')) 
 ```
-
+# Cut
+```{r}
+lm(Price ~ Cut, data = diamonds_mod)
+```
 ```{r}
 ggplot(diamonds_mod,aes(Cut, Price)) +
   geom_point() +
@@ -79,6 +117,10 @@ ggplot(diamonds_mod,aes(Cut, Price)) +
   theme_minimal() +
   labs(x='Cut', y='Price', title='Plot of Cut v.s. Price') +
   theme(plot.title = element_text(hjust=0.5, size=20, face='bold')) 
+```
+# Certification
+```{r}
+lm(Price ~ Certification, data = diamonds_mod)
 ```
 
 ```{r}
@@ -89,6 +131,10 @@ ggplot(diamonds_mod,aes(Certification, Price)) +
   labs(x='Clarity', y='Price', title='Plot of Certification v.s. Price') +
   theme(plot.title = element_text(hjust=0.5, size=20, face='bold')) 
 ```
+# Polish
+```{r}
+lm(Price ~ Polish, data = diamonds_mod)
+```
 
 ```{r}
 ggplot(diamonds_mod,aes(Polish, Price)) +
@@ -97,6 +143,10 @@ ggplot(diamonds_mod,aes(Polish, Price)) +
   theme_minimal() +
   labs(x='Polish', y='Price', title='Plot of Polish v.s. Price') +
   theme(plot.title = element_text(hjust=0.5, size=20, face='bold')) 
+```
+# Symmetry
+```{r}
+lm(Price ~ Symmetry, data = diamonds_mod)
 ```
 
 ```{r}
