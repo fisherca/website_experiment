@@ -6,3 +6,13 @@ slug: logistic-regression-practice
 categories: []
 tags: []
 ---
+```{r}
+library(openintro)
+library(tidyverse)
+#library(tidymodels)
+library(ggridges)
+set.seed(1)
+glimpse(email)
+```
+
+know deplyr and tidyverse commands and how to filter with them for weds quiz

@@ -36,7 +36,7 @@ library(caret)
 ```{r}
 dummy1 <- dummyVars("~ .", data = diamonds)
 diamonds_mod <- data.frame((predict(dummy1, newdata = diamonds)))
-diamonds_mod
+glimpse(diamonds_mod)
 ```
 
 
@@ -48,7 +48,7 @@ lm(Price ~ Carat, data = diamonds_mod)
 
 ```{r}
 ggplot(diamonds_mod,aes(Carat, Price)) +
-  geom_point() +
+  geom_point(aes(color = Carat)) +
   geom_smooth(method='lm', se=FALSE, color='turquoise4') +
   theme_minimal() +
   labs(x='Carat', y='Price', title='Plot of Carat v.s. Price') +
@@ -112,7 +112,7 @@ lm(Price ~ Cut, data = diamonds_mod)
 ```
 ```{r}
 ggplot(diamonds_mod,aes(Cut, Price)) +
-  geom_point() +
+  geom_point(aes(color = Cut)) +
   geom_smooth(method='lm', se=FALSE, color='turquoise4') +
   theme_minimal() +
   labs(x='Cut', y='Price', title='Plot of Cut v.s. Price') +
@@ -125,7 +125,7 @@ lm(Price ~ Certification, data = diamonds_mod)
 
 ```{r}
 ggplot(diamonds_mod,aes(Certification, Price)) +
-  geom_point() +
+  geom_point(aes(color = Certification)) +
   geom_smooth(method='lm', se=FALSE, color='blue') +
   theme_minimal() +
   labs(x='Clarity', y='Price', title='Plot of Certification v.s. Price') +
@@ -138,7 +138,7 @@ lm(Price ~ Polish, data = diamonds_mod)
 
 ```{r}
 ggplot(diamonds_mod,aes(Polish, Price)) +
-  geom_point() +
+  geom_point(aes(color = Polish)) +
   geom_smooth(method='lm', se=FALSE, color='green') +
   theme_minimal() +
   labs(x='Polish', y='Price', title='Plot of Polish v.s. Price') +
@@ -151,10 +151,43 @@ lm(Price ~ Symmetry, data = diamonds_mod)
 
 ```{r}
 ggplot(diamonds_mod,aes(Symmetry, Price)) +
-  geom_point() +
+  geom_point(aes(color = Symmetry)) +
   geom_smooth(method='lm', se=FALSE, color='turquoise4') +
   theme_minimal() +
   labs(x='Symmetry', y='Price', title='Plot of Symmetry v.s. Price') +
   theme(plot.title = element_text(hjust=0.5, size=20, face='bold')) 
+```
+
+##Bootstrapping:
+```{r}
+set.seed(1)
+head(diamonds_mod)
+dim(diamonds_mod)
+train <- sample(450, 225)
+glimpse(train)
+```
+```{r}
+library(boot)
+```
+
+```{r}
+boot.fn <- function(data, index){
+  return(coef(lm(Price ~ Cut, data = diamonds_mod, subset = index)))
+}
+```
+
+```{r}
+boot.2 <-  boot(diamonds_mod, boot.fn, 500)
+plot(boot.2)
+```
+
+```{r}
+set.seed(2)
+boot.fn(diamonds_mod, sample(500, 500, replace = T))
+```
+
+```{r}
+boot.3 <-  boot(diamonds_mod, boot.fn, 100)
+plot(boot.3)
 ```
 
