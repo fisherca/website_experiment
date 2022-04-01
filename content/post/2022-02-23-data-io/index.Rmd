@@ -1,12 +1,16 @@
 ---
-title: Data IO
-author: Cadence Fisher
+title: "Data IO"
+author: "Cadence Fisher"
 date: '2022-02-23'
 slug: data-io
 categories: []
 tags: []
 ---
 # Reading rectangular dat into R
+```{r}
+library(tidyverse)
+```
+
 ```{r}
 # Will use packages readr and readxl
 #readr:
@@ -122,8 +126,8 @@ read_csv("https://raw.githubusercontent.com/dearbharat/tidyverse/main/df-na.csv"
 library(readxl)
 ```
 
-```{r}
-fav_food <- read_excel("C:/Users/cfish/OneDrive/Documents/favourite-food.xlsx",
+
+fav_food <- read_excel("/Users/cfish/Downloads/Documents/favourite-food.xlsx",
                        na = c("N/A", "99999")) %>%
   janitor::clean_names()
 fav_food <- fav_food %>%
@@ -132,5 +136,5 @@ fav_food <- fav_food %>%
     age = as.numeric(age)
     )
 glimpse(fav_food)
-```
+
 

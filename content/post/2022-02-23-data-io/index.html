@@ -1,6 +1,6 @@
 ---
-title: Data IO
-author: Cadence Fisher
+title: "Data IO"
+author: "Cadence Fisher"
 date: '2022-02-23'
 slug: data-io
 categories: []
@@ -10,3 +10,299 @@ tags: []
 <script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
 
 
+<div id="reading-rectangular-dat-into-r" class="section level1">
+<h1>Reading rectangular dat into R</h1>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
+<pre><code>## v ggplot2 3.3.5     v purrr   0.3.4
+## v tibble  3.1.6     v dplyr   1.0.7
+## v tidyr   1.2.0     v stringr 1.4.0
+## v readr   2.1.2     v forcats 0.5.1</code></pre>
+<pre><code>## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code># Will use packages readr and readxl
+#readr:
+#read_csv() - comma delimited files
+#read_csv2() - semicolon separated files (common in countries where , is used as the decimal place)
+#read_tsv() - tab delimited files
+#read_delim() - reads in files with any delimiter
+#read_fwf() - fixed width files
+
+#readxl
+#read_excel() - read xls or xlsx files</code></pre>
+</div>
+<div id="reading-data" class="section level1">
+<h1>Reading Data</h1>
+<pre class="r"><code>nobel &lt;- read_csv(&quot;https://raw.githubusercontent.com/dearbharat/tidyverse/main/nobel.csv&quot;)</code></pre>
+<pre><code>## Rows: 935 Columns: 26
+## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;,&quot;
+## chr  (21): firstname, surname, category, affiliation, city, country, gender,...
+## dbl   (3): id, year, share
+## date  (2): born_date, died_date
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>nobel</code></pre>
+<pre><code>## # A tibble: 935 x 26
+##       id firstname   surname  year category affiliation city  country born_date 
+##    &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;   &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt; &lt;chr&gt;   &lt;date&gt;    
+##  1     1 Wilhelm Co~ Röntgen  1901 Physics  Munich Uni~ Muni~ Germany 1845-03-27
+##  2     2 Hendrik A.  Lorentz  1902 Physics  Leiden Uni~ Leid~ Nether~ 1853-07-18
+##  3     3 Pieter      Zeeman   1902 Physics  Amsterdam ~ Amst~ Nether~ 1865-05-25
+##  4     4 Henri       Becque~  1903 Physics  École Poly~ Paris France  1852-12-15
+##  5     5 Pierre      Curie    1903 Physics  École muni~ Paris France  1859-05-15
+##  6     6 Marie       Curie    1903 Physics  &lt;NA&gt;        &lt;NA&gt;  &lt;NA&gt;    1867-11-07
+##  7     6 Marie       Curie    1911 Chemist~ Sorbonne U~ Paris France  1867-11-07
+##  8     8 Lord        Raylei~  1904 Physics  Royal Inst~ Lond~ United~ 1842-11-12
+##  9     9 Philipp     Lenard   1905 Physics  Kiel Unive~ Kiel  Germany 1862-06-07
+## 10    10 J.J.        Thomson  1906 Physics  University~ Camb~ United~ 1856-12-18
+## # ... with 925 more rows, and 17 more variables: died_date &lt;date&gt;,
+## #   gender &lt;chr&gt;, born_city &lt;chr&gt;, born_country &lt;chr&gt;, born_country_code &lt;chr&gt;,
+## #   died_city &lt;chr&gt;, died_country &lt;chr&gt;, died_country_code &lt;chr&gt;,
+## #   overall_motivation &lt;chr&gt;, share &lt;dbl&gt;, motivation &lt;chr&gt;,
+## #   born_country_original &lt;chr&gt;, born_city_original &lt;chr&gt;,
+## #   died_country_original &lt;chr&gt;, died_city_original &lt;chr&gt;, city_original &lt;chr&gt;,
+## #   country_original &lt;chr&gt;</code></pre>
+</div>
+<div id="writing-data" class="section level1">
+<h1>Writing Data</h1>
+<pre class="r"><code>df &lt;- tribble(
+  ~x, ~y,
+  1,  &quot;a&quot;,
+  2,  &quot;b&quot;,
+  3,  &quot;c&quot;
+)
+write_csv(df, file = &quot;/Users/cfish/OneDrive/Documents/GitHub/website_experiment/content/post/2022-02-23-data-io/df.csv&quot;)</code></pre>
+<div id="reading-the-file-we-just-wrote" class="section level2">
+<h2>Reading the file we just wrote:</h2>
+<pre class="r"><code>read_csv(&quot;/Users/cfish/OneDrive/Documents/GitHub/website_experiment/content/post/2022-02-23-data-io/df.csv&quot;)</code></pre>
+<pre><code>## Rows: 3 Columns: 2
+## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;,&quot;
+## chr (1): y
+## dbl (1): x
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre><code>## # A tibble: 3 x 2
+##       x y    
+##   &lt;dbl&gt; &lt;chr&gt;
+## 1     1 a    
+## 2     2 b    
+## 3     3 c</code></pre>
+</div>
+</div>
+<div id="practicing-with-noble" class="section level1">
+<h1>Practicing with Noble</h1>
+<pre class="r"><code>#already imported noble, but need to import sales too
+sales &lt;- read_csv(&quot;https://raw.githubusercontent.com/dearbharat/tidyverse/main/sales.csv&quot;)</code></pre>
+<pre><code>## Rows: 7 Columns: 3
+## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;,&quot;
+## chr (1): Brand
+## dbl (2): Item, n
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<div id="split-nobel-into-stem-and-non-stem" class="section level2">
+<h2>Split nobel into stem and non stem</h2>
+<pre class="r"><code>head(nobel)</code></pre>
+<pre><code>## # A tibble: 6 x 26
+##      id firstname    surname  year category affiliation city  country born_date 
+##   &lt;dbl&gt; &lt;chr&gt;        &lt;chr&gt;   &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt; &lt;chr&gt;   &lt;date&gt;    
+## 1     1 Wilhelm Con~ Röntgen  1901 Physics  Munich Uni~ Muni~ Germany 1845-03-27
+## 2     2 Hendrik A.   Lorentz  1902 Physics  Leiden Uni~ Leid~ Nether~ 1853-07-18
+## 3     3 Pieter       Zeeman   1902 Physics  Amsterdam ~ Amst~ Nether~ 1865-05-25
+## 4     4 Henri        Becque~  1903 Physics  École Poly~ Paris France  1852-12-15
+## 5     5 Pierre       Curie    1903 Physics  École muni~ Paris France  1859-05-15
+## 6     6 Marie        Curie    1903 Physics  &lt;NA&gt;        &lt;NA&gt;  &lt;NA&gt;    1867-11-07
+## # ... with 17 more variables: died_date &lt;date&gt;, gender &lt;chr&gt;, born_city &lt;chr&gt;,
+## #   born_country &lt;chr&gt;, born_country_code &lt;chr&gt;, died_city &lt;chr&gt;,
+## #   died_country &lt;chr&gt;, died_country_code &lt;chr&gt;, overall_motivation &lt;chr&gt;,
+## #   share &lt;dbl&gt;, motivation &lt;chr&gt;, born_country_original &lt;chr&gt;,
+## #   born_city_original &lt;chr&gt;, died_country_original &lt;chr&gt;,
+## #   died_city_original &lt;chr&gt;, city_original &lt;chr&gt;, country_original &lt;chr&gt;</code></pre>
+<pre class="r"><code>library(dplyr)
+nobel %&gt;%
+  count(category)</code></pre>
+<pre><code>## # A tibble: 6 x 2
+##   category       n
+##   &lt;chr&gt;      &lt;int&gt;
+## 1 Chemistry    181
+## 2 Economics     81
+## 3 Literature   114
+## 4 Medicine     216
+## 5 Peace        133
+## 6 Physics      210</code></pre>
+<pre class="r"><code>nobel_stem &lt;- nobel %&gt;%
+  filter(category %in% &quot;Physics&quot; | category %in% &quot;Medicine&quot;| category %in% &quot;Chemistry&quot; | category %in% &quot;Economics&quot;)
+nobel_stem</code></pre>
+<pre><code>## # A tibble: 688 x 26
+##       id firstname   surname  year category affiliation city  country born_date 
+##    &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;   &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt; &lt;chr&gt;   &lt;date&gt;    
+##  1     1 Wilhelm Co~ Röntgen  1901 Physics  Munich Uni~ Muni~ Germany 1845-03-27
+##  2     2 Hendrik A.  Lorentz  1902 Physics  Leiden Uni~ Leid~ Nether~ 1853-07-18
+##  3     3 Pieter      Zeeman   1902 Physics  Amsterdam ~ Amst~ Nether~ 1865-05-25
+##  4     4 Henri       Becque~  1903 Physics  École Poly~ Paris France  1852-12-15
+##  5     5 Pierre      Curie    1903 Physics  École muni~ Paris France  1859-05-15
+##  6     6 Marie       Curie    1903 Physics  &lt;NA&gt;        &lt;NA&gt;  &lt;NA&gt;    1867-11-07
+##  7     6 Marie       Curie    1911 Chemist~ Sorbonne U~ Paris France  1867-11-07
+##  8     8 Lord        Raylei~  1904 Physics  Royal Inst~ Lond~ United~ 1842-11-12
+##  9     9 Philipp     Lenard   1905 Physics  Kiel Unive~ Kiel  Germany 1862-06-07
+## 10    10 J.J.        Thomson  1906 Physics  University~ Camb~ United~ 1856-12-18
+## # ... with 678 more rows, and 17 more variables: died_date &lt;date&gt;,
+## #   gender &lt;chr&gt;, born_city &lt;chr&gt;, born_country &lt;chr&gt;, born_country_code &lt;chr&gt;,
+## #   died_city &lt;chr&gt;, died_country &lt;chr&gt;, died_country_code &lt;chr&gt;,
+## #   overall_motivation &lt;chr&gt;, share &lt;dbl&gt;, motivation &lt;chr&gt;,
+## #   born_country_original &lt;chr&gt;, born_city_original &lt;chr&gt;,
+## #   died_country_original &lt;chr&gt;, died_city_original &lt;chr&gt;, city_original &lt;chr&gt;,
+## #   country_original &lt;chr&gt;</code></pre>
+<pre class="r"><code>write_csv(nobel_stem, file = &quot;/Users/cfish/OneDrive/Documents/GitHub/website_experiment/content/post/2022-02-23-data-io/noble_stem.csv&quot;)</code></pre>
+<pre class="r"><code>nobel_nonstem &lt;- nobel %&gt;%
+  filter(category %in% &quot;Literature&quot; | category %in% &quot;Peace&quot;)
+nobel_nonstem</code></pre>
+<pre><code>## # A tibble: 247 x 26
+##       id firstname   surname  year category affiliation city  country born_date 
+##    &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;   &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt; &lt;chr&gt;   &lt;date&gt;    
+##  1   217 Linus       Pauling  1962 Peace    California~ Pasa~ USA     1901-02-28
+##  2   462 Henry       Dunant   1901 Peace    &lt;NA&gt;        &lt;NA&gt;  &lt;NA&gt;    1828-05-08
+##  3   463 Frédéric    Passy    1901 Peace    &lt;NA&gt;        &lt;NA&gt;  &lt;NA&gt;    1822-05-20
+##  4   464 Élie        Ducomm~  1902 Peace    &lt;NA&gt;        &lt;NA&gt;  &lt;NA&gt;    1833-02-19
+##  5   465 Albert      Gobat    1902 Peace    &lt;NA&gt;        &lt;NA&gt;  &lt;NA&gt;    1843-05-21
+##  6   466 Randal      Cremer   1903 Peace    &lt;NA&gt;        &lt;NA&gt;  &lt;NA&gt;    1828-03-18
+##  7   467 Institute ~ &lt;NA&gt;     1904 Peace    &lt;NA&gt;        &lt;NA&gt;  &lt;NA&gt;    NA        
+##  8   468 Bertha      von Su~  1905 Peace    &lt;NA&gt;        &lt;NA&gt;  &lt;NA&gt;    1843-06-09
+##  9   470 Theodore    Roosev~  1906 Peace    &lt;NA&gt;        &lt;NA&gt;  &lt;NA&gt;    1858-10-27
+## 10   471 Ernesto Te~ Moneta   1907 Peace    &lt;NA&gt;        &lt;NA&gt;  &lt;NA&gt;    1833-09-20
+## # ... with 237 more rows, and 17 more variables: died_date &lt;date&gt;,
+## #   gender &lt;chr&gt;, born_city &lt;chr&gt;, born_country &lt;chr&gt;, born_country_code &lt;chr&gt;,
+## #   died_city &lt;chr&gt;, died_country &lt;chr&gt;, died_country_code &lt;chr&gt;,
+## #   overall_motivation &lt;chr&gt;, share &lt;dbl&gt;, motivation &lt;chr&gt;,
+## #   born_country_original &lt;chr&gt;, born_city_original &lt;chr&gt;,
+## #   died_country_original &lt;chr&gt;, died_city_original &lt;chr&gt;, city_original &lt;chr&gt;,
+## #   country_original &lt;chr&gt;</code></pre>
+<pre class="r"><code>write_csv(nobel_nonstem, file = &quot;/Users/cfish/OneDrive/Documents/GitHub/website_experiment/content/post/2022-02-23-data-io/noble_nonstem.csv&quot;)</code></pre>
+<p>#Variable Names
+## Data with bad names</p>
+<pre class="r"><code>edibnb_badnames &lt;- read_csv(&quot;https://raw.githubusercontent.com/dearbharat/tidyverse/main/edibnb-badnames.csv&quot;)</code></pre>
+<pre><code>## Rows: 13245 Columns: 10
+## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;,&quot;
+## chr (2): neighbourhood, listing_url
+## dbl (8): ID, Price, accommodates, Number of bathrooms, Number of Bedrooms, n...
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>names(edibnb_badnames)</code></pre>
+<pre><code>##  [1] &quot;ID&quot;                   &quot;Price&quot;                &quot;neighbourhood&quot;       
+##  [4] &quot;accommodates&quot;         &quot;Number of bathrooms&quot;  &quot;Number of Bedrooms&quot;  
+##  [7] &quot;n beds&quot;               &quot;Review Scores Rating&quot; &quot;Number of reviews&quot;   
+## [10] &quot;listing_url&quot;</code></pre>
+<div id="r-doesnt-like-spaces-in-variable-names" class="section level3">
+<h3>R doesnt like spaces in variable names</h3>
+<pre class="r"><code>#ggplot(edibnb_badnames, aes(x = Number of bathrooms, y = Price)) +  geom_point()
+#This will cause an error because of the names</code></pre>
+</div>
+</div>
+<div id="option-1-define-column-names" class="section level2">
+<h2>Option 1: define column names</h2>
+<pre class="r"><code>edibnb_col_names &lt;- read_csv(&quot;https://raw.githubusercontent.com/dearbharat/tidyverse/main/edibnb-badnames.csv&quot;,
+                             col_names = c(&quot;id&quot;, &quot;price&quot;, 
+                                           &quot;neighbourhood&quot;, &quot;accommodates&quot;,
+                                           &quot;bathroom&quot;, &quot;bedroom&quot;, 
+                                           &quot;bed&quot;, &quot;review_scores_rating&quot;, 
+                                           &quot;n_reviews&quot;, &quot;url&quot;))</code></pre>
+<pre><code>## Rows: 13246 Columns: 10
+## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;,&quot;
+## chr (10): id, price, neighbourhood, accommodates, bathroom, bedroom, bed, re...
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>names(edibnb_col_names)</code></pre>
+<pre><code>##  [1] &quot;id&quot;                   &quot;price&quot;                &quot;neighbourhood&quot;       
+##  [4] &quot;accommodates&quot;         &quot;bathroom&quot;             &quot;bedroom&quot;             
+##  [7] &quot;bed&quot;                  &quot;review_scores_rating&quot; &quot;n_reviews&quot;           
+## [10] &quot;url&quot;</code></pre>
+</div>
+<div id="option-2---format-text-to-snake_case" class="section level2">
+<h2>Option 2 - Format text to snake_case</h2>
+<pre class="r"><code>edibnb_clean_names &lt;- read_csv(&quot;https://raw.githubusercontent.com/dearbharat/tidyverse/main/edibnb-badnames.csv&quot;) %&gt;%
+  janitor::clean_names()</code></pre>
+<pre><code>## Rows: 13245 Columns: 10
+## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;,&quot;
+## chr (2): neighbourhood, listing_url
+## dbl (8): ID, Price, accommodates, Number of bathrooms, Number of Bedrooms, n...
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>names(edibnb_clean_names)</code></pre>
+<pre><code>##  [1] &quot;id&quot;                   &quot;price&quot;                &quot;neighbourhood&quot;       
+##  [4] &quot;accommodates&quot;         &quot;number_of_bathrooms&quot;  &quot;number_of_bedrooms&quot;  
+##  [7] &quot;n_beds&quot;               &quot;review_scores_rating&quot; &quot;number_of_reviews&quot;   
+## [10] &quot;listing_url&quot;</code></pre>
+</div>
+</div>
+<div id="variable-types-if-a-data-set-is-being-read-and-one-shows-up-as-non-applicable-how-can-we-problem-solve" class="section level1">
+<h1>Variable Types: if a data set is being read and one shows up as non applicable, how can we problem solve</h1>
+<div id="option-1.-explicit-nas" class="section level2">
+<h2>Option 1. Explicit NAs</h2>
+<pre class="r"><code>read_csv(&quot;https://raw.githubusercontent.com/dearbharat/tidyverse/main/df-na.csv&quot;, 
+         na = c(&quot;&quot;, &quot;NA&quot;, &quot;.&quot;, &quot;9999&quot;, &quot;Not applicable&quot;))</code></pre>
+<pre><code>## Rows: 9 Columns: 3
+## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;,&quot;
+## chr (2): y, z
+## dbl (1): x
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre><code>## # A tibble: 9 x 3
+##       x y     z     
+##   &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; 
+## 1     1 a     hi    
+## 2    NA b     hello 
+## 3     3 &lt;NA&gt;  &lt;NA&gt;  
+## 4     4 d     ola   
+## 5     5 e     hola  
+## 6    NA f     whatup
+## 7     7 g     wassup
+## 8     8 h     sup   
+## 9     9 i     &lt;NA&gt;</code></pre>
+</div>
+<div id="option-2.-specify-column-types" class="section level2">
+<h2>Option 2. Specify column types</h2>
+<pre class="r"><code>read_csv(&quot;https://raw.githubusercontent.com/dearbharat/tidyverse/main/df-na.csv&quot;, col_types = list(col_double(), 
+                                            col_character(), 
+                                            col_character()))</code></pre>
+<pre><code>## Warning: One or more parsing issues, see `problems()` for details</code></pre>
+<pre><code>## # A tibble: 9 x 3
+##       x y              z     
+##   &lt;dbl&gt; &lt;chr&gt;          &lt;chr&gt; 
+## 1     1 a              hi    
+## 2    NA b              hello 
+## 3     3 Not applicable 9999  
+## 4     4 d              ola   
+## 5     5 e              hola  
+## 6    NA f              whatup
+## 7     7 g              wassup
+## 8     8 h              sup   
+## 9     9 i              &lt;NA&gt;</code></pre>
+</div>
+</div>
+<div id="case-study-favourite-foodshandle-nas-variable-names-and-make-age-numeric" class="section level1">
+<h1>Case study: favourite foods:handle NAs, variable names, and make age numeric</h1>
+<pre class="r"><code>library(readxl)</code></pre>
+<p>fav_food &lt;- read_excel(“/Users/cfish/Downloads/Documents/favourite-food.xlsx”,
+na = c(“N/A”, “99999”)) %&gt;%
+janitor::clean_names()
+fav_food &lt;- fav_food %&gt;%
+mutate(
+age = if_else(age == “five”, “5”, age),
+age = as.numeric(age)
+)
+glimpse(fav_food)</p>
+</div>
