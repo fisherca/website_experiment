@@ -49,14 +49,14 @@ set.seed(1)
 train1 <- sample(414, 207)
 ```
 
-1. X1 Transaction Date
+## X1 Transaction Date
 ```{r}
 plot(real_estate$`X1 transaction date`, real_estate$`Y house price of unit area`)
 ```
 This simple plot indicates that this correlation has hardly any linearity or pattern at all, so it is not a good independent variable to explore
 
 
-2. X2 House Age
+## X2 House Age
 ```{r}
 plot(real_estate$`X2 house age`, real_estate$`Y house price of unit area` )
 ```
@@ -66,7 +66,7 @@ K = 5
 cv.error.5 <- rep(0,5)
 degree <- 1:5
 for(d in degree){
-  glm.fit <- glm(`X2 house age`~poly(`Y house price of unit area`, d), data = real_estate)
+  glm.fit <- glm(poly(`Y house price of unit area`)~`X2 house age`, data = real_estate)
   cv.error.5[d] <- cv.glm(real_estate, glm.fit, K = K)$delta[1]
 }
 cv.error.5
@@ -74,15 +74,14 @@ cv.error.5
 ```{r}
 plot(degree, cv.error.5, type = "b")
 ```
-
-Setting the Degree at 3 for the above function seemed to minimize the error
+It looks like a polynomial of Y at the 2nd degree was the best fit
 K at 10
 ```{r, warning=FALSE}
 K = 10
 cv.error.10 <- rep(0,10)
 degree <- 1:11
 for(d in degree){
-  glm.fit <- glm(`X1 transaction date`~poly(`Y house price of unit area`, d), data = real_estate)
+  glm.fit <- glm(poly(`Y house price of unit area`)~`X1 transaction date`, data = real_estate)
   cv.error.10[d] <- cv.glm(real_estate, glm.fit, K = K)$delta[1]
 }
 cv.error.10
@@ -90,9 +89,9 @@ cv.error.10
 ```{r}
 plot(degree, cv.error.10, type = "b")
 ```
-Error was minimized at the 1st degree, so possibly a simple linear fit and not a polynomial at all with a K of 10 is best for this model
+Error was minimized at a 3rd degree polynomial for K = 10, so either a 2nd or 3rd degree polynomial over y would be the best fit for this model
 
-3. X3  distance to the nearest MRT station
+## X3  distance to the nearest MRT station
 ```{r}
 plot(real_estate$`X3 distance to the nearest MRT station` , real_estate$`Y house price of unit area` )
 ```
@@ -102,7 +101,7 @@ K = 5
 cv.error.53 <- rep(0,5)
 degree <- 1:5
 for(d in degree){
-  glm.fit <- glm(log(`X3 distance to the nearest MRT station`)~poly(`Y house price of unit area`, d), data = real_estate)
+  glm.fit <- glm(log(`Y house price of unit area`)~poly(`X3 distance to the nearest MRT station`, d), data = real_estate)
   cv.error.53[d] <- cv.glm(real_estate, glm.fit, K = K)$delta[1]
 }
 cv.error.53
@@ -113,7 +112,7 @@ K = 10
 cv.error.103 <- rep(0,10)
 degree <- 1:10
 for(d in degree){
-  glm.fit <- glm(log(`X3 distance to the nearest MRT station`)~poly(`Y house price of unit area`, d), data = real_estate)
+  glm.fit <- glm(log(`Y house price of unit area`)~poly(`X3 distance to the nearest MRT station`, d), data = real_estate)
   cv.error.103[d] <- cv.glm(real_estate, glm.fit, K = K)$delta[1]
 }
 cv.error.103
@@ -121,14 +120,14 @@ cv.error.103
 ```{r}
 plot(degree, cv.error.103, type = "b")
 ```
-It looks like using 1st degree polynomial and taking a log of the X was the best way to reduct CV error
-4. X4 number of convenience stores
+It looks like using 6th degree polynomial on x and taking the log of y was the best way to reduct CV error
+## X4 number of convenience stores
 ```{r}
 plot(real_estate$`X4 number of convenience stores` , real_estate$`Y house price of unit area` )
 ```
 This simple plot indicates that this correlation has hardly any linearity or pattern at all, so it is not a good independent variable to explore
 
-5. X5 latitude
+## X5 latitude
 ```{r}
 plot(real_estate$`X5 latitude`, real_estate$`Y house price of unit area`)
 ```
@@ -139,7 +138,7 @@ K = 5
 cv.error.55 <- rep(0,5)
 degree <- 1:5
 for(d in degree){
-  glm.fit <- glm(`X5 latitude`~poly(`Y house price of unit area`, d), data = real_estate)
+  glm.fit <- glm(`Y house price of unit area`~poly(`X5 latitude`, d), data = real_estate)
   cv.error.55[d] <- cv.glm(real_estate, glm.fit, K = K)$delta[1]
 }
 cv.error.55
@@ -154,7 +153,7 @@ K = 10
 cv.error.105 <- rep(0,10)
 degree <- 1:10
 for(d in degree){
-  glm.fit <- glm(`X5 latitude`~poly(`Y house price of unit area`, d), data = real_estate)
+  glm.fit <- glm(`Y house price of unit area`~poly(`X5 latitude`, d), data = real_estate)
   cv.error.105[d] <- cv.glm(real_estate, glm.fit, K = K)$delta[1]
 }
 cv.error.105
@@ -162,9 +161,9 @@ cv.error.105
 ```{r}
 plot(degree, cv.error.105, type = "b")
 ```
-This model out of all the variabes has the lowest cv error so far, and a 1st degree polynomial has the absolute least error. This indicates that out of all the variables, latitude might be the best predictor of house price of unit area
+Both K = 5 and K = 10 seem to indicate that a 4th degree polynomial would be the best fit for this data, but the level of error is still very high, indicating that latitide might overall not be a great predictor
 
-6. X6 longitude
+## X6 longitude
 ```{r}
 plot(real_estate$`X6 longitude` , real_estate$`Y house price of unit area`)
 ```
@@ -174,40 +173,40 @@ K = 5
 cv.error.56 <- rep(0,5)
 degree <- 1:5
 for(d in degree){
-  glm.fit <- glm(`X6 longitude`~poly(`Y house price of unit area`, d), data = real_estate)
+  glm.fit <- glm(`Y house price of unit area`~ - poly(`X6 longitude`, d), data = real_estate)
   cv.error.56[d] <- cv.glm(real_estate, glm.fit, K = K)$delta[1]
 }
 cv.error.56
 ```
 ```{r}
-plot(degree, cv.error.55, type = "b")
+plot(degree, cv.error.56, type = "b")
 ```
 
-K at 10
+K at 12
 ```{r, warning=FALSE}
-K = 10
-cv.error.106 <- rep(0,10)
-degree <- 1:10
+K = 12
+cv.error.106 <- rep(0,12)
+degree <- 1:12
 for(d in degree){
-  glm.fit <- glm(`X6 longitude`~poly(`Y house price of unit area`, d), data = real_estate)
+  glm.fit <- glm(`Y house price of unit area`~poly(`X6 longitude`, d), data = real_estate)
   cv.error.106[d] <- cv.glm(real_estate, glm.fit, K = K)$delta[1]
 }
 cv.error.106
 ```
 ```{r}
-plot(degree, cv.error.105, type = "b")
+plot(degree, cv.error.106, type = "b")
 ```
-
+The polynomial that looks like the best fit seems to have 11 degrees, however, the error is still relatively high
 
   
 
 # Build a bootstrapping validation method based predictive model to find a good model. (Try different polynomials, different number of samples, different variables)  (2)
-Again, based on the simple graphs of all the Xs compared to Y, X1, X4, and X6 seem to have no correlation, so they are not worth exploring for their predictive capacity]
 
-X2:
+
+## X2:
 ```{r}
 boot.fn2 <- function(data, index){
-  return(coef(lm(`X2 house age`~poly(`Y house price of unit area`,2), data = data, subset = index)))
+  return(coef(lm(`Y house price of unit area`~poly(`X2 house age`,2), data = data, subset = index)))
 }
 ```
 
@@ -223,10 +222,10 @@ plot(boot.out2)
 ```
 
 
-X3:
+## X3:
 ```{r}
 boot.fn3 <- function(data, index){
-  return(coef(lm(log(`X3 distance to the nearest MRT station`)~`Y house price of unit area`, data = data, subset = index)))
+  return(coef(lm(log(`Y house price of unit area`)~`X3 distance to the nearest MRT station`, data = data, subset = index)))
 }
 ```
 
@@ -242,10 +241,10 @@ boot.out3
 plot(boot.out3)
 ```
 
-X5:
+## X5:
 ```{r}
 boot.fn5 <- function(data, index){
-  return(coef(lm(`X5 latitude`~`Y house price of unit area`, data = data, subset = index)))
+  return(coef(lm(`Y house price of unit area`~poly(`X5 latitude`, 4), data = data, subset = index)))
 }
 ```
 
@@ -258,10 +257,10 @@ boot.out5
 plot(boot.out5)
 ```
 
-X6: 
+## X6: 
 ```{r}
 boot.fn6 <- function(data, index){
-  return(coef(lm(`X6 longitude`~poly(`Y house price of unit area`, 2), data = data, subset = index)))
+  return(coef(lm(`Y house price of unit area`~poly(`X6 longitude`, 11), data = data, subset = index)))
 }
 ```
 
