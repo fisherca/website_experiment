@@ -22,32 +22,170 @@ library(tidyverse)</code></pre>
 ## x dplyr::filter() masks stats::filter()
 ## x dplyr::lag()    masks stats::lag()</code></pre>
 <pre class="r"><code>library(dplyr)
-library(ggplot2)</code></pre>
+library(ggplot2)
+library(psych)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;psych&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:ggplot2&#39;:
+## 
+##     %+%, alpha</code></pre>
 <pre class="r"><code>diamonds &lt;- read_excel(&quot;/Users/cfish/Downloads/Professor_Proposes_Data.xlsx&quot;)
-diamonds</code></pre>
-<pre><code>## # A tibble: 440 x 9
-##    Carat Colour Clarity Cut   Certification Polish Symmetry Price Wholesaler
-##    &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;         &lt;chr&gt;  &lt;chr&gt;    &lt;dbl&gt;      &lt;dbl&gt;
-##  1  0.92 I      SI2     G     AGS           V      V         3000          1
-##  2  0.92 I      SI2     V     AGS           G      G         3000          1
-##  3  0.82 F      SI2     I     GIA           X      X         3004          1
-##  4  0.81 G      SI1     I     GIA           X      V         3004          1
-##  5  0.9  J      VS2     V     GIA           V      V         3006          1
-##  6  0.87 F      SI2     I     AGS           G      V         3007          1
-##  7  0.8  D      SI2     I     GIA           V      V         3008          1
-##  8  0.84 F      SI1     G     GIA           V      V         3010          1
-##  9  0.8  D      SI2     V     GIA           V      V         3012          1
-## 10  0.8  D      SI2     V     GIA           V      X         3012          1
-## # ... with 430 more rows</code></pre>
+glimpse(diamonds)</code></pre>
+<pre><code>## Rows: 440
+## Columns: 9
+## $ Carat         &lt;dbl&gt; 0.92, 0.92, 0.82, 0.81, 0.90, 0.87, 0.80, 0.84, 0.80, 0.~
+## $ Colour        &lt;chr&gt; &quot;I&quot;, &quot;I&quot;, &quot;F&quot;, &quot;G&quot;, &quot;J&quot;, &quot;F&quot;, &quot;D&quot;, &quot;F&quot;, &quot;D&quot;, &quot;D&quot;, &quot;G&quot;, &quot;~
+## $ Clarity       &lt;chr&gt; &quot;SI2&quot;, &quot;SI2&quot;, &quot;SI2&quot;, &quot;SI1&quot;, &quot;VS2&quot;, &quot;SI2&quot;, &quot;SI2&quot;, &quot;SI1&quot;, ~
+## $ Cut           &lt;chr&gt; &quot;G&quot;, &quot;V&quot;, &quot;I&quot;, &quot;I&quot;, &quot;V&quot;, &quot;I&quot;, &quot;I&quot;, &quot;G&quot;, &quot;V&quot;, &quot;V&quot;, &quot;I&quot;, &quot;~
+## $ Certification &lt;chr&gt; &quot;AGS&quot;, &quot;AGS&quot;, &quot;GIA&quot;, &quot;GIA&quot;, &quot;GIA&quot;, &quot;AGS&quot;, &quot;GIA&quot;, &quot;GIA&quot;, ~
+## $ Polish        &lt;chr&gt; &quot;V&quot;, &quot;G&quot;, &quot;X&quot;, &quot;X&quot;, &quot;V&quot;, &quot;G&quot;, &quot;V&quot;, &quot;V&quot;, &quot;V&quot;, &quot;V&quot;, &quot;V&quot;, &quot;~
+## $ Symmetry      &lt;chr&gt; &quot;V&quot;, &quot;G&quot;, &quot;X&quot;, &quot;V&quot;, &quot;V&quot;, &quot;V&quot;, &quot;V&quot;, &quot;V&quot;, &quot;V&quot;, &quot;X&quot;, &quot;V&quot;, &quot;~
+## $ Price         &lt;dbl&gt; 3000, 3000, 3004, 3004, 3006, 3007, 3008, 3010, 3012, 30~
+## $ Wholesaler    &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,~</code></pre>
 <pre class="r"><code>attach(diamonds)</code></pre>
 <pre class="r"><code>colnames(diamonds)</code></pre>
 <pre><code>## [1] &quot;Carat&quot;         &quot;Colour&quot;        &quot;Clarity&quot;       &quot;Cut&quot;          
 ## [5] &quot;Certification&quot; &quot;Polish&quot;        &quot;Symmetry&quot;      &quot;Price&quot;        
 ## [9] &quot;Wholesaler&quot;</code></pre>
+<div id="initial-analysis-of-data" class="section level1">
+<h1>Initial analysis of Data</h1>
+<div id="price" class="section level2">
+<h2>Price</h2>
+<p>From the graph below, we can gauge that carat has a bimodal distribution, split at around 0.5 carats</p>
+<pre class="r"><code>ggplot(diamonds, aes(Carat)) +
+  geom_bar()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<pre class="r"><code>describe(diamonds$Carat)</code></pre>
+<pre><code>##    vars   n mean   sd median trimmed  mad  min  max range  skew kurtosis   se
+## X1    1 440 0.67 0.38   0.81    0.67 0.53 0.09 1.58  1.49 -0.05    -1.67 0.02</code></pre>
+</div>
+<div id="colour" class="section level2">
+<h2>Colour</h2>
+<p>Colour has a unimodal, nearly symmetric distribution</p>
+<pre class="r"><code>ggplot(diamonds, aes(Colour)) +
+  geom_bar()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<pre class="r"><code>diamonds %&gt;%
+  count(Colour)</code></pre>
+<pre><code>## # A tibble: 9 x 2
+##   Colour     n
+##   &lt;chr&gt;  &lt;int&gt;
+## 1 D         20
+## 2 E         54
+## 3 F         58
+## 4 G         43
+## 5 H         71
+## 6 I         79
+## 7 J         72
+## 8 K         31
+## 9 L         12</code></pre>
+</div>
+<div id="clarity" class="section level2">
+<h2>Clarity</h2>
+<p>clarity has a unimodal distribution that is skewed a little to the left</p>
+<pre class="r"><code>ggplot(diamonds, aes(Clarity)) +
+  geom_bar()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<pre class="r"><code>diamonds %&gt;%
+  count(Clarity)</code></pre>
+<pre><code>## # A tibble: 9 x 2
+##   Clarity     n
+##   &lt;chr&gt;   &lt;int&gt;
+## 1 I1         82
+## 2 I2         28
+## 3 SI1       116
+## 4 SI2       110
+## 5 SI3        26
+## 6 VS1        30
+## 7 VS2        41
+## 8 VVS1        2
+## 9 VVS2        5</code></pre>
+</div>
+<div id="cut" class="section level2">
+<h2>Cut</h2>
+<p>Cut has a unimodal distribution skewed to the right</p>
+<pre class="r"><code>ggplot(diamonds, aes(Cut)) +
+  geom_bar()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<pre class="r"><code>diamonds %&gt;%
+  count(Cut)</code></pre>
+<pre><code>## # A tibble: 5 x 2
+##   Cut       n
+##   &lt;chr&gt; &lt;int&gt;
+## 1 F        59
+## 2 G        49
+## 3 I        86
+## 4 V        97
+## 5 X       149</code></pre>
+</div>
+<div id="certification" class="section level2">
+<h2>Certification</h2>
+<p>Certification has a unimodal distribution that is skewed to the right</p>
+<pre class="r"><code>ggplot(diamonds, aes(Certification)) +
+  geom_bar()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<pre class="r"><code>diamonds %&gt;%
+  count(Certification)</code></pre>
+<pre><code>## # A tibble: 5 x 2
+##   Certification     n
+##   &lt;chr&gt;         &lt;int&gt;
+## 1 AGS              12
+## 2 DOW               1
+## 3 EGL             119
+## 4 GIA             265
+## 5 IGI              43</code></pre>
+</div>
+<div id="polish" class="section level2">
+<h2>Polish</h2>
+<p>polish has a bimodal distribution, split between F, G, and I; and v, V, and X</p>
+<pre class="r"><code>ggplot(diamonds, aes(Polish)) +
+  geom_bar()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<pre class="r"><code>diamonds %&gt;%
+  count(Polish)</code></pre>
+<pre><code>## # A tibble: 6 x 2
+##   Polish     n
+##   &lt;chr&gt;  &lt;int&gt;
+## 1 F          5
+## 2 G        165
+## 3 I          5
+## 4 v          1
+## 5 V        203
+## 6 X         61</code></pre>
+</div>
+<div id="symmetry" class="section level2">
+<h2>Symmetry</h2>
+<p>symmetry has a bimodal distribution, with a low count of I splitting the bump of F and G with the bump of V and X</p>
+<pre class="r"><code>ggplot(diamonds, aes(Symmetry)) +
+  geom_bar()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
+<pre class="r"><code>diamonds %&gt;%
+  count(Symmetry)</code></pre>
+<pre><code>## # A tibble: 5 x 2
+##   Symmetry     n
+##   &lt;chr&gt;    &lt;int&gt;
+## 1 F           21
+## 2 G          157
+## 3 I            5
+## 4 V          206
+## 5 X           51</code></pre>
+</div>
+<div id="price-1" class="section level2">
+<h2>Price</h2>
+<p>Price has a bimodal distribution that is split at around $1,500.</p>
+<pre class="r"><code>ggplot(diamonds, aes(Price)) +
+  geom_bar()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+<pre class="r"><code>describe(diamonds$Price)</code></pre>
+<pre><code>##    vars   n    mean      sd median trimmed     mad min  max range  skew
+## X1    1 440 1716.74 1175.69   2169 1722.32 1422.55 160 3145  2985 -0.05
+##    kurtosis    se
+## X1    -1.83 56.05</code></pre>
+</div>
+</div>
 <div id="converting-the-data-to-metric" class="section level1">
 <h1>Converting the Data to Metric</h1>
 <pre class="r"><code>library(caret)</code></pre>
-<pre><code>## Warning: package &#39;caret&#39; was built under R version 4.1.3</code></pre>
 <pre><code>## Loading required package: lattice</code></pre>
 <pre><code>## 
 ## Attaching package: &#39;caret&#39;</code></pre>
@@ -101,1413 +239,12 @@ glimpse(diamonds_mod)</code></pre>
 ## $ SymmetryX        &lt;dbl&gt; 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0,~
 ## $ Price            &lt;dbl&gt; 3000, 3000, 3004, 3004, 3006, 3007, 3008, 3010, 3012,~
 ## $ Wholesaler       &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,~</code></pre>
-</div>
-<div id="graphing-the-data" class="section level1">
-<h1>Graphing the Data</h1>
-<div id="carat" class="section level2">
-<h2>Carat</h2>
-<pre class="r"><code>lm(Price ~ Carat, data = diamonds_mod)</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = Price ~ Carat, data = diamonds_mod)
-## 
-## Coefficients:
-## (Intercept)        Carat  
-##      -200.5       2864.7</code></pre>
-<pre class="r"><code>ggplot(diamonds_mod,aes(Carat, Price)) +
-  geom_point(aes(color = Carat)) +
-  geom_smooth(method=&#39;lm&#39;, se=FALSE, color=&#39;turquoise4&#39;) +
-  theme_minimal() +
-  labs(x=&#39;Carat&#39;, y=&#39;Price&#39;, title=&#39;Plot of Carat v.s. Price&#39;) +
-  theme(plot.title = element_text(hjust=0.5, size=20, face=&#39;bold&#39;)) </code></pre>
-<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-8-1.png" width="672" />
-Splitting Price into higher and lower:</p>
-<pre class="r"><code>range(Price)</code></pre>
-<pre><code>## [1]  160 3145</code></pre>
-<pre class="r"><code>diamonds_low &lt;- diamonds_mod[diamonds_mod$Price &lt; 1500,]
-diamonds_high &lt;- diamonds_mod[diamonds_mod$Price &gt; 1500,]</code></pre>
-</div>
-<div id="color" class="section level2">
-<h2>Color</h2>
-<pre class="r"><code>lm(Price ~ Colour, data = diamonds_mod)</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = Price ~ Colour, data = diamonds_mod)
-## 
-## Coefficients:
-## (Intercept)      ColourE      ColourF      ColourG      ColourH      ColourI  
-##     2316.20      -764.29      -982.36      -147.73      -873.92      -765.88  
-##     ColourJ      ColourK      ColourL  
-##     -535.28        42.06        52.30</code></pre>
-<pre class="r"><code>lm(Price ~ Colour, data = diamonds_mod)</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = Price ~ Colour, data = diamonds_mod)
-## 
-## Coefficients:
-## (Intercept)      ColourE      ColourF      ColourG      ColourH      ColourI  
-##     2316.20      -764.29      -982.36      -147.73      -873.92      -765.88  
-##     ColourJ      ColourK      ColourL  
-##     -535.28        42.06        52.30</code></pre>
-<pre class="r"><code>diamonds_low %&gt;% mutate_all(~replace(., is.na(.), 0))</code></pre>
-<pre><code>##     Carat ColourD ColourE ColourF ColourG ColourH ColourI ColourJ ColourK
-## 241  0.09       1       0       0       0       0       0       0       0
-## 242  0.09       0       1       0       0       0       0       0       0
-## 243  0.09       0       0       1       0       0       0       0       0
-## 244  0.09       0       1       0       0       0       0       0       0
-## 245  0.09       0       1       0       0       0       0       0       0
-## 246  0.10       0       1       0       0       0       0       0       0
-## 247  0.10       0       0       1       0       0       0       0       0
-## 248  0.10       0       1       0       0       0       0       0       0
-## 249  0.10       0       0       1       0       0       0       0       0
-## 250  0.10       0       0       1       0       0       0       0       0
-## 251  0.10       0       0       1       0       0       0       0       0
-## 252  0.10       0       1       0       0       0       0       0       0
-## 253  0.10       0       1       0       0       0       0       0       0
-## 254  0.10       0       1       0       0       0       0       0       0
-## 255  0.10       0       1       0       0       0       0       0       0
-## 256  0.10       0       0       1       0       0       0       0       0
-## 257  0.10       0       0       1       0       0       0       0       0
-## 258  0.10       0       1       0       0       0       0       0       0
-## 259  0.11       0       0       1       0       0       0       0       0
-## 260  0.11       0       0       1       0       0       0       0       0
-## 261  0.11       0       1       0       0       0       0       0       0
-## 262  0.11       0       0       1       0       0       0       0       0
-## 263  0.11       0       0       1       0       0       0       0       0
-## 264  0.20       0       0       1       0       0       0       0       0
-## 265  0.21       0       0       0       1       0       0       0       0
-## 266  0.21       0       0       1       0       0       0       0       0
-## 267  0.21       0       1       0       0       0       0       0       0
-## 268  0.21       0       1       0       0       0       0       0       0
-## 269  0.21       0       0       1       0       0       0       0       0
-## 270  0.21       0       0       1       0       0       0       0       0
-## 271  0.21       0       1       0       0       0       0       0       0
-## 272  0.22       0       1       0       0       0       0       0       0
-## 273  0.22       0       0       1       0       0       0       0       0
-## 274  0.22       1       0       0       0       0       0       0       0
-## 275  0.22       0       0       1       0       0       0       0       0
-## 276  0.22       0       1       0       0       0       0       0       0
-## 277  0.23       0       1       0       0       0       0       0       0
-## 278  0.23       0       0       1       0       0       0       0       0
-## 279  0.23       0       0       1       0       0       0       0       0
-## 280  0.23       0       1       0       0       0       0       0       0
-## 281  0.23       0       0       1       0       0       0       0       0
-## 282  0.23       0       0       1       0       0       0       0       0
-## 283  0.23       0       0       1       0       0       0       0       0
-## 284  0.27       0       1       0       0       0       0       0       0
-## 285  0.28       0       1       0       0       0       0       0       0
-## 286  0.28       0       1       0       0       0       0       0       0
-## 287  0.30       0       0       0       0       0       1       0       0
-## 288  0.30       0       0       0       0       0       0       1       0
-## 289  0.30       0       0       0       0       0       1       0       0
-## 290  0.30       0       0       0       0       0       1       0       0
-## 291  0.30       1       0       0       0       0       0       0       0
-## 292  0.30       0       0       0       0       0       0       1       0
-## 293  0.30       0       0       0       0       0       0       1       0
-## 294  0.30       0       0       0       0       0       0       1       0
-## 295  0.30       0       0       0       0       0       0       0       1
-## 296  0.30       0       0       0       0       0       0       1       0
-## 297  0.30       0       0       0       0       0       1       0       0
-## 298  0.30       0       0       0       0       0       1       0       0
-## 299  0.30       0       0       0       0       0       0       1       0
-## 300  0.30       0       0       0       0       0       0       1       0
-## 301  0.30       0       0       0       0       0       0       1       0
-## 302  0.30       0       0       0       0       0       0       1       0
-## 303  0.30       0       0       0       0       0       0       1       0
-## 304  0.30       1       0       0       0       0       0       0       0
-## 305  0.30       0       0       0       0       1       0       0       0
-## 306  0.30       0       0       0       0       1       0       0       0
-## 307  0.30       0       0       0       0       1       0       0       0
-## 308  0.30       0       0       0       0       1       0       0       0
-## 309  0.30       0       0       0       0       1       0       0       0
-## 310  0.30       0       0       0       0       1       0       0       0
-## 311  0.30       0       0       0       0       0       1       0       0
-## 312  0.30       0       0       0       1       0       0       0       0
-## 313  0.30       0       0       0       0       0       0       1       0
-## 314  0.30       0       0       0       0       0       0       1       0
-## 315  0.30       0       0       0       0       0       0       1       0
-## 316  0.30       0       0       0       0       0       0       1       0
-## 317  0.30       0       0       0       0       0       0       1       0
-## 318  0.30       0       0       0       0       0       0       1       0
-## 319  0.30       0       0       0       0       1       0       0       0
-## 320  0.30       0       0       0       0       1       0       0       0
-## 321  0.30       0       0       0       0       1       0       0       0
-## 322  0.30       0       0       0       0       1       0       0       0
-## 323  0.30       0       0       0       0       1       0       0       0
-## 324  0.30       0       1       0       0       0       0       0       0
-## 325  0.30       0       0       1       0       0       0       0       0
-## 326  0.30       0       0       1       0       0       0       0       0
-## 327  0.30       0       0       1       0       0       0       0       0
-## 328  0.30       0       0       1       0       0       0       0       0
-## 329  0.30       0       0       1       0       0       0       0       0
-## 330  0.30       0       0       1       0       0       0       0       0
-## 331  0.30       0       0       1       0       0       0       0       0
-## 332  0.30       0       0       1       0       0       0       0       0
-## 333  0.30       0       0       1       0       0       0       0       0
-## 334  0.30       0       0       1       0       0       0       0       0
-## 335  0.30       0       0       0       1       0       0       0       0
-## 336  0.30       0       0       0       1       0       0       0       0
-## 337  0.30       0       0       0       1       0       0       0       0
-## 338  0.30       0       0       0       0       0       1       0       0
-## 339  0.30       0       0       0       0       0       1       0       0
-## 340  0.30       0       0       0       0       0       1       0       0
-## 341  0.30       0       0       0       0       0       1       0       0
-## 342  0.30       0       0       1       0       0       0       0       0
-## 343  0.30       0       0       1       0       0       0       0       0
-## 344  0.30       0       0       0       1       0       0       0       0
-## 345  0.30       0       0       0       1       0       0       0       0
-## 346  0.30       0       0       0       1       0       0       0       0
-## 347  0.30       0       0       0       1       0       0       0       0
-## 348  0.30       0       0       0       1       0       0       0       0
-## 349  0.30       0       0       0       0       0       1       0       0
-## 350  0.30       0       0       0       0       0       1       0       0
-## 351  0.30       0       0       0       0       0       1       0       0
-## 352  0.30       0       0       0       0       0       1       0       0
-## 353  0.30       0       0       0       0       0       1       0       0
-## 354  0.30       0       0       0       0       0       1       0       0
-## 355  0.30       0       0       0       0       0       1       0       0
-## 356  0.30       0       0       0       0       0       1       0       0
-## 357  0.30       0       0       0       0       0       1       0       0
-## 358  0.30       0       0       0       0       0       1       0       0
-## 359  0.30       0       0       0       0       0       1       0       0
-## 360  0.30       0       0       0       0       0       1       0       0
-## 361  0.30       0       0       0       0       0       1       0       0
-## 362  0.30       0       0       0       0       0       0       1       0
-## 363  0.30       0       0       0       0       0       0       1       0
-## 364  0.30       0       0       0       0       0       0       1       0
-## 365  0.30       0       0       0       0       0       0       1       0
-## 366  0.30       0       0       0       0       0       0       1       0
-## 367  0.30       0       0       0       0       0       0       1       0
-## 368  0.30       0       0       0       0       0       0       1       0
-## 369  0.30       0       0       0       0       0       0       1       0
-## 370  0.30       0       0       0       0       0       0       1       0
-## 371  0.30       0       0       0       0       0       0       1       0
-## 372  0.30       0       0       0       0       0       0       1       0
-## 373  0.30       0       0       0       0       0       0       1       0
-## 374  0.30       0       0       0       0       0       0       1       0
-## 375  0.30       0       0       0       0       0       0       1       0
-## 376  0.30       0       0       0       0       0       0       1       0
-## 377  0.30       0       0       0       0       0       0       1       0
-## 378  0.30       0       0       0       0       0       0       0       1
-## 379  0.30       0       0       0       1       0       0       0       0
-## 380  0.30       0       0       0       0       0       1       0       0
-## 381  0.30       0       0       0       0       0       1       0       0
-## 382  0.30       0       0       0       0       0       1       0       0
-## 383  0.30       0       0       0       0       0       1       0       0
-## 384  0.30       1       0       0       0       0       0       0       0
-## 385  0.30       0       0       0       1       0       0       0       0
-## 386  0.30       0       1       0       0       0       0       0       0
-## 387  0.30       0       1       0       0       0       0       0       0
-## 388  0.30       0       0       0       0       1       0       0       0
-## 389  0.30       0       0       0       0       1       0       0       0
-## 390  0.30       0       0       0       0       1       0       0       0
-## 391  0.30       0       0       0       0       1       0       0       0
-## 392  0.30       0       0       0       0       1       0       0       0
-## 393  0.30       0       0       0       0       1       0       0       0
-## 394  0.30       0       0       0       0       0       1       0       0
-## 395  0.30       0       1       0       0       0       0       0       0
-## 396  0.30       0       1       0       0       0       0       0       0
-## 397  0.30       0       1       0       0       0       0       0       0
-## 398  0.30       0       1       0       0       0       0       0       0
-## 399  0.30       0       0       0       0       1       0       0       0
-## 400  0.30       0       0       0       0       1       0       0       0
-## 401  0.30       0       0       0       0       1       0       0       0
-## 402  0.30       0       0       0       0       1       0       0       0
-## 403  0.30       0       0       0       0       1       0       0       0
-## 404  0.30       0       0       0       0       1       0       0       0
-## 405  0.30       0       0       0       0       1       0       0       0
-## 406  0.30       0       0       0       0       1       0       0       0
-## 407  0.30       0       0       0       0       1       0       0       0
-## 408  0.30       0       0       0       0       1       0       0       0
-## 409  0.30       0       0       0       0       1       0       0       0
-## 410  0.30       0       0       0       0       1       0       0       0
-## 411  0.30       0       0       0       0       1       0       0       0
-## 412  0.30       0       0       0       0       1       0       0       0
-## 413  0.30       0       0       0       0       1       0       0       0
-## 414  0.30       0       0       0       0       1       0       0       0
-## 415  0.30       0       0       0       0       1       0       0       0
-## 416  0.30       0       0       0       0       1       0       0       0
-## 417  0.30       0       0       0       0       1       0       0       0
-## 418  0.30       0       0       0       0       1       0       0       0
-## 419  0.30       0       0       0       0       1       0       0       0
-## 420  0.30       0       0       0       0       0       1       0       0
-## 421  0.30       0       0       0       0       0       1       0       0
-## 422  0.30       0       0       0       0       0       1       0       0
-## 423  0.30       0       0       0       0       0       1       0       0
-## 424  0.30       0       0       0       0       0       1       0       0
-## 425  0.30       0       0       0       0       0       1       0       0
-## 426  0.30       0       0       0       0       0       1       0       0
-## 427  0.30       0       0       0       0       0       1       0       0
-## 428  0.30       0       0       0       0       0       1       0       0
-## 429  0.30       0       0       0       0       0       1       0       0
-## 430  0.30       0       0       0       0       0       1       0       0
-## 431  0.30       0       0       0       0       0       1       0       0
-## 432  0.30       0       0       0       0       0       1       0       0
-## 433  0.30       0       0       0       0       0       1       0       0
-## 434  0.30       0       0       0       0       0       1       0       0
-## 435  0.30       0       0       0       0       0       0       0       1
-## 436  0.30       0       0       0       0       0       0       0       1
-## 437  0.30       0       0       0       0       1       0       0       0
-## 438  0.30       0       0       0       0       1       0       0       0
-## 439  0.30       0       0       0       0       1       0       0       0
-## 440  0.30       0       0       0       0       1       0       0       0
-##     ColourL ClarityI1 ClarityI2 ClaritySI1 ClaritySI2 ClaritySI3 ClarityVS1
-## 241       0         0         0          1          0          0          0
-## 242       0         0         0          1          0          0          0
-## 243       0         0         0          1          0          0          0
-## 244       0         0         0          1          0          0          0
-## 245       0         0         0          0          0          0          1
-## 246       0         0         0          0          0          0          0
-## 247       0         0         0          0          0          0          1
-## 248       0         0         0          0          0          0          0
-## 249       0         0         0          0          0          0          0
-## 250       0         0         0          1          0          0          0
-## 251       0         0         0          1          0          0          0
-## 252       0         0         0          1          0          0          0
-## 253       0         0         0          0          1          0          0
-## 254       0         0         0          0          0          0          1
-## 255       0         0         0          0          0          0          1
-## 256       0         0         0          1          0          0          0
-## 257       0         0         0          0          0          0          1
-## 258       0         0         0          0          0          0          0
-## 259       0         0         0          1          0          0          0
-## 260       0         0         0          0          0          0          0
-## 261       0         0         0          1          0          0          0
-## 262       0         0         0          0          0          0          0
-## 263       0         0         0          1          0          0          0
-## 264       0         0         0          1          0          0          0
-## 265       0         0         0          1          0          0          0
-## 266       0         0         0          1          0          0          0
-## 267       0         0         0          0          0          0          0
-## 268       0         0         0          0          0          0          0
-## 269       0         0         0          1          0          0          0
-## 270       0         0         0          0          0          0          0
-## 271       0         0         0          0          0          0          0
-## 272       0         0         0          1          0          0          0
-## 273       0         0         0          1          0          0          0
-## 274       0         0         0          1          0          0          0
-## 275       0         0         0          1          0          0          0
-## 276       0         0         0          1          0          0          0
-## 277       0         0         0          1          0          0          0
-## 278       0         0         0          0          0          0          0
-## 279       0         0         0          1          0          0          0
-## 280       0         0         0          1          0          0          0
-## 281       0         0         0          0          0          0          0
-## 282       0         0         0          1          0          0          0
-## 283       0         0         0          1          0          0          0
-## 284       0         0         0          0          0          0          0
-## 285       0         0         0          0          0          0          0
-## 286       0         0         0          0          0          0          0
-## 287       0         1         0          0          0          0          0
-## 288       0         0         0          0          1          0          0
-## 289       0         0         0          0          1          0          0
-## 290       0         0         0          0          1          0          0
-## 291       0         1         0          0          0          0          0
-## 292       0         0         0          1          0          0          0
-## 293       0         0         0          1          0          0          0
-## 294       0         0         0          1          0          0          0
-## 295       0         0         0          0          0          0          1
-## 296       0         0         0          0          0          0          0
-## 297       0         0         0          0          1          0          0
-## 298       0         0         0          0          1          0          0
-## 299       0         0         0          1          0          0          0
-## 300       0         0         0          1          0          0          0
-## 301       0         0         0          1          0          0          0
-## 302       0         0         0          1          0          0          0
-## 303       0         0         0          1          0          0          0
-## 304       0         1         0          0          0          0          0
-## 305       0         0         0          0          1          0          0
-## 306       0         0         0          0          1          0          0
-## 307       0         0         0          0          1          0          0
-## 308       0         0         0          0          1          0          0
-## 309       0         0         0          0          1          0          0
-## 310       0         0         0          0          1          0          0
-## 311       0         0         0          1          0          0          0
-## 312       0         0         0          0          1          0          0
-## 313       0         0         0          0          0          0          0
-## 314       0         0         0          0          0          0          0
-## 315       0         0         0          0          0          0          0
-## 316       0         0         0          0          0          0          0
-## 317       0         0         0          0          0          0          0
-## 318       0         0         0          0          0          0          0
-## 319       0         0         0          0          1          0          0
-## 320       0         0         0          0          1          0          0
-## 321       0         0         0          0          1          0          0
-## 322       0         0         0          1          0          0          0
-## 323       0         0         0          1          0          0          0
-## 324       0         0         0          0          1          0          0
-## 325       0         0         0          0          1          0          0
-## 326       0         0         0          0          1          0          0
-## 327       0         0         0          0          1          0          0
-## 328       0         0         0          0          1          0          0
-## 329       0         0         0          0          1          0          0
-## 330       0         0         0          0          1          0          0
-## 331       0         0         0          0          1          0          0
-## 332       0         0         0          0          1          0          0
-## 333       0         0         0          0          1          0          0
-## 334       0         0         0          0          1          0          0
-## 335       0         0         0          0          1          0          0
-## 336       0         0         0          0          1          0          0
-## 337       0         0         0          0          1          0          0
-## 338       0         0         0          1          0          0          0
-## 339       0         0         0          1          0          0          0
-## 340       0         0         0          1          0          0          0
-## 341       0         0         0          1          0          0          0
-## 342       0         0         0          0          1          0          0
-## 343       0         0         0          0          1          0          0
-## 344       0         0         0          0          1          0          0
-## 345       0         0         0          0          1          0          0
-## 346       0         0         0          0          1          0          0
-## 347       0         0         0          0          1          0          0
-## 348       0         0         0          0          1          0          0
-## 349       0         0         0          1          0          0          0
-## 350       0         0         0          1          0          0          0
-## 351       0         0         0          1          0          0          0
-## 352       0         0         0          1          0          0          0
-## 353       0         0         0          1          0          0          0
-## 354       0         0         0          1          0          0          0
-## 355       0         0         0          1          0          0          0
-## 356       0         0         0          1          0          0          0
-## 357       0         0         0          1          0          0          0
-## 358       0         0         0          1          0          0          0
-## 359       0         0         0          1          0          0          0
-## 360       0         0         0          1          0          0          0
-## 361       0         0         0          1          0          0          0
-## 362       0         0         0          0          0          0          1
-## 363       0         0         0          0          0          0          1
-## 364       0         0         0          0          0          0          1
-## 365       0         0         0          0          0          0          1
-## 366       0         0         0          0          0          0          1
-## 367       0         0         0          0          0          0          1
-## 368       0         0         0          0          0          0          1
-## 369       0         0         0          0          0          0          1
-## 370       0         0         0          0          0          0          1
-## 371       0         0         0          0          0          0          1
-## 372       0         0         0          0          0          0          1
-## 373       0         0         0          0          0          0          1
-## 374       0         0         0          0          0          0          1
-## 375       0         0         0          0          0          0          1
-## 376       0         0         0          0          0          0          1
-## 377       0         0         0          0          0          0          1
-## 378       0         0         0          0          0          0          0
-## 379       0         0         0          0          1          0          0
-## 380       0         0         0          1          0          0          0
-## 381       0         0         0          1          0          0          0
-## 382       0         0         0          1          0          0          0
-## 383       0         0         0          1          0          0          0
-## 384       0         0         0          0          1          0          0
-## 385       0         0         0          1          0          0          0
-## 386       0         0         0          0          1          0          0
-## 387       0         0         0          0          1          0          0
-## 388       0         0         0          1          0          0          0
-## 389       0         0         0          1          0          0          0
-## 390       0         0         0          1          0          0          0
-## 391       0         0         0          1          0          0          0
-## 392       0         0         0          1          0          0          0
-## 393       0         0         0          1          0          0          0
-## 394       0         0         0          0          0          0          0
-## 395       0         0         0          0          1          0          0
-## 396       0         0         0          0          1          0          0
-## 397       0         0         0          0          1          0          0
-## 398       0         0         0          0          1          0          0
-## 399       0         0         0          1          0          0          0
-## 400       0         0         0          1          0          0          0
-## 401       0         0         0          1          0          0          0
-## 402       0         0         0          1          0          0          0
-## 403       0         0         0          1          0          0          0
-## 404       0         0         0          1          0          0          0
-## 405       0         0         0          1          0          0          0
-## 406       0         0         0          1          0          0          0
-## 407       0         0         0          1          0          0          0
-## 408       0         0         0          1          0          0          0
-## 409       0         0         0          1          0          0          0
-## 410       0         0         0          1          0          0          0
-## 411       0         0         0          1          0          0          0
-## 412       0         0         0          1          0          0          0
-## 413       0         0         0          1          0          0          0
-## 414       0         0         0          1          0          0          0
-## 415       0         0         0          1          0          0          0
-## 416       0         0         0          1          0          0          0
-## 417       0         0         0          1          0          0          0
-## 418       0         0         0          1          0          0          0
-## 419       0         0         0          1          0          0          0
-## 420       0         0         0          0          0          0          0
-## 421       0         0         0          0          0          0          0
-## 422       0         0         0          0          0          0          0
-## 423       0         0         0          0          0          0          0
-## 424       0         0         0          0          0          0          0
-## 425       0         0         0          0          0          0          0
-## 426       0         0         0          0          0          0          0
-## 427       0         0         0          0          0          0          0
-## 428       0         0         0          0          0          0          0
-## 429       0         0         0          0          0          0          0
-## 430       0         0         0          0          0          0          0
-## 431       0         0         0          0          0          0          0
-## 432       0         0         0          0          0          0          0
-## 433       0         0         0          0          0          0          0
-## 434       0         0         0          0          0          0          0
-## 435       0         0         0          0          0          0          0
-## 436       0         0         0          0          0          0          0
-## 437       0         0         0          1          0          0          0
-## 438       0         0         0          1          0          0          0
-## 439       0         0         0          1          0          0          0
-## 440       0         0         0          1          0          0          0
-##     ClarityVS2 ClarityVVS1 ClarityVVS2 CutF CutG CutI CutV CutX
-## 241          0           0           0    0    0    0    0    1
-## 242          0           0           0    0    0    1    0    0
-## 243          0           0           0    0    0    1    0    0
-## 244          0           0           0    0    0    1    0    0
-## 245          0           0           0    0    0    1    0    0
-## 246          1           0           0    0    0    0    1    0
-## 247          0           0           0    0    0    0    1    0
-## 248          1           0           0    0    0    0    0    1
-## 249          1           0           0    0    0    0    0    1
-## 250          0           0           0    0    0    0    0    1
-## 251          0           0           0    0    0    0    0    1
-## 252          0           0           0    0    0    0    1    0
-## 253          0           0           0    0    1    0    0    0
-## 254          0           0           0    0    0    0    1    0
-## 255          0           0           0    0    0    0    0    1
-## 256          0           0           0    0    0    0    1    0
-## 257          0           0           0    0    0    0    0    1
-## 258          1           0           0    0    0    0    1    0
-## 259          0           0           0    0    1    0    0    0
-## 260          1           0           0    0    1    0    0    0
-## 261          0           0           0    0    0    0    0    1
-## 262          1           0           0    0    0    0    1    0
-## 263          0           0           0    0    0    1    0    0
-## 264          0           0           0    0    0    0    0    1
-## 265          0           0           0    0    0    0    1    0
-## 266          0           0           0    0    0    1    0    0
-## 267          1           0           0    0    0    0    1    0
-## 268          0           0           1    0    0    0    0    1
-## 269          0           0           0    0    0    0    0    1
-## 270          1           0           0    0    0    0    0    1
-## 271          1           0           0    0    0    1    0    0
-## 272          0           0           0    0    0    1    0    0
-## 273          0           0           0    0    0    0    1    0
-## 274          0           0           0    0    0    0    0    1
-## 275          0           0           0    0    0    0    1    0
-## 276          0           0           0    0    0    1    0    0
-## 277          0           0           0    0    0    0    1    0
-## 278          0           0           1    0    0    0    0    1
-## 279          0           0           0    0    0    0    0    1
-## 280          0           0           0    0    0    1    0    0
-## 281          1           0           0    0    0    0    0    1
-## 282          0           0           0    0    0    0    1    0
-## 283          0           0           0    0    0    0    0    1
-## 284          1           0           0    0    0    1    0    0
-## 285          0           0           1    0    0    0    0    1
-## 286          0           0           1    0    0    0    0    1
-## 287          0           0           0    0    0    1    0    0
-## 288          0           0           0    0    0    0    1    0
-## 289          0           0           0    0    0    0    0    1
-## 290          0           0           0    0    0    0    1    0
-## 291          0           0           0    0    0    0    0    1
-## 292          0           0           0    0    0    0    1    0
-## 293          0           0           0    0    1    0    0    0
-## 294          0           0           0    0    0    0    1    0
-## 295          0           0           0    0    0    0    1    0
-## 296          1           0           0    1    0    0    0    0
-## 297          0           0           0    0    0    0    1    0
-## 298          0           0           0    0    0    1    0    0
-## 299          0           0           0    0    0    0    0    1
-## 300          0           0           0    0    0    0    1    0
-## 301          0           0           0    0    0    0    0    1
-## 302          0           0           0    0    0    0    0    1
-## 303          0           0           0    0    1    0    0    0
-## 304          0           0           0    0    0    0    0    1
-## 305          0           0           0    0    1    0    0    0
-## 306          0           0           0    0    0    0    0    1
-## 307          0           0           0    0    0    0    0    1
-## 308          0           0           0    0    0    1    0    0
-## 309          0           0           0    0    0    0    0    1
-## 310          0           0           0    0    0    0    0    1
-## 311          0           0           0    0    0    1    0    0
-## 312          0           0           0    0    1    0    0    0
-## 313          1           0           0    0    0    0    0    1
-## 314          1           0           0    0    0    0    1    0
-## 315          1           0           0    0    0    0    1    0
-## 316          1           0           0    0    0    1    0    0
-## 317          1           0           0    0    0    0    1    0
-## 318          1           0           0    0    0    0    0    1
-## 319          0           0           0    0    1    0    0    0
-## 320          0           0           0    0    0    0    1    0
-## 321          0           0           0    0    0    0    0    1
-## 322          0           0           0    1    0    0    0    0
-## 323          0           0           0    0    0    0    1    0
-## 324          0           0           0    0    0    0    0    1
-## 325          0           0           0    0    0    0    1    0
-## 326          0           0           0    0    0    0    1    0
-## 327          0           0           0    0    0    0    1    0
-## 328          0           0           0    0    0    0    0    1
-## 329          0           0           0    0    0    1    0    0
-## 330          0           0           0    0    0    1    0    0
-## 331          0           0           0    0    0    1    0    0
-## 332          0           0           0    0    0    1    0    0
-## 333          0           0           0    0    0    0    1    0
-## 334          0           0           0    0    0    0    1    0
-## 335          0           0           0    0    0    0    0    1
-## 336          0           0           0    0    0    1    0    0
-## 337          0           0           0    0    0    1    0    0
-## 338          0           0           0    0    0    0    1    0
-## 339          0           0           0    0    0    0    1    0
-## 340          0           0           0    0    0    0    1    0
-## 341          0           0           0    0    0    0    1    0
-## 342          0           0           0    0    0    1    0    0
-## 343          0           0           0    0    0    0    1    0
-## 344          0           0           0    0    1    0    0    0
-## 345          0           0           0    0    0    0    1    0
-## 346          0           0           0    0    0    0    0    1
-## 347          0           0           0    0    0    0    0    1
-## 348          0           0           0    0    0    0    1    0
-## 349          0           0           0    0    1    0    0    0
-## 350          0           0           0    0    0    0    1    0
-## 351          0           0           0    0    0    0    1    0
-## 352          0           0           0    0    0    0    1    0
-## 353          0           0           0    0    0    0    1    0
-## 354          0           0           0    0    0    1    0    0
-## 355          0           0           0    1    0    0    0    0
-## 356          0           0           0    0    0    0    0    1
-## 357          0           0           0    0    0    1    0    0
-## 358          0           0           0    0    0    1    0    0
-## 359          0           0           0    0    0    1    0    0
-## 360          0           0           0    0    0    0    1    0
-## 361          0           0           0    0    0    0    0    1
-## 362          0           0           0    0    0    0    1    0
-## 363          0           0           0    0    0    0    0    1
-## 364          0           0           0    0    0    0    1    0
-## 365          0           0           0    0    0    0    1    0
-## 366          0           0           0    0    0    0    0    1
-## 367          0           0           0    0    0    0    1    0
-## 368          0           0           0    0    0    0    0    1
-## 369          0           0           0    0    0    0    1    0
-## 370          0           0           0    0    0    0    0    1
-## 371          0           0           0    0    0    0    0    1
-## 372          0           0           0    0    1    0    0    0
-## 373          0           0           0    0    0    0    0    1
-## 374          0           0           0    0    0    0    0    1
-## 375          0           0           0    0    0    1    0    0
-## 376          0           0           0    0    0    0    1    0
-## 377          0           0           0    0    0    1    0    0
-## 378          0           0           1    0    0    0    0    1
-## 379          0           0           0    0    0    1    0    0
-## 380          0           0           0    0    0    0    0    1
-## 381          0           0           0    0    0    0    1    0
-## 382          0           0           0    0    0    1    0    0
-## 383          0           0           0    0    0    0    0    1
-## 384          0           0           0    0    1    0    0    0
-## 385          0           0           0    0    0    0    1    0
-## 386          0           0           0    0    0    1    0    0
-## 387          0           0           0    0    0    0    0    1
-## 388          0           0           0    0    1    0    0    0
-## 389          0           0           0    0    0    0    1    0
-## 390          0           0           0    0    0    0    0    1
-## 391          0           0           0    0    0    0    0    1
-## 392          0           0           0    0    0    1    0    0
-## 393          0           0           0    0    0    0    1    0
-## 394          1           0           0    0    0    0    0    1
-## 395          0           0           0    0    0    0    1    0
-## 396          0           0           0    0    0    0    1    0
-## 397          0           0           0    0    0    0    1    0
-## 398          0           0           0    0    0    0    1    0
-## 399          0           0           0    0    1    0    0    0
-## 400          0           0           0    0    0    0    1    0
-## 401          0           0           0    0    0    0    0    1
-## 402          0           0           0    0    0    0    0    1
-## 403          0           0           0    0    0    0    0    1
-## 404          0           0           0    0    0    0    0    1
-## 405          0           0           0    0    0    0    1    0
-## 406          0           0           0    0    0    0    1    0
-## 407          0           0           0    0    0    0    1    0
-## 408          0           0           0    0    0    0    1    0
-## 409          0           0           0    0    0    0    0    1
-## 410          0           0           0    0    0    0    1    0
-## 411          0           0           0    0    0    0    0    1
-## 412          0           0           0    0    0    0    1    0
-## 413          0           0           0    0    0    0    1    0
-## 414          0           0           0    0    0    0    0    1
-## 415          0           0           0    0    0    0    0    1
-## 416          0           0           0    0    0    0    0    1
-## 417          0           0           0    0    0    1    0    0
-## 418          0           0           0    0    0    0    1    0
-## 419          0           0           0    0    0    0    0    1
-## 420          1           0           0    0    0    0    1    0
-## 421          1           0           0    0    0    0    0    1
-## 422          1           0           0    0    0    0    0    1
-## 423          1           0           0    0    0    1    0    0
-## 424          1           0           0    0    0    0    1    0
-## 425          1           0           0    0    0    0    1    0
-## 426          1           0           0    0    0    1    0    0
-## 427          1           0           0    0    0    0    0    1
-## 428          1           0           0    0    0    1    0    0
-## 429          1           0           0    0    0    0    0    1
-## 430          1           0           0    0    0    0    0    1
-## 431          1           0           0    0    0    1    0    0
-## 432          1           0           0    0    0    1    0    0
-## 433          1           0           0    0    0    1    0    0
-## 434          1           0           0    0    0    1    0    0
-## 435          0           1           0    0    0    0    0    1
-## 436          0           1           0    0    0    0    1    0
-## 437          0           0           0    0    1    0    0    0
-## 438          0           0           0    0    0    0    0    1
-## 439          0           0           0    0    0    0    1    0
-## 440          0           0           0    0    0    0    0    1
-##     CertificationAGS CertificationDOW CertificationEGL CertificationGIA
-## 241                0                0                0                0
-## 242                0                0                0                0
-## 243                0                0                0                0
-## 244                0                0                0                0
-## 245                0                0                0                0
-## 246                0                0                0                0
-## 247                0                0                0                0
-## 248                0                0                0                0
-## 249                0                0                0                0
-## 250                0                0                0                0
-## 251                0                0                0                0
-## 252                0                0                0                0
-## 253                0                0                0                0
-## 254                0                0                0                0
-## 255                0                0                0                0
-## 256                0                0                0                0
-## 257                0                0                0                0
-## 258                0                0                0                0
-## 259                0                0                0                0
-## 260                0                0                0                0
-## 261                0                0                0                0
-## 262                0                0                0                0
-## 263                0                0                0                0
-## 264                0                0                0                0
-## 265                0                0                0                0
-## 266                0                0                0                0
-## 267                0                0                0                0
-## 268                0                0                0                0
-## 269                0                0                0                0
-## 270                0                0                0                0
-## 271                0                0                0                0
-## 272                0                0                0                0
-## 273                0                0                0                0
-## 274                0                0                0                0
-## 275                0                0                0                0
-## 276                0                0                0                0
-## 277                0                0                0                0
-## 278                0                0                0                0
-## 279                0                0                0                0
-## 280                0                0                0                0
-## 281                0                0                0                0
-## 282                0                0                0                0
-## 283                0                0                0                0
-## 284                0                0                0                1
-## 285                0                0                0                1
-## 286                0                0                0                1
-## 287                0                0                0                1
-## 288                0                0                0                1
-## 289                0                0                0                1
-## 290                0                0                0                1
-## 291                0                0                0                1
-## 292                0                0                0                1
-## 293                0                0                0                1
-## 294                0                0                0                1
-## 295                0                0                0                1
-## 296                0                0                0                1
-## 297                0                0                0                1
-## 298                0                0                0                1
-## 299                0                0                0                1
-## 300                0                0                0                1
-## 301                0                0                0                1
-## 302                0                0                0                1
-## 303                0                0                0                1
-## 304                0                0                0                1
-## 305                0                0                0                1
-## 306                0                0                0                1
-## 307                0                0                0                1
-## 308                0                0                0                1
-## 309                0                0                0                1
-## 310                0                0                0                1
-## 311                0                0                0                1
-## 312                0                0                0                1
-## 313                0                0                0                1
-## 314                0                0                0                1
-## 315                0                0                0                1
-## 316                0                0                0                1
-## 317                0                0                0                1
-## 318                0                0                0                1
-## 319                0                0                0                1
-## 320                0                0                0                1
-## 321                0                0                0                1
-## 322                0                0                0                1
-## 323                0                0                0                1
-## 324                0                0                0                1
-## 325                0                0                0                1
-## 326                0                0                0                1
-## 327                0                0                0                1
-## 328                0                0                0                1
-## 329                0                0                0                1
-## 330                0                0                0                1
-## 331                0                0                0                1
-## 332                0                0                0                1
-## 333                0                0                0                1
-## 334                0                0                0                1
-## 335                0                0                0                1
-## 336                0                0                0                1
-## 337                0                0                0                1
-## 338                0                0                0                1
-## 339                0                0                0                1
-## 340                0                0                0                1
-## 341                0                0                0                1
-## 342                0                0                0                1
-## 343                0                0                0                1
-## 344                0                0                0                1
-## 345                0                0                0                1
-## 346                0                0                0                1
-## 347                0                0                0                1
-## 348                0                0                0                1
-## 349                0                0                0                1
-## 350                0                0                0                1
-## 351                0                0                0                1
-## 352                0                0                0                1
-## 353                0                0                0                1
-## 354                0                0                0                1
-## 355                0                0                0                1
-## 356                0                0                0                1
-## 357                0                0                0                1
-## 358                0                0                0                1
-## 359                0                0                0                1
-## 360                0                0                0                1
-## 361                0                0                0                1
-## 362                0                0                0                1
-## 363                0                0                0                1
-## 364                0                0                0                1
-## 365                0                0                0                1
-## 366                0                0                0                1
-## 367                0                0                0                1
-## 368                0                0                0                1
-## 369                0                0                0                1
-## 370                0                0                0                1
-## 371                0                0                0                1
-## 372                0                0                0                1
-## 373                0                0                0                1
-## 374                0                0                0                1
-## 375                0                0                0                1
-## 376                0                0                0                1
-## 377                0                0                0                1
-## 378                0                0                0                1
-## 379                0                0                0                1
-## 380                0                0                0                1
-## 381                0                0                0                1
-## 382                0                0                0                1
-## 383                0                0                0                1
-## 384                0                0                0                1
-## 385                0                0                0                1
-## 386                0                0                0                1
-## 387                0                0                0                1
-## 388                0                0                0                1
-## 389                0                0                0                1
-## 390                0                0                0                1
-## 391                0                0                0                1
-## 392                0                0                0                1
-## 393                0                0                0                1
-## 394                0                0                0                1
-## 395                0                0                0                1
-## 396                0                0                0                1
-## 397                0                0                0                1
-## 398                0                0                0                1
-## 399                0                0                0                1
-## 400                0                0                0                1
-## 401                0                0                0                1
-## 402                0                0                0                1
-## 403                0                0                0                1
-## 404                0                0                0                1
-## 405                0                0                0                1
-## 406                0                0                0                1
-## 407                0                0                0                1
-## 408                0                0                0                1
-## 409                0                0                0                1
-## 410                0                0                0                1
-## 411                0                0                0                1
-## 412                0                0                0                1
-## 413                0                0                0                1
-## 414                0                0                0                1
-## 415                0                0                0                1
-## 416                0                0                0                1
-## 417                0                0                0                1
-## 418                0                0                0                1
-## 419                0                0                0                1
-## 420                0                0                0                1
-## 421                0                0                0                1
-## 422                0                0                0                1
-## 423                0                0                0                1
-## 424                0                0                0                1
-## 425                0                0                0                1
-## 426                0                0                0                1
-## 427                0                0                0                1
-## 428                0                0                0                1
-## 429                0                0                0                1
-## 430                0                0                0                1
-## 431                0                0                0                1
-## 432                0                0                0                1
-## 433                0                0                0                1
-## 434                0                0                0                1
-## 435                0                0                0                1
-## 436                0                0                0                1
-## 437                0                0                0                1
-## 438                0                0                0                1
-## 439                0                0                0                1
-## 440                0                0                0                1
-##     CertificationIGI PolishF PolishG PolishI Polishv PolishV PolishX SymmetryF
-## 241                1       0       1       0       0       0       0         0
-## 242                1       0       1       0       0       0       0         0
-## 243                1       0       0       0       0       1       0         0
-## 244                1       0       1       0       0       0       0         0
-## 245                1       0       0       0       0       1       0         0
-## 246                1       0       0       0       0       1       0         0
-## 247                1       0       1       0       0       0       0         0
-## 248                1       0       1       0       0       0       0         0
-## 249                1       0       0       0       0       1       0         0
-## 250                1       0       1       0       0       0       0         0
-## 251                1       0       1       0       0       0       0         0
-## 252                1       0       1       0       0       0       0         0
-## 253                1       0       0       0       0       1       0         0
-## 254                1       0       1       0       0       0       0         0
-## 255                1       0       1       0       0       0       0         0
-## 256                1       0       1       0       0       0       0         0
-## 257                1       0       1       0       0       0       0         0
-## 258                1       0       1       0       0       0       0         0
-## 259                1       0       1       0       0       0       0         0
-## 260                1       0       1       0       0       0       0         0
-## 261                1       0       1       0       0       0       0         0
-## 262                1       0       0       0       0       1       0         0
-## 263                1       0       0       0       0       1       0         0
-## 264                1       0       1       0       0       0       0         0
-## 265                1       0       1       0       0       0       0         0
-## 266                1       0       1       0       0       0       0         0
-## 267                1       0       0       0       0       1       0         0
-## 268                1       0       0       0       0       1       0         0
-## 269                1       0       0       0       0       1       0         0
-## 270                1       0       1       0       0       0       0         0
-## 271                1       0       0       0       0       1       0         0
-## 272                1       0       1       0       0       0       0         0
-## 273                1       0       1       0       0       0       0         0
-## 274                1       0       1       0       0       0       0         0
-## 275                1       0       1       0       0       0       0         0
-## 276                1       0       0       0       0       1       0         0
-## 277                1       0       0       0       0       1       0         0
-## 278                1       0       0       0       0       1       0         0
-## 279                1       0       1       0       0       0       0         0
-## 280                1       0       1       0       0       0       0         0
-## 281                1       0       0       0       0       1       0         0
-## 282                1       0       1       0       0       0       0         0
-## 283                1       0       1       0       0       0       0         0
-## 284                0       0       0       0       0       1       0         0
-## 285                0       0       0       0       0       1       0         0
-## 286                0       0       0       0       0       1       0         0
-## 287                0       0       1       0       0       0       0         0
-## 288                0       0       0       0       0       1       0         0
-## 289                0       0       0       0       0       1       0         0
-## 290                0       0       1       0       0       0       0         0
-## 291                0       0       0       0       0       1       0         0
-## 292                0       0       1       0       0       0       0         0
-## 293                0       0       0       0       0       0       1         0
-## 294                0       0       0       0       0       0       1         0
-## 295                0       0       0       0       0       0       1         0
-## 296                0       0       0       0       0       1       0         0
-## 297                0       0       1       0       0       0       0         0
-## 298                0       0       0       0       0       0       1         0
-## 299                0       0       0       0       0       1       0         0
-## 300                0       0       0       0       0       0       1         0
-## 301                0       0       0       0       0       0       1         0
-## 302                0       0       0       0       0       1       0         0
-## 303                0       0       0       0       0       1       0         0
-## 304                0       0       0       0       0       1       0         0
-## 305                0       0       0       0       0       1       0         0
-## 306                0       0       0       0       0       1       0         0
-## 307                0       0       0       0       0       1       0         0
-## 308                0       0       0       0       0       1       0         0
-## 309                0       0       0       0       0       1       0         0
-## 310                0       0       0       0       0       1       0         0
-## 311                0       0       0       0       0       1       0         0
-## 312                0       0       1       0       0       0       0         0
-## 313                0       0       0       0       0       1       0         0
-## 314                0       0       0       0       0       1       0         0
-## 315                0       0       1       0       0       0       0         0
-## 316                0       0       0       0       0       1       0         0
-## 317                0       0       0       0       0       1       0         0
-## 318                0       0       0       0       0       1       0         0
-## 319                0       0       0       0       0       0       1         0
-## 320                0       0       0       0       0       0       1         0
-## 321                0       0       0       0       0       0       1         0
-## 322                0       0       0       0       0       1       0         0
-## 323                0       0       0       0       0       1       0         0
-## 324                0       0       1       0       0       0       0         0
-## 325                0       0       0       0       0       1       0         0
-## 326                0       0       0       0       0       1       0         0
-## 327                0       0       1       0       0       0       0         0
-## 328                0       0       0       0       0       1       0         0
-## 329                0       0       0       0       0       1       0         0
-## 330                0       0       0       0       0       1       0         0
-## 331                0       0       1       0       0       0       0         0
-## 332                0       0       0       0       0       1       0         0
-## 333                0       0       0       0       0       1       0         0
-## 334                0       0       0       0       0       1       0         0
-## 335                0       0       0       0       0       0       1         0
-## 336                0       0       0       0       0       1       0         0
-## 337                0       0       0       0       0       1       0         0
-## 338                0       0       0       0       0       0       1         0
-## 339                0       0       0       0       0       1       0         0
-## 340                0       0       0       0       0       1       0         0
-## 341                0       0       0       0       0       0       1         0
-## 342                0       0       1       0       0       0       0         0
-## 343                0       0       0       0       0       1       0         0
-## 344                0       0       0       0       0       1       0         0
-## 345                0       0       0       0       0       0       1         0
-## 346                0       0       0       0       0       1       0         0
-## 347                0       0       0       0       0       1       0         0
-## 348                0       0       1       0       0       0       0         0
-## 349                0       0       0       0       0       1       0         0
-## 350                0       0       0       0       0       1       0         0
-## 351                0       0       1       0       0       0       0         0
-## 352                0       0       0       0       0       1       0         0
-## 353                0       0       0       0       0       1       0         0
-## 354                0       0       0       0       0       1       0         0
-## 355                0       0       1       0       0       0       0         0
-## 356                0       0       0       0       0       1       0         0
-## 357                0       0       1       0       0       0       0         0
-## 358                0       0       0       0       0       1       0         0
-## 359                0       0       0       0       0       1       0         0
-## 360                0       0       0       0       0       1       0         0
-## 361                0       0       0       0       0       0       1         0
-## 362                0       0       0       0       0       0       1         0
-## 363                0       0       0       0       0       1       0         0
-## 364                0       0       0       0       0       1       0         0
-## 365                0       0       0       0       0       1       0         0
-## 366                0       0       0       0       0       1       0         0
-## 367                0       0       0       0       0       1       0         0
-## 368                0       0       0       0       0       1       0         0
-## 369                0       0       0       0       0       1       0         0
-## 370                0       0       1       0       0       0       0         0
-## 371                0       0       0       0       0       1       0         0
-## 372                0       0       0       0       0       0       1         0
-## 373                0       0       0       0       0       1       0         0
-## 374                0       0       0       0       0       0       1         0
-## 375                0       0       0       0       0       1       0         0
-## 376                0       0       0       0       0       1       0         0
-## 377                0       0       0       0       0       1       0         0
-## 378                0       0       0       0       0       1       0         0
-## 379                0       0       0       0       0       0       1         0
-## 380                0       0       0       0       0       1       0         0
-## 381                0       0       1       0       0       0       0         0
-## 382                0       0       0       0       0       1       0         0
-## 383                0       0       0       0       0       0       1         0
-## 384                0       0       0       0       0       1       0         0
-## 385                0       0       0       0       0       1       0         0
-## 386                0       0       0       0       0       0       1         0
-## 387                0       0       0       0       0       0       1         0
-## 388                0       0       0       0       0       0       1         0
-## 389                0       0       0       0       0       1       0         0
-## 390                0       0       0       0       0       1       0         0
-## 391                0       0       1       0       0       0       0         0
-## 392                0       0       0       0       0       0       1         0
-## 393                0       0       0       0       0       1       0         0
-## 394                0       0       0       0       0       0       1         0
-## 395                0       0       1       0       0       0       0         0
-## 396                0       0       0       0       0       0       1         0
-## 397                0       0       1       0       0       0       0         0
-## 398                0       0       0       0       0       1       0         0
-## 399                0       0       0       0       0       1       0         0
-## 400                0       0       1       0       0       0       0         0
-## 401                0       0       0       0       0       1       0         0
-## 402                0       0       0       0       0       1       0         0
-## 403                0       0       1       0       0       0       0         0
-## 404                0       0       1       0       0       0       0         0
-## 405                0       0       0       0       0       0       1         0
-## 406                0       0       0       0       0       0       1         0
-## 407                0       0       0       0       0       1       0         0
-## 408                0       0       0       0       0       1       0         0
-## 409                0       0       0       0       0       1       0         0
-## 410                0       0       0       0       0       0       1         0
-## 411                0       0       0       0       0       0       1         0
-## 412                0       0       0       0       0       1       0         0
-## 413                0       0       0       0       0       0       1         0
-## 414                0       0       0       0       0       1       0         0
-## 415                0       0       0       0       0       1       0         0
-## 416                0       0       0       0       0       1       0         0
-## 417                0       0       1       0       0       0       0         0
-## 418                0       0       0       0       0       0       1         0
-## 419                0       0       0       0       0       1       0         0
-## 420                0       0       0       0       0       1       0         0
-## 421                0       0       0       0       0       1       0         0
-## 422                0       0       0       0       0       0       1         0
-## 423                0       0       0       0       0       1       0         0
-## 424                0       0       0       0       0       0       1         0
-## 425                0       0       0       0       0       1       0         0
-## 426                0       0       0       0       0       1       0         0
-## 427                0       0       0       0       0       1       0         0
-## 428                0       0       0       0       0       0       1         0
-## 429                0       0       0       0       0       1       0         0
-## 430                0       0       0       0       0       0       1         0
-## 431                0       0       1       0       0       0       0         0
-## 432                0       0       1       0       0       0       0         0
-## 433                0       0       0       0       0       0       1         0
-## 434                0       0       0       0       0       0       1         0
-## 435                0       0       0       0       0       0       1         0
-## 436                0       0       0       0       0       0       1         0
-## 437                0       0       0       0       0       1       0         0
-## 438                0       0       0       0       0       1       0         0
-## 439                0       0       0       0       0       0       1         0
-## 440                0       0       0       0       0       1       0         0
-##     SymmetryG SymmetryI SymmetryV SymmetryX Price Wholesaler
-## 241         1         0         0         0   190          3
-## 242         1         0         0         0   160          3
-## 243         1         0         0         0   160          3
-## 244         1         0         0         0   180          3
-## 245         1         0         0         0   190          3
-## 246         1         0         0         0   330          3
-## 247         1         0         0         0   180          3
-## 248         1         0         0         0   180          3
-## 249         1         0         0         0   180          3
-## 250         1         0         0         0   190          3
-## 251         1         0         0         0   160          3
-## 252         1         0         0         0   160          3
-## 253         1         0         0         0   190          3
-## 254         1         0         0         0   180          3
-## 255         1         0         0         0   180          3
-## 256         1         0         0         0   180          3
-## 257         1         0         0         0   180          3
-## 258         1         0         0         0   180          3
-## 259         1         0         0         0   160          3
-## 260         1         0         0         0   190          3
-## 261         1         0         0         0   160          3
-## 262         0         0         1         0   180          3
-## 263         1         0         0         0   180          3
-## 264         1         0         0         0   320          3
-## 265         1         0         0         0   330          3
-## 266         1         0         0         0   330          3
-## 267         1         0         0         0   340          3
-## 268         1         0         0         0   320          3
-## 269         0         0         1         0   330          3
-## 270         1         0         0         0   340          3
-## 271         1         0         0         0   340          3
-## 272         1         0         0         0   360          3
-## 273         1         0         0         0   330          3
-## 274         1         0         0         0   340          3
-## 275         1         0         0         0   330          3
-## 276         0         0         1         0   340          3
-## 277         0         0         1         0   404          3
-## 278         0         0         1         0   665          3
-## 279         1         0         0         0   360          3
-## 280         1         0         0         0   360          3
-## 281         1         0         0         0   360          3
-## 282         1         0         0         0   340          3
-## 283         1         0         0         0   360          3
-## 284         0         0         1         0   594          3
-## 285         0         0         0         1   658          3
-## 286         0         0         0         1   658          3
-## 287         0         0         1         0   372          3
-## 288         0         0         1         0   439          3
-## 289         0         0         1         0   466          3
-## 290         0         0         1         0   466          3
-## 291         0         0         1         0   466          3
-## 292         0         0         0         1   466          3
-## 293         0         0         0         1   466          3
-## 294         0         0         1         0   466          3
-## 295         0         0         1         0   466          3
-## 296         0         0         1         0   468          3
-## 297         0         0         1         0   476          3
-## 298         0         0         0         1   476          3
-## 299         1         0         0         0   476          3
-## 300         0         0         1         0   476          3
-## 301         1         0         0         0   476          3
-## 302         0         0         1         0   476          3
-## 303         0         0         1         0   476          3
-## 304         0         0         1         0   490          3
-## 305         0         0         1         0   493          3
-## 306         0         0         1         0   493          3
-## 307         0         0         1         0   493          3
-## 308         0         0         1         0   493          3
-## 309         0         0         1         0   493          3
-## 310         0         0         1         0   493          3
-## 311         0         0         1         0   493          3
-## 312         1         0         0         0   493          3
-## 313         0         0         1         0   493          3
-## 314         0         0         1         0   493          3
-## 315         0         0         1         0   493          3
-## 316         0         0         1         0   493          3
-## 317         0         0         1         0   493          3
-## 318         0         0         1         0   493          3
-## 319         0         0         0         1   504          3
-## 320         0         0         1         0   504          3
-## 321         0         0         0         1   504          3
-## 322         0         0         0         1   519          3
-## 323         0         0         1         0   519          3
-## 324         1         0         0         0   519          3
-## 325         0         0         1         0   520          3
-## 326         0         0         1         0   520          3
-## 327         0         0         1         0   520          3
-## 328         1         0         0         0   520          3
-## 329         0         0         1         0   520          3
-## 330         0         0         1         0   520          3
-## 331         0         0         1         0   520          3
-## 332         0         0         1         0   520          3
-## 333         0         0         1         0   520          3
-## 334         0         0         1         0   520          3
-## 335         0         0         1         0   520          3
-## 336         0         0         1         0   520          3
-## 337         0         0         1         0   520          3
-## 338         0         0         1         0   520          3
-## 339         0         0         1         0   520          3
-## 340         0         0         0         1   520          3
-## 341         0         0         0         1   520          3
-## 342         1         0         0         0   520          3
-## 343         0         0         0         1   520          3
-## 344         0         0         1         0   520          3
-## 345         0         0         1         0   520          3
-## 346         0         0         1         0   520          3
-## 347         0         0         1         0   520          3
-## 348         0         0         1         0   520          3
-## 349         0         0         1         0   520          3
-## 350         0         0         1         0   520          3
-## 351         0         0         1         0   520          3
-## 352         0         0         1         0   520          3
-## 353         0         0         1         0   520          3
-## 354         0         0         1         0   520          3
-## 355         0         0         1         0   520          3
-## 356         1         0         0         0   520          3
-## 357         1         0         0         0   520          3
-## 358         0         0         1         0   520          3
-## 359         0         0         1         0   520          3
-## 360         0         0         1         0   520          3
-## 361         0         0         1         0   520          3
-## 362         0         0         1         0   520          3
-## 363         0         0         1         0   520          3
-## 364         0         0         1         0   520          3
-## 365         0         0         0         1   520          3
-## 366         0         0         0         1   520          3
-## 367         0         0         1         0   520          3
-## 368         0         0         1         0   520          3
-## 369         0         0         1         0   520          3
-## 370         0         0         1         0   520          3
-## 371         0         0         1         0   520          3
-## 372         0         0         1         0   520          3
-## 373         0         0         1         0   520          3
-## 374         0         0         0         1   520          3
-## 375         1         0         0         0   520          3
-## 376         0         0         1         0   520          3
-## 377         0         0         1         0   520          3
-## 378         0         0         1         0   520          3
-## 379         0         0         1         0   531          3
-## 380         0         0         1         0   531          3
-## 381         0         0         1         0   531          3
-## 382         0         0         1         0   531          3
-## 383         0         0         1         0   531          3
-## 384         0         0         1         0   544          3
-## 385         0         0         1         0   544          3
-## 386         0         0         0         1   547          3
-## 387         0         0         1         0   547          3
-## 388         0         0         0         1   547          3
-## 389         1         0         0         0   547          3
-## 390         0         0         1         0   547          3
-## 391         1         0         0         0   547          3
-## 392         0         0         0         1   547          3
-## 393         1         0         0         0   547          3
-## 394         0         0         1         0   547          3
-## 395         1         0         0         0   547          3
-## 396         0         0         0         1   547          3
-## 397         0         0         1         0   547          3
-## 398         0         0         1         0   547          3
-## 399         1         0         0         0   547          3
-## 400         0         0         0         1   547          3
-## 401         0         0         1         0   547          3
-## 402         0         0         0         1   547          3
-## 403         1         0         0         0   547          3
-## 404         0         0         1         0   547          3
-## 405         0         0         1         0   547          3
-## 406         0         0         1         0   547          3
-## 407         0         0         1         0   547          3
-## 408         0         0         1         0   547          3
-## 409         0         0         1         0   547          3
-## 410         0         0         1         0   547          3
-## 411         0         0         1         0   547          3
-## 412         0         0         1         0   547          3
-## 413         0         0         1         0   547          3
-## 414         0         0         1         0   547          3
-## 415         0         0         1         0   547          3
-## 416         0         0         1         0   547          3
-## 417         0         0         1         0   547          3
-## 418         0         0         1         0   547          3
-## 419         0         0         1         0   547          3
-## 420         0         0         0         1   547          3
-## 421         0         0         1         0   547          3
-## 422         0         0         0         1   547          3
-## 423         0         0         1         0   547          3
-## 424         0         0         1         0   547          3
-## 425         0         0         1         0   547          3
-## 426         0         0         1         0   547          3
-## 427         0         0         1         0   547          3
-## 428         0         0         1         0   547          3
-## 429         0         0         0         1   547          3
-## 430         0         0         1         0   547          3
-## 431         0         0         1         0   547          3
-## 432         0         0         1         0   547          3
-## 433         0         0         1         0   547          3
-## 434         0         0         1         0   547          3
-## 435         0         0         1         0   547          3
-## 436         0         0         1         0   547          3
-## 437         0         0         1         0   559          3
-## 438         0         0         1         0   559          3
-## 439         0         0         0         1   559          3
-## 440         0         0         0         1   559          3</code></pre>
-<pre class="r"><code>glimpse(diamonds_low)</code></pre>
-<pre><code>## Rows: 200
-## Columns: 42
-## $ Carat            &lt;dbl&gt; 0.09, 0.09, 0.09, 0.09, 0.09, 0.10, 0.10, 0.10, 0.10,~
-## $ ColourD          &lt;dbl&gt; 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ ColourE          &lt;dbl&gt; 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1,~
-## $ ColourF          &lt;dbl&gt; 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0,~
-## $ ColourG          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ ColourH          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ ColourI          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ ColourJ          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ ColourK          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ ColourL          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ ClarityI1        &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ ClarityI2        &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ ClaritySI1       &lt;dbl&gt; 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0,~
-## $ ClaritySI2       &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,~
-## $ ClaritySI3       &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ ClarityVS1       &lt;dbl&gt; 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0,~
-## $ ClarityVS2       &lt;dbl&gt; 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1,~
-## $ ClarityVVS1      &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ ClarityVVS2      &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ CutF             &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ CutG             &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,~
-## $ CutI             &lt;dbl&gt; 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ CutV             &lt;dbl&gt; 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1,~
-## $ CutX             &lt;dbl&gt; 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0,~
-## $ CertificationAGS &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ CertificationDOW &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ CertificationEGL &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ CertificationGIA &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ CertificationIGI &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,~
-## $ PolishF          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ PolishG          &lt;dbl&gt; 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1,~
-## $ PolishI          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ Polishv          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ PolishV          &lt;dbl&gt; 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0,~
-## $ PolishX          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ SymmetryF        &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ SymmetryG        &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,~
-## $ SymmetryI        &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ SymmetryV        &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ SymmetryX        &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ Price            &lt;dbl&gt; 190, 160, 160, 180, 190, 330, 180, 180, 180, 190, 160~
-## $ Wholesaler       &lt;dbl&gt; 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,~</code></pre>
-<pre class="r"><code>library(ggpubr)</code></pre>
-<pre><code>## Warning: package &#39;ggpubr&#39; was built under R version 4.1.3</code></pre>
-<pre class="r"><code>colourd &lt;- ggplot(diamonds_low, aes(ColourD, Price)) + geom_point() 
-coloure &lt;- ggplot(diamonds_low, aes(ColourE, Price)) + geom_point()
-colourf&lt;- ggplot(diamonds_low, aes(ColourF, Price)) + geom_point()
-colourg&lt;- ggplot(diamonds_low, aes(ColourG, Price)) + geom_point()
-colourh &lt;- ggplot(diamonds_low, aes(ColourH, Price)) + geom_point()
-colouri &lt;- ggplot(diamonds_low, aes(ColourI, Price)) + geom_point()
-colourj &lt;- ggplot(diamonds_low, aes(ColourJ, Price)) + geom_point()
-colourk&lt;- ggplot(diamonds_low, aes(ColourK, Price)) + geom_point()
-
-colours &lt;- ggarrange(coloure,colourf,colourg,  colourh,colouri,colourj, colourk) + geom_smooth(method=&#39;lm&#39;, se=FALSE) + labs(x=&#39;Colour&#39;, y=&#39;Price&#39;, title=&#39;Plot of Colour v.s. Price&#39;)</code></pre>
-</div>
-<div id="clarity" class="section level2">
-<h2>Clarity</h2>
-<pre class="r"><code>lm(Price ~ Clarity, data = diamonds_mod)</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = Price ~ Clarity, data = diamonds_mod)
-## 
-## Coefficients:
-## (Intercept)    ClarityI2   ClaritySI1   ClaritySI2   ClaritySI3   ClarityVS1  
-##     2543.15      -201.22     -1495.53      -568.95        76.24     -1405.38  
-##  ClarityVS2  ClarityVVS1  ClarityVVS2  
-##    -1654.95     -1996.15     -1978.95</code></pre>
-<pre class="r"><code>ggplot(diamonds_mod, aes(Clarity, Price)) +
-  geom_point(aes(color = Clarity)) +
-  geom_smooth(method=&#39;lm&#39;, se=FALSE, color=&#39;red&#39;) +
-  theme_minimal() +
-  labs(x=&#39;Clarity&#39;, y=&#39;Price&#39;, title=&#39;Plot of Clarity v.s. Price&#39;) +
-  theme(plot.title = element_text(hjust=0.5, size=20, face=&#39;bold&#39;)) </code></pre>
-<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-17-1.png" width="672" />
-# Cut</p>
-<pre class="r"><code>lm(Price ~ Cut, data = diamonds_mod)</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = Price ~ Cut, data = diamonds_mod)
-## 
-## Coefficients:
-## (Intercept)         CutG         CutI         CutV         CutX  
-##      2455.2       -409.2       -723.5      -1277.1       -797.2</code></pre>
-<pre class="r"><code>ggplot(diamonds_mod,aes(Cut, Price)) +
-  geom_point(aes(color = Cut)) +
-  geom_smooth(method=&#39;lm&#39;, se=FALSE, color=&#39;turquoise4&#39;) +
-  theme_minimal() +
-  labs(x=&#39;Cut&#39;, y=&#39;Price&#39;, title=&#39;Plot of Cut v.s. Price&#39;) +
-  theme(plot.title = element_text(hjust=0.5, size=20, face=&#39;bold&#39;)) </code></pre>
-<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-19-1.png" width="672" />
-# Certification</p>
-<pre class="r"><code>lm(Price ~ Certification, data = diamonds_mod)</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = Price ~ Certification, data = diamonds_mod)
-## 
-## Coefficients:
-##      (Intercept)  CertificationDOW  CertificationEGL  CertificationGIA  
-##           3033.4           -1002.4            -355.6           -1573.6  
-## CertificationIGI  
-##          -2767.9</code></pre>
-<pre class="r"><code>ggplot(diamonds_mod,aes(Certification, Price)) +
-  geom_point(aes(color = Certification)) +
-  geom_smooth(method=&#39;lm&#39;, se=FALSE, color=&#39;blue&#39;) +
-  theme_minimal() +
-  labs(x=&#39;Clarity&#39;, y=&#39;Price&#39;, title=&#39;Plot of Certification v.s. Price&#39;) +
-  theme(plot.title = element_text(hjust=0.5, size=20, face=&#39;bold&#39;)) </code></pre>
-<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-21-1.png" width="672" />
-# Polish</p>
-<pre class="r"><code>lm(Price ~ Polish, data = diamonds_mod)</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = Price ~ Polish, data = diamonds_mod)
-## 
-## Coefficients:
-## (Intercept)      PolishG      PolishI      Polishv      PolishV      PolishX  
-##      2318.6       -404.0        728.8        762.4       -715.5       -939.8</code></pre>
-<pre class="r"><code>ggplot(diamonds_mod,aes(Polish, Price)) +
-  geom_point(aes(color = Polish)) +
-  geom_smooth(method=&#39;lm&#39;, se=FALSE, color=&#39;green&#39;) +
-  theme_minimal() +
-  labs(x=&#39;Polish&#39;, y=&#39;Price&#39;, title=&#39;Plot of Polish v.s. Price&#39;) +
-  theme(plot.title = element_text(hjust=0.5, size=20, face=&#39;bold&#39;)) </code></pre>
-<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-23-1.png" width="672" />
-# Symmetry</p>
-<pre class="r"><code>lm(Price ~ Symmetry, data = diamonds_mod)</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = Price ~ Symmetry, data = diamonds_mod)
-## 
-## Coefficients:
-## (Intercept)    SymmetryG    SymmetryI    SymmetryV    SymmetryX  
-##      2432.3       -537.9        615.1       -966.8       -673.0</code></pre>
-<pre class="r"><code>ggplot(diamonds_mod,aes(Symmetry, Price)) +
-  geom_point(aes(color = Symmetry)) +
-  geom_smooth(method=&#39;lm&#39;, se=FALSE, color=&#39;turquoise4&#39;) +
-  theme_minimal() +
-  labs(x=&#39;Symmetry&#39;, y=&#39;Price&#39;, title=&#39;Plot of Symmetry v.s. Price&#39;) +
-  theme(plot.title = element_text(hjust=0.5, size=20, face=&#39;bold&#39;)) </code></pre>
-<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
-<p>##Bootstrapping:</p>
-<pre class="r"><code>set.seed(1)
-head(diamonds_mod)</code></pre>
+<div id="removing-low-price-data" class="section level2">
+<h2>Removing Low Price Data</h2>
+<p>Because the Professor’s diamond ended up being $3,000, we can conclude that he is not really interested in looking at diamonds in the lower hump of price’s bimodal distribution</p>
+<pre class="r"><code>diamonds_high &lt;- diamonds_mod %&gt;%
+  filter(diamonds_mod$Price &gt; 1500)
+head(diamonds_high)</code></pre>
 <pre><code>##   Carat ColourD ColourE ColourF ColourG ColourH ColourI ColourJ ColourK ColourL
 ## 1  0.92       0       0       0       0       0       1       0       0       0
 ## 2  0.92       0       0       0       0       0       1       0       0       0
@@ -1550,29 +287,208 @@ head(diamonds_mod)</code></pre>
 ## 4         1         0  3004          1
 ## 5         1         0  3006          1
 ## 6         1         0  3007          1</code></pre>
-<pre class="r"><code>dim(diamonds_mod)</code></pre>
-<pre><code>## [1] 440  42</code></pre>
-<pre class="r"><code>train &lt;- sample(450, 225)
-glimpse(train)</code></pre>
-<pre><code>##  int [1:225] 324 167 129 418 299 270 187 307 85 277 ...</code></pre>
-<pre class="r"><code>library(boot)</code></pre>
+<pre class="r"><code>diamonds_high_nothot &lt;- diamonds %&gt;%
+  filter(diamonds$Price &gt; 1500)</code></pre>
+</div>
+</div>
+<div id="graphing-the-data" class="section level1">
+<h1>Graphing the Data</h1>
+<div id="carat" class="section level2">
+<h2>Carat</h2>
+<pre class="r"><code>ggplot(diamonds_high,aes(Carat, Price)) +
+  geom_point(aes(color = Carat)) +
+  geom_smooth(method=&#39;lm&#39;, se=FALSE, color=&#39;turquoise4&#39;) +
+  theme_minimal() +
+  labs(x=&#39;Carat&#39;, y=&#39;Price&#39;, title=&#39;Plot of Carat v.s. Price&#39;) +
+  theme(plot.title = element_text(hjust=0.5, size=20, face=&#39;bold&#39;)) </code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
+<pre class="r"><code>lmcarat &lt;- lm(Price ~ Carat, data = diamonds_high)
+summary(lmcarat)</code></pre>
 <pre><code>## 
-## Attaching package: &#39;boot&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:lattice&#39;:
+## Call:
+## lm(formula = Price ~ Carat, data = diamonds_high)
 ## 
-##     melanoma</code></pre>
-<pre class="r"><code>boot.fn &lt;- function(data, index){
-  return(coef(lm(Price ~ Cut, data = diamonds_mod, subset = index)))
-}</code></pre>
-<pre class="r"><code>boot.2 &lt;-  boot(diamonds_mod, boot.fn, 500)
-plot(boot.2)</code></pre>
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -904.4 -245.2   76.3  336.7  769.3 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   3741.0      185.4  20.176  &lt; 2e-16 ***
+## Carat         -980.6      183.5  -5.345 2.12e-07 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 347.9 on 238 degrees of freedom
+## Multiple R-squared:  0.1072, Adjusted R-squared:  0.1034 
+## F-statistic: 28.56 on 1 and 238 DF,  p-value: 2.12e-07</code></pre>
+<pre class="r"><code>anovacarat &lt;- aov(Price ~ Carat, data = diamonds_high_nothot)
+summary(anovacarat)</code></pre>
+<pre><code>##              Df   Sum Sq Mean Sq F value   Pr(&gt;F)    
+## Carat         1  3456697 3456697   28.57 2.12e-07 ***
+## Residuals   238 28800867  121012                     
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>The adjusted R-squared value of 0.1034 indicates that there is somewhat of a correlation between carat and price. Interestingly, for these higher priced diamonds, the higher carat diamonds are predicted to actually have a lower price
+## Color</p>
+<pre class="r"><code>lmcolor &lt;- lm(Price ~ ColourD + ColourE + ColourF + ColourG + ColourH + ColourI + ColourJ, data = diamonds_high)
+summary(lmcolor)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Price ~ ColourD + ColourE + ColourF + ColourG + 
+##     ColourH + ColourI + ColourJ, data = diamonds_high)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -883.5 -268.2  146.6  294.2  587.0 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  2549.95      57.22  44.566  &lt; 2e-16 ***
+## ColourD       402.98     108.56   3.712 0.000258 ***
+## ColourE       278.44      90.47   3.078 0.002337 ** 
+## ColourF       163.30      92.70   1.762 0.079461 .  
+## ColourG       262.50      85.98   3.053 0.002529 ** 
+## ColourH       204.84      87.62   2.338 0.020239 *  
+## ColourI       228.11      82.59   2.762 0.006204 ** 
+## ColourJ       256.63      80.41   3.191 0.001611 ** 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 357.3 on 232 degrees of freedom
+## Multiple R-squared:  0.08171,    Adjusted R-squared:  0.05401 
+## F-statistic: 2.949 on 7 and 232 DF,  p-value: 0.005595</code></pre>
+<pre class="r"><code>anovacolor &lt;- aov(Price ~ Colour, data = diamonds_high_nothot)
+summary(anovacolor)</code></pre>
+<pre><code>##              Df   Sum Sq Mean Sq F value  Pr(&gt;F)   
+## Colour        8  3206603  400825   3.187 0.00189 **
+## Residuals   231 29050961  125762                   
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code>ggplot(diamonds_high_nothot, aes(Colour, Price)) +
+  geom_col(aes(fill = Colour)) +
+  theme_minimal() +
+  labs(x=&#39;Colour&#39;, y=&#39;Price&#39;, title=&#39;Plot of Colour v.s. Price&#39;) +
+  theme(plot.title = element_text(hjust=0.5, size=20, face=&#39;bold&#39;)) </code></pre>
 <p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-29-1.png" width="672" /></p>
-<pre class="r"><code>set.seed(2)
-boot.fn(diamonds_mod, sample(500, 500, replace = T))</code></pre>
-<pre><code>## (Intercept)        CutG        CutI        CutV        CutX 
-##   2525.9815   -260.3862   -807.4008  -1415.7088   -915.8356</code></pre>
-<pre class="r"><code>boot.3 &lt;-  boot(diamonds_mod, boot.fn, 100)
-plot(boot.3)</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-31-1.png" width="672" /></p>
+</div>
+<div id="clarity-1" class="section level2">
+<h2>Clarity</h2>
+<pre class="r"><code>lmclarity &lt;- lm(Price ~Clarity, data = diamonds_high_nothot)
+summary(lmclarity)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Price ~ Clarity, data = diamonds_high_nothot)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -763.38 -212.16   35.05  131.83  766.07 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 2622.911     32.332  81.124  &lt; 2e-16 ***
+## ClarityI2   -280.983     63.205  -4.446 1.36e-05 ***
+## ClaritySI1   376.607     64.063   5.879 1.42e-08 ***
+## ClaritySI2   368.012     48.124   7.647 5.37e-13 ***
+## ClaritySI3    -3.527     64.975  -0.054 0.956759    
+## ClarityVS1   431.714    106.623   4.049 7.01e-05 ***
+## ClarityVS2   380.517    113.328   3.358 0.000918 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 287.4 on 233 degrees of freedom
+## Multiple R-squared:  0.4035, Adjusted R-squared:  0.3881 
+## F-statistic: 26.27 on 6 and 233 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>anovaclarity &lt;- aov(Price ~ Clarity, data = diamonds_high_nothot)
+summary(anovaclarity)</code></pre>
+<pre><code>##              Df   Sum Sq Mean Sq F value Pr(&gt;F)    
+## Clarity       6 13015277 2169213   26.27 &lt;2e-16 ***
+## Residuals   233 19242287   82585                   
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>With an adjusted R-squared of 0.3881,Clarity does not seem like a great predictor of Price</p>
+<pre class="r"><code>ggplot(diamonds_high_nothot, aes(Clarity, Price)) +
+  geom_col(aes(fill = Clarity)) +
+  geom_smooth(method=&#39;lm&#39;, se=FALSE, color=&#39;red&#39;) +
+  theme_minimal() +
+  labs(x=&#39;Clarity&#39;, y=&#39;Price&#39;, title=&#39;Plot of Clarity v.s. Price&#39;) +
+  theme(plot.title = element_text(hjust=0.5, size=20, face=&#39;bold&#39;)) </code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-31-1.png" width="672" />
+# Break: quesitons to ask
+is there a reason to upload to github and turn the data into a csv i feel like reading it from an excel works fine and i do not see a difference
+how are you changing your non metric data to metric? i cannot find a way to code it to do so, and thus I am unable to graph them as dotplots
+are you wanting us to do multivartiate analysis? it seemed like you did not care about that in class but I am not sure
+# Cut</p>
+<pre class="r"><code>lm(Price ~ Cut, data = diamonds_mod)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Price ~ Cut, data = diamonds_mod)
+## 
+## Coefficients:
+## (Intercept)         CutG         CutI         CutV         CutX  
+##      2455.2       -409.2       -723.5      -1277.1       -797.2</code></pre>
+<pre class="r"><code>ggplot(diamonds_mod,aes(Cut, Price)) +
+  geom_point(aes(color = Cut)) +
+  geom_smooth(method=&#39;lm&#39;, se=FALSE, color=&#39;turquoise4&#39;) +
+  theme_minimal() +
+  labs(x=&#39;Cut&#39;, y=&#39;Price&#39;, title=&#39;Plot of Cut v.s. Price&#39;) +
+  theme(plot.title = element_text(hjust=0.5, size=20, face=&#39;bold&#39;)) </code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-33-1.png" width="672" />
+# Certification</p>
+<pre class="r"><code>lm(Price ~ Certification, data = diamonds_mod)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Price ~ Certification, data = diamonds_mod)
+## 
+## Coefficients:
+##      (Intercept)  CertificationDOW  CertificationEGL  CertificationGIA  
+##           3033.4           -1002.4            -355.6           -1573.6  
+## CertificationIGI  
+##          -2767.9</code></pre>
+<pre class="r"><code>ggplot(diamonds_mod,aes(Certification, Price)) +
+  geom_point(aes(color = Certification)) +
+  geom_smooth(method=&#39;lm&#39;, se=FALSE, color=&#39;blue&#39;) +
+  theme_minimal() +
+  labs(x=&#39;Clarity&#39;, y=&#39;Price&#39;, title=&#39;Plot of Certification v.s. Price&#39;) +
+  theme(plot.title = element_text(hjust=0.5, size=20, face=&#39;bold&#39;)) </code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-35-1.png" width="672" />
+# Polish</p>
+<pre class="r"><code>lm(Price ~ Polish, data = diamonds_mod)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Price ~ Polish, data = diamonds_mod)
+## 
+## Coefficients:
+## (Intercept)      PolishG      PolishI      Polishv      PolishV      PolishX  
+##      2318.6       -404.0        728.8        762.4       -715.5       -939.8</code></pre>
+<pre class="r"><code>ggplot(diamonds_mod,aes(Polish, Price)) +
+  geom_point(aes(color = Polish)) +
+  geom_smooth(method=&#39;lm&#39;, se=FALSE, color=&#39;green&#39;) +
+  theme_minimal() +
+  labs(x=&#39;Polish&#39;, y=&#39;Price&#39;, title=&#39;Plot of Polish v.s. Price&#39;) +
+  theme(plot.title = element_text(hjust=0.5, size=20, face=&#39;bold&#39;)) </code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-37-1.png" width="672" />
+# Symmetry</p>
+<pre class="r"><code>lm(Price ~ Symmetry, data = diamonds_mod)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Price ~ Symmetry, data = diamonds_mod)
+## 
+## Coefficients:
+## (Intercept)    SymmetryG    SymmetryI    SymmetryV    SymmetryX  
+##      2432.3       -537.9        615.1       -966.8       -673.0</code></pre>
+<pre class="r"><code>ggplot(diamonds_mod,aes(Symmetry, Price)) +
+  geom_point(aes(color = Symmetry)) +
+  geom_smooth(method=&#39;lm&#39;, se=FALSE, color=&#39;turquoise4&#39;) +
+  theme_minimal() +
+  labs(x=&#39;Symmetry&#39;, y=&#39;Price&#39;, title=&#39;Plot of Symmetry v.s. Price&#39;) +
+  theme(plot.title = element_text(hjust=0.5, size=20, face=&#39;bold&#39;)) </code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-39-1.png" width="672" /></p>
 </div>
 </div>

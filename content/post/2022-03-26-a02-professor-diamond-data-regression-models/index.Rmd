@@ -12,12 +12,12 @@ library(readxl)
 library(tidyverse)
 library(dplyr)
 library(ggplot2)
-
+library(psych)
 ```
 
 ```{r}
 diamonds <- read_excel("/Users/cfish/Downloads/Professor_Proposes_Data.xlsx")
-diamonds
+glimpse(diamonds)
 ```
 ```{r}
 attach(diamonds)
@@ -27,9 +27,90 @@ attach(diamonds)
 ```{r}
 colnames(diamonds)
 ```
-
-# Converting the Data to Metric
+# Initial analysis of Data
+## Price
+From the graph below, we can gauge that carat has a bimodal distribution, split at around 0.5 carats
 ```{r}
+ggplot(diamonds, aes(Carat)) +
+  geom_bar()
+```
+```{r}
+describe(diamonds$Carat)
+```
+
+## Colour
+Colour has a unimodal, nearly symmetric distribution
+```{r}
+ggplot(diamonds, aes(Colour)) +
+  geom_bar()
+```
+```{r}
+diamonds %>%
+  count(Colour)
+```
+
+
+## Clarity
+clarity has a unimodal distribution that is skewed a little to the left
+```{r}
+ggplot(diamonds, aes(Clarity)) +
+  geom_bar()
+```
+```{r}
+diamonds %>%
+  count(Clarity)
+```
+## Cut
+Cut has a unimodal distribution skewed to the right
+```{r}
+ggplot(diamonds, aes(Cut)) +
+  geom_bar()
+```
+```{r}
+diamonds %>%
+  count(Cut)
+```
+## Certification
+Certification has a unimodal distribution that is skewed to the right
+```{r}
+ggplot(diamonds, aes(Certification)) +
+  geom_bar()
+```
+```{r}
+diamonds %>%
+  count(Certification)
+```
+## Polish
+polish has a bimodal distribution, split between F, G, and I; and v, V, and X
+```{r}
+ggplot(diamonds, aes(Polish)) +
+  geom_bar()
+```
+```{r}
+diamonds %>%
+  count(Polish)
+```
+## Symmetry
+symmetry has a bimodal distribution, with a low count of I splitting the bump of F and G with the bump of V and X
+```{r}
+ggplot(diamonds, aes(Symmetry)) +
+  geom_bar()
+```
+```{r}
+diamonds %>%
+  count(Symmetry)
+```
+## Price
+Price has a bimodal distribution that is split at around $1,500. 
+```{r}
+ggplot(diamonds, aes(Price)) +
+  geom_bar()
+```
+```{r}
+describe(diamonds$Price)
+```
+# Converting the Data to Metric
+```{r, warning=FALSE}
 library(caret)
 ```
 
@@ -38,74 +119,81 @@ dummy1 <- dummyVars("~ .", data = diamonds)
 diamonds_mod <- data.frame((predict(dummy1, newdata = diamonds)))
 glimpse(diamonds_mod)
 ```
+## Removing Low Price Data
+Because the Professor's diamond ended up being $3,000, we can conclude that he is not really interested in looking at diamonds in the lower hump of price's bimodal distribution
+```{r}
+diamonds_high <- diamonds_mod %>%
+  filter(diamonds_mod$Price > 1500)
+head(diamonds_high)
+```
+```{r}
+diamonds_high_nothot <- diamonds %>%
+  filter(diamonds$Price > 1500)
 
+```
 
 # Graphing the Data
 ## Carat
-```{r}
-lm(Price ~ Carat, data = diamonds_mod)
-```
 
 ```{r}
-ggplot(diamonds_mod,aes(Carat, Price)) +
+ggplot(diamonds_high,aes(Carat, Price)) +
   geom_point(aes(color = Carat)) +
   geom_smooth(method='lm', se=FALSE, color='turquoise4') +
   theme_minimal() +
   labs(x='Carat', y='Price', title='Plot of Carat v.s. Price') +
   theme(plot.title = element_text(hjust=0.5, size=20, face='bold')) 
 ```
-Splitting Price into higher and lower:
 ```{r}
-range(Price)
-```
-
-```{r}
-diamonds_low <- diamonds_mod[diamonds_mod$Price < 1500,]
-diamonds_high <- diamonds_mod[diamonds_mod$Price > 1500,]
+lmcarat <- lm(Price ~ Carat, data = diamonds_high)
+summary(lmcarat)
 
 ```
+```{r}
+anovacarat <- aov(Price ~ Carat, data = diamonds_high_nothot)
+summary(anovacarat)
+```
+
+The adjusted R-squared value of 0.1034 indicates that there is somewhat of a correlation between carat and price. Interestingly, for these higher priced diamonds, the higher carat diamonds are predicted to actually have a lower price
 ## Color
 ```{r}
-lm(Price ~ Colour, data = diamonds_mod)
+lmcolor <- lm(Price ~ ColourD + ColourE + ColourF + ColourG + ColourH + ColourI + ColourJ, data = diamonds_high)
+summary(lmcolor)
+anovacolor <- aov(Price ~ Colour, data = diamonds_high_nothot)
+summary(anovacolor)
+
 ```
 
-```{r}
-lm(Price ~ Colour, data = diamonds_mod)
-```
-```{r}
-diamonds_low %>% mutate_all(~replace(., is.na(.), 0))
-glimpse(diamonds_low)
-```
 
 
 ```{r}
-library(ggpubr)
+ggplot(diamonds_high_nothot, aes(Colour, Price)) +
+  geom_col(aes(fill = Colour)) +
+  theme_minimal() +
+  labs(x='Colour', y='Price', title='Plot of Colour v.s. Price') +
+  theme(plot.title = element_text(hjust=0.5, size=20, face='bold')) 
 ```
 
-```{r}
-colourd <- ggplot(diamonds_low, aes(ColourD, Price)) + geom_point() 
-coloure <- ggplot(diamonds_low, aes(ColourE, Price)) + geom_point()
-colourf<- ggplot(diamonds_low, aes(ColourF, Price)) + geom_point()
-colourg<- ggplot(diamonds_low, aes(ColourG, Price)) + geom_point()
-colourh <- ggplot(diamonds_low, aes(ColourH, Price)) + geom_point()
-colouri <- ggplot(diamonds_low, aes(ColourI, Price)) + geom_point()
-colourj <- ggplot(diamonds_low, aes(ColourJ, Price)) + geom_point()
-colourk<- ggplot(diamonds_low, aes(ColourK, Price)) + geom_point()
-
-colours <- ggarrange(coloure,colourf,colourg,  colourh,colouri,colourj, colourk) + geom_smooth(method='lm', se=FALSE) + labs(x='Colour', y='Price', title='Plot of Colour v.s. Price')
-```
 ## Clarity
 ```{r}
-lm(Price ~ Clarity, data = diamonds_mod)
+lmclarity <- lm(Price ~Clarity, data = diamonds_high_nothot)
+summary(lmclarity)
+anovaclarity <- aov(Price ~ Clarity, data = diamonds_high_nothot)
+summary(anovaclarity)
 ```
+With an adjusted R-squared of 0.3881,Clarity does not seem like a great predictor of Price 
+
 ```{r}
-ggplot(diamonds_mod, aes(Clarity, Price)) +
-  geom_point(aes(color = Clarity)) +
+ggplot(diamonds_high_nothot, aes(Clarity, Price)) +
+  geom_col(aes(fill = Clarity)) +
   geom_smooth(method='lm', se=FALSE, color='red') +
   theme_minimal() +
   labs(x='Clarity', y='Price', title='Plot of Clarity v.s. Price') +
   theme(plot.title = element_text(hjust=0.5, size=20, face='bold')) 
 ```
+# Break: quesitons to ask
+is there a reason to upload to github and turn the data into a csv i feel like reading it from an excel works fine and i do not see a difference
+how are you changing your non metric data to metric? i cannot find a way to code it to do so, and thus I am unable to graph them as dotplots
+are you wanting us to do multivartiate analysis? it seemed like you did not care about that in class but I am not sure
 # Cut
 ```{r}
 lm(Price ~ Cut, data = diamonds_mod)
@@ -158,36 +246,5 @@ ggplot(diamonds_mod,aes(Symmetry, Price)) +
   theme(plot.title = element_text(hjust=0.5, size=20, face='bold')) 
 ```
 
-##Bootstrapping:
-```{r}
-set.seed(1)
-head(diamonds_mod)
-dim(diamonds_mod)
-train <- sample(450, 225)
-glimpse(train)
-```
-```{r}
-library(boot)
-```
 
-```{r}
-boot.fn <- function(data, index){
-  return(coef(lm(Price ~ Cut, data = diamonds_mod, subset = index)))
-}
-```
-
-```{r}
-boot.2 <-  boot(diamonds_mod, boot.fn, 500)
-plot(boot.2)
-```
-
-```{r}
-set.seed(2)
-boot.fn(diamonds_mod, sample(500, 500, replace = T))
-```
-
-```{r}
-boot.3 <-  boot(diamonds_mod, boot.fn, 100)
-plot(boot.3)
-```
 
