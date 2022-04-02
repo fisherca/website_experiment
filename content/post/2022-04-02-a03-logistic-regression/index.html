@@ -37,7 +37,8 @@ a “Survived” column (that you will create!) with a “1” for the rows wher
 ## 
 ## i Use `spec()` to retrieve the full column specification for this data.
 ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre class="r"><code>glimpse(train)</code></pre>
+<pre class="r"><code>attach(train)
+glimpse(train)</code></pre>
 <pre><code>## Rows: 891
 ## Columns: 12
 ## $ PassengerId &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,~
@@ -61,6 +62,11 @@ a “Survived” column (that you will create!) with a “1” for the rows wher
 ## 
 ## i Use `spec()` to retrieve the full column specification for this data.
 ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>attach(test)</code></pre>
+<pre><code>## The following objects are masked from train:
+## 
+##     Age, Cabin, Embarked, Fare, Name, Parch, PassengerId, Pclass, Sex,
+##     SibSp, Ticket</code></pre>
 <pre class="r"><code>glimpse(test)</code></pre>
 <pre><code>## Rows: 418
 ## Columns: 11

@@ -20,10 +20,12 @@ library(tidyverse)
 ```
 ```{r}
 train <- read_csv("https://raw.githubusercontent.com/fisherca/website_experiment/main/train.csv")
+attach(train)
 glimpse(train)
 ```
 ```{r}
 test <- read_csv("https://raw.githubusercontent.com/fisherca/website_experiment/main/test.csv")
+attach(test)
 glimpse(test)
 ```
 
