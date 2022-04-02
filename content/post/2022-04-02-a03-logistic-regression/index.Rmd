@@ -1,0 +1,167 @@
+---
+title: 'A03 Logistic regression '
+author: "Cadence Fisher"
+date: '2022-04-02'
+slug: a03-logistic-regression
+categories: []
+tags: []
+---
+Use the Titanic passenger data (name, age, price of ticket, etc) to try to predict who will survive and who will die
+
+your submission should have:
+
+a "PassengerId" column containing the IDs of each passenger from test.csv.
+a "Survived" column (that you will create!) with a "1" for the rows where you think the passenger survived, and a "0" where you predict that the passenger died.
+#Loading in / Preparing the data
+```{r}
+library(openintro)
+library(tidyverse)
+
+```
+```{r}
+train <- read_csv("https://raw.githubusercontent.com/fisherca/website_experiment/main/train.csv")
+glimpse(train)
+```
+```{r}
+test <- read_csv("https://raw.githubusercontent.com/fisherca/website_experiment/main/test.csv")
+glimpse(test)
+```
+
+
+# Experimenting with the Data
+## Quick tables to explore patterns
+This was not in the instructions, but I thought it would help me visualize the data
+```{r}
+table(train$Survived, train$Sex)
+```
+More Females survived than males, and a far higher proportion of females survived overall
+```{r}
+table(train$Survived, train$Pclass)
+```
+```{r}
+136/(80+136)
+87/(97+87)
+119/(372+119)
+```
+62% of the First class passengers survived, wheras only 47% of second class and 24% of third class passengers survived
+
+```{r}
+table(train$Survived, train$SibSp)
+```
+```{r}
+210/(398+210)
+(112+13+4+3+1)/(97+112+15+13+12+4+15+3+5+1+7)
+```
+
+34.5% of people who had no siblings or spouse survived, whereas 46% of people with at least one sibling or spouse survived
+
+```{r}
+table(train$Survived, train$Parch)
+```
+```{r}
+233/(445+233)
+(65+40+3+1+1)/(65+40+3+1+1+53+40+2+4+4+1)
+```
+
+Only 34% of people with no parents or children survived, but 51% of people with at least 1 parent or child survived
+
+
+
+## Is gender a good predictor of death? Recreation of exercise done in tutorial
+```{r}
+women_tot <- train %>%
+  filter(Sex == 'female')
+women_alive <- train %>%
+  filter(Sex == 'female', Survived == 1)
+women_rate = count(women_alive)/count(women_tot)
+women_rate
+```
+
+74% of the women in the train data survived
+```{r}
+men_tot <- train %>%
+  filter(Sex == 'male')
+men_alive <- train %>%
+  filter(Sex == 'male', Survived == 1)
+men_rate = count(men_alive)/count(men_tot)
+men_rate
+```
+18% of the men in the train data survived
+
+#Building a random forest model:
+We are going to look at Pclass,Age, Fare Sex, SibSp, and Parch as potential predictors for Survived
+##Preparing the Data
+adding empty row to test data
+```{r}
+test$Survived <- NA
+```
+removing rows I will not use
+```{r}
+train <- train[c("PassengerId", "Survived", "Pclass", "Sex", "Age", "SibSp", "Parch", "Fare")]
+
+test <- test[c("PassengerId", "Survived", "Pclass", "Sex", "Age", "SibSp", "Parch", "Fare")]
+```
+
+replacing NA values and changing data types if needed 
+```{r}
+train[is.na(train$Age), "Age"] <- median(train$Age, na.rm = TRUE)
+
+test[is.na(test$Age), "Age"] <- median(test$Age, na.rm = TRUE)
+```
+```{r}
+train[is.na(train$Fare), "Fare"] <- median(train$Fare, na.rm = TRUE)
+
+test[is.na(test$Fare), "Fare"] <- median(test$Fare, na.rm = TRUE)
+```
+```{r}
+train <- transform(train, Survived = as.factor(Survived), Pclass = as.factor(Pclass), Sex = as.factor(Sex))
+
+test <- transform(test, Pclass = as.factor(Pclass), Sex = as.factor(Sex))
+```
+
+making a full dataset
+```{r}
+full_data <- rbind(train, test)
+```
+
+
+
+##Doing random forest analysis
+```{r, warning = FALSE}
+library(randomForest)
+require(caTools)
+library(caret)
+```
+
+
+
+```{r, warning = FALSE}
+trainrf <- Survived~ Pclass+Sex+Age+SibSp+Parch+Fare
+rf <- randomForest(trainrf, data = train, mtry = 3)
+```
+
+```{r}
+varImpPlot(rf)
+```
+From this graph, it is clear that Sex is the best predictor variable of Survival of all these variables, followed by Fare and Age
+
+#Creating Output Dataframe
+```{r}
+testrf <- "Pclass+Sex+Age+SibSp+Parch+Fare"
+```
+
+```{r}
+Survivedpredict<- predict(rf, newdata = test)
+
+```
+```{r}
+PassengerID <- test$PassengerId
+outputdata <- as.data.frame(PassengerID)
+outputdata$Survived <- Survivedpredict
+```
+
+```{r}
+write.csv(outputdata, file = "A03_data_output.csv", row.names = FALSE)
+```
+
+
