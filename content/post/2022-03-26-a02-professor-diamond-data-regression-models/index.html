@@ -10,14 +10,12 @@ tags: []
 <script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
 
 
-<pre class="r"><code>library(readr)
-library(readxl)
-library(tidyverse)</code></pre>
+<pre class="r"><code>library(tidyverse)</code></pre>
 <pre><code>## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
-<pre><code>## v ggplot2 3.3.5     v dplyr   1.0.7
-## v tibble  3.1.6     v stringr 1.4.0
-## v tidyr   1.2.0     v forcats 0.5.1
-## v purrr   0.3.4</code></pre>
+<pre><code>## v ggplot2 3.3.5     v purrr   0.3.4
+## v tibble  3.1.6     v dplyr   1.0.7
+## v tidyr   1.2.0     v stringr 1.4.0
+## v readr   2.1.2     v forcats 0.5.1</code></pre>
 <pre><code>## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
 ## x dplyr::filter() masks stats::filter()
 ## x dplyr::lag()    masks stats::lag()</code></pre>
@@ -29,9 +27,17 @@ library(psych)</code></pre>
 <pre><code>## The following objects are masked from &#39;package:ggplot2&#39;:
 ## 
 ##     %+%, alpha</code></pre>
-<pre class="r"><code>diamonds &lt;- read_excel(&quot;/Users/cfish/Downloads/Professor_Proposes_Data.xlsx&quot;)
-glimpse(diamonds)</code></pre>
-<pre><code>## Rows: 440
+<pre class="r"><code>diamonds &lt;- read_csv(&quot;https://raw.githubusercontent.com/fisherca/website_experiment/main/Professor_Proposes_Data.csv&quot;)</code></pre>
+<pre><code>## Rows: 441 Columns: 9
+## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;,&quot;
+## chr (6): Colour, Clarity, Cut, Certification, Polish, Symmetry
+## dbl (3): Carat, Price, Wholesaler
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>glimpse(diamonds)</code></pre>
+<pre><code>## Rows: 441
 ## Columns: 9
 ## $ Carat         &lt;dbl&gt; 0.92, 0.92, 0.82, 0.81, 0.90, 0.87, 0.80, 0.84, 0.80, 0.~
 ## $ Colour        &lt;chr&gt; &quot;I&quot;, &quot;I&quot;, &quot;F&quot;, &quot;G&quot;, &quot;J&quot;, &quot;F&quot;, &quot;D&quot;, &quot;F&quot;, &quot;D&quot;, &quot;D&quot;, &quot;G&quot;, &quot;~
@@ -51,249 +57,180 @@ glimpse(diamonds)</code></pre>
 <h1>Initial analysis of Data</h1>
 <div id="price" class="section level2">
 <h2>Price</h2>
-<p>From the graph below, we can gauge that carat has a bimodal distribution, split at around 0.5 carats</p>
-<pre class="r"><code>ggplot(diamonds, aes(Carat)) +
-  geom_bar()</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
-<pre class="r"><code>describe(diamonds$Carat)</code></pre>
-<pre><code>##    vars   n mean   sd median trimmed  mad  min  max range  skew kurtosis   se
-## X1    1 440 0.67 0.38   0.81    0.67 0.53 0.09 1.58  1.49 -0.05    -1.67 0.02</code></pre>
-</div>
-<div id="colour" class="section level2">
-<h2>Colour</h2>
-<p>Colour has a unimodal, nearly symmetric distribution</p>
-<pre class="r"><code>ggplot(diamonds, aes(Colour)) +
-  geom_bar()</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
-<pre class="r"><code>diamonds %&gt;%
-  count(Colour)</code></pre>
-<pre><code>## # A tibble: 9 x 2
-##   Colour     n
-##   &lt;chr&gt;  &lt;int&gt;
-## 1 D         20
-## 2 E         54
-## 3 F         58
-## 4 G         43
-## 5 H         71
-## 6 I         79
-## 7 J         72
-## 8 K         31
-## 9 L         12</code></pre>
-</div>
-<div id="clarity" class="section level2">
-<h2>Clarity</h2>
-<p>clarity has a unimodal distribution that is skewed a little to the left</p>
-<pre class="r"><code>ggplot(diamonds, aes(Clarity)) +
-  geom_bar()</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
-<pre class="r"><code>diamonds %&gt;%
-  count(Clarity)</code></pre>
-<pre><code>## # A tibble: 9 x 2
-##   Clarity     n
-##   &lt;chr&gt;   &lt;int&gt;
-## 1 I1         82
-## 2 I2         28
-## 3 SI1       116
-## 4 SI2       110
-## 5 SI3        26
-## 6 VS1        30
-## 7 VS2        41
-## 8 VVS1        2
-## 9 VVS2        5</code></pre>
-</div>
-<div id="cut" class="section level2">
-<h2>Cut</h2>
-<p>Cut has a unimodal distribution skewed to the right</p>
-<pre class="r"><code>ggplot(diamonds, aes(Cut)) +
-  geom_bar()</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
-<pre class="r"><code>diamonds %&gt;%
-  count(Cut)</code></pre>
-<pre><code>## # A tibble: 5 x 2
-##   Cut       n
-##   &lt;chr&gt; &lt;int&gt;
-## 1 F        59
-## 2 G        49
-## 3 I        86
-## 4 V        97
-## 5 X       149</code></pre>
-</div>
-<div id="certification" class="section level2">
-<h2>Certification</h2>
-<p>Certification has a unimodal distribution that is skewed to the right</p>
-<pre class="r"><code>ggplot(diamonds, aes(Certification)) +
-  geom_bar()</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
-<pre class="r"><code>diamonds %&gt;%
-  count(Certification)</code></pre>
-<pre><code>## # A tibble: 5 x 2
-##   Certification     n
-##   &lt;chr&gt;         &lt;int&gt;
-## 1 AGS              12
-## 2 DOW               1
-## 3 EGL             119
-## 4 GIA             265
-## 5 IGI              43</code></pre>
-</div>
-<div id="polish" class="section level2">
-<h2>Polish</h2>
-<p>polish has a bimodal distribution, split between F, G, and I; and v, V, and X</p>
-<pre class="r"><code>ggplot(diamonds, aes(Polish)) +
-  geom_bar()</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
-<pre class="r"><code>diamonds %&gt;%
-  count(Polish)</code></pre>
-<pre><code>## # A tibble: 6 x 2
-##   Polish     n
-##   &lt;chr&gt;  &lt;int&gt;
-## 1 F          5
-## 2 G        165
-## 3 I          5
-## 4 v          1
-## 5 V        203
-## 6 X         61</code></pre>
-</div>
-<div id="symmetry" class="section level2">
-<h2>Symmetry</h2>
-<p>symmetry has a bimodal distribution, with a low count of I splitting the bump of F and G with the bump of V and X</p>
-<pre class="r"><code>ggplot(diamonds, aes(Symmetry)) +
-  geom_bar()</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
-<pre class="r"><code>diamonds %&gt;%
-  count(Symmetry)</code></pre>
-<pre><code>## # A tibble: 5 x 2
-##   Symmetry     n
-##   &lt;chr&gt;    &lt;int&gt;
-## 1 F           21
-## 2 G          157
-## 3 I            5
-## 4 V          206
-## 5 X           51</code></pre>
-</div>
-<div id="price-1" class="section level2">
-<h2>Price</h2>
 <p>Price has a bimodal distribution that is split at around $1,500.</p>
 <pre class="r"><code>ggplot(diamonds, aes(Price)) +
   geom_bar()</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+<pre><code>## Warning: Removed 1 rows containing non-finite values (stat_count).</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 <pre class="r"><code>describe(diamonds$Price)</code></pre>
 <pre><code>##    vars   n    mean      sd median trimmed     mad min  max range  skew
 ## X1    1 440 1716.74 1175.69   2169 1722.32 1422.55 160 3145  2985 -0.05
 ##    kurtosis    se
 ## X1    -1.83 56.05</code></pre>
 </div>
-</div>
-<div id="converting-the-data-to-metric" class="section level1">
-<h1>Converting the Data to Metric</h1>
-<pre class="r"><code>library(caret)</code></pre>
-<pre><code>## Loading required package: lattice</code></pre>
-<pre><code>## 
-## Attaching package: &#39;caret&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:purrr&#39;:
-## 
-##     lift</code></pre>
-<pre class="r"><code>dummy1 &lt;- dummyVars(&quot;~ .&quot;, data = diamonds)
-diamonds_mod &lt;- data.frame((predict(dummy1, newdata = diamonds)))
-glimpse(diamonds_mod)</code></pre>
-<pre><code>## Rows: 440
-## Columns: 42
-## $ Carat            &lt;dbl&gt; 0.92, 0.92, 0.82, 0.81, 0.90, 0.87, 0.80, 0.84, 0.80,~
-## $ ColourD          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ ColourE          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ ColourF          &lt;dbl&gt; 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0,~
-## $ ColourG          &lt;dbl&gt; 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0,~
-## $ ColourH          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,~
-## $ ColourI          &lt;dbl&gt; 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,~
-## $ ColourJ          &lt;dbl&gt; 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,~
-## $ ColourK          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ ColourL          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ ClarityI1        &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ ClarityI2        &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ ClaritySI1       &lt;dbl&gt; 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,~
-## $ ClaritySI2       &lt;dbl&gt; 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,~
-## $ ClaritySI3       &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ ClarityVS1       &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,~
-## $ ClarityVS2       &lt;dbl&gt; 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ ClarityVVS1      &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ ClarityVVS2      &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ CutF             &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ CutG             &lt;dbl&gt; 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,~
-## $ CutI             &lt;dbl&gt; 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0,~
-## $ CutV             &lt;dbl&gt; 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1,~
-## $ CutX             &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ CertificationAGS &lt;dbl&gt; 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0,~
-## $ CertificationDOW &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ CertificationEGL &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ CertificationGIA &lt;dbl&gt; 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1,~
-## $ CertificationIGI &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ PolishF          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ PolishG          &lt;dbl&gt; 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,~
-## $ PolishI          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ Polishv          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ PolishV          &lt;dbl&gt; 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0,~
-## $ PolishX          &lt;dbl&gt; 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1,~
-## $ SymmetryF        &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ SymmetryG        &lt;dbl&gt; 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ SymmetryI        &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ SymmetryV        &lt;dbl&gt; 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1,~
-## $ SymmetryX        &lt;dbl&gt; 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0,~
-## $ Price            &lt;dbl&gt; 3000, 3000, 3004, 3004, 3006, 3007, 3008, 3010, 3012,~
-## $ Wholesaler       &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,~</code></pre>
 <div id="removing-low-price-data" class="section level2">
 <h2>Removing Low Price Data</h2>
 <p>Because the Professor’s diamond ended up being $3,000, we can conclude that he is not really interested in looking at diamonds in the lower hump of price’s bimodal distribution</p>
-<pre class="r"><code>diamonds_high &lt;- diamonds_mod %&gt;%
-  filter(diamonds_mod$Price &gt; 1500)
+<pre class="r"><code>diamonds_high &lt;- diamonds %&gt;%
+  filter(diamonds$Price &gt; 1500)
 head(diamonds_high)</code></pre>
-<pre><code>##   Carat ColourD ColourE ColourF ColourG ColourH ColourI ColourJ ColourK ColourL
-## 1  0.92       0       0       0       0       0       1       0       0       0
-## 2  0.92       0       0       0       0       0       1       0       0       0
-## 3  0.82       0       0       1       0       0       0       0       0       0
-## 4  0.81       0       0       0       1       0       0       0       0       0
-## 5  0.90       0       0       0       0       0       0       1       0       0
-## 6  0.87       0       0       1       0       0       0       0       0       0
-##   ClarityI1 ClarityI2 ClaritySI1 ClaritySI2 ClaritySI3 ClarityVS1 ClarityVS2
-## 1         0         0          0          1          0          0          0
-## 2         0         0          0          1          0          0          0
-## 3         0         0          0          1          0          0          0
-## 4         0         0          1          0          0          0          0
-## 5         0         0          0          0          0          0          1
-## 6         0         0          0          1          0          0          0
-##   ClarityVVS1 ClarityVVS2 CutF CutG CutI CutV CutX CertificationAGS
-## 1           0           0    0    1    0    0    0                1
-## 2           0           0    0    0    0    1    0                1
-## 3           0           0    0    0    1    0    0                0
-## 4           0           0    0    0    1    0    0                0
-## 5           0           0    0    0    0    1    0                0
-## 6           0           0    0    0    1    0    0                1
-##   CertificationDOW CertificationEGL CertificationGIA CertificationIGI PolishF
-## 1                0                0                0                0       0
-## 2                0                0                0                0       0
-## 3                0                0                1                0       0
-## 4                0                0                1                0       0
-## 5                0                0                1                0       0
-## 6                0                0                0                0       0
-##   PolishG PolishI Polishv PolishV PolishX SymmetryF SymmetryG SymmetryI
-## 1       0       0       0       1       0         0         0         0
-## 2       1       0       0       0       0         0         1         0
-## 3       0       0       0       0       1         0         0         0
-## 4       0       0       0       0       1         0         0         0
-## 5       0       0       0       1       0         0         0         0
-## 6       1       0       0       0       0         0         0         0
-##   SymmetryV SymmetryX Price Wholesaler
-## 1         1         0  3000          1
-## 2         0         0  3000          1
-## 3         0         1  3004          1
-## 4         1         0  3004          1
-## 5         1         0  3006          1
-## 6         1         0  3007          1</code></pre>
-<pre class="r"><code>diamonds_high_nothot &lt;- diamonds %&gt;%
-  filter(diamonds$Price &gt; 1500)</code></pre>
+<pre><code>## # A tibble: 6 x 9
+##   Carat Colour Clarity Cut   Certification Polish Symmetry Price Wholesaler
+##   &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;         &lt;chr&gt;  &lt;chr&gt;    &lt;dbl&gt;      &lt;dbl&gt;
+## 1  0.92 I      SI2     G     AGS           V      V         3000          1
+## 2  0.92 I      SI2     V     AGS           G      G         3000          1
+## 3  0.82 F      SI2     I     GIA           X      X         3004          1
+## 4  0.81 G      SI1     I     GIA           X      V         3004          1
+## 5  0.9  J      VS2     V     GIA           V      V         3006          1
+## 6  0.87 F      SI2     I     AGS           G      V         3007          1</code></pre>
+</div>
+<div id="carat" class="section level2">
+<h2>Carat</h2>
+<p>From the graph below, we can gauge that carat for high price diamonds has a left skewed distribution</p>
+<pre class="r"><code>ggplot(diamonds_high, aes(Carat)) +
+  geom_bar()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<pre class="r"><code>describe(diamonds_high$Carat)</code></pre>
+<pre><code>##    vars   n mean   sd median trimmed  mad min  max range skew kurtosis   se
+## X1    1 240    1 0.12   1.01       1 0.04 0.8 1.58  0.78 0.61     2.13 0.01</code></pre>
+</div>
+<div id="colour" class="section level2">
+<h2>Colour</h2>
+<p>Colour has a unimodal, nearly symmetric distribution</p>
+<pre class="r"><code>ggplot(diamonds_high, aes(Colour)) +
+  geom_bar()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<pre class="r"><code>diamonds_high %&gt;%
+  count(Colour)</code></pre>
+<pre><code>## # A tibble: 9 x 2
+##   Colour     n
+##   &lt;chr&gt;  &lt;int&gt;
+## 1 D         15
+## 2 E         26
+## 3 F         24
+## 4 G         31
+## 5 H         29
+## 6 I         36
+## 7 J         40
+## 8 K         27
+## 9 L         12</code></pre>
+</div>
+<div id="clarity" class="section level2">
+<h2>Clarity</h2>
+<p>clarity has a distribution that is skewed a little to the left</p>
+<pre class="r"><code>ggplot(diamonds_high, aes(Clarity)) +
+  geom_bar()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<pre class="r"><code>diamonds_high %&gt;%
+  count(Clarity)</code></pre>
+<pre><code>## # A tibble: 7 x 2
+##   Clarity     n
+##   &lt;chr&gt;   &lt;int&gt;
+## 1 I1         79
+## 2 I2         28
+## 3 SI1        27
+## 4 SI2        65
+## 5 SI3        26
+## 6 VS1         8
+## 7 VS2         7</code></pre>
+<div id="making-clarity-numeric" class="section level3">
+<h3>Making Clarity Numeric</h3>
+<pre class="r"><code>diamonds_high &lt;- diamonds_high %&gt;%
+  mutate(Clarity = ifelse(Clarity %in% c(&quot;I1&quot;), 1, ifelse(Clarity %in% c(&quot;I2&quot;), 2, ifelse(Clarity %in% c(&quot;SI1&quot;), 3, ifelse(Clarity %in% c(&quot;SI2&quot;), 4, ifelse(Clarity %in% c(&quot;SI3&quot;), 5, 6))))))</code></pre>
+</div>
+</div>
+<div id="cut" class="section level2">
+<h2>Cut</h2>
+<p>Cut has a unimodal distribution skewed to the right</p>
+<pre class="r"><code>ggplot(diamonds_high, aes(Cut)) +
+  geom_bar()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<pre class="r"><code>diamonds_high %&gt;%
+  count(Cut)</code></pre>
+<pre><code>## # A tibble: 5 x 2
+##   Cut       n
+##   &lt;chr&gt; &lt;int&gt;
+## 1 F        56
+## 2 G        34
+## 3 I        45
+## 4 V        27
+## 5 X        78</code></pre>
+</div>
+<div id="turning-cut-into-a-numeric" class="section level2">
+<h2>Turning Cut into a numeric</h2>
+<pre class="r"><code>diamonds_high &lt;- diamonds_high %&gt;%
+  mutate(Cut = ifelse(Cut %in% c(&quot;F&quot;), 1, ifelse(Cut %in% c(&quot;G&quot;), 2, ifelse(Cut %in% c(&quot;I&quot;), 3, ifelse(Cut %in% c(&quot;V&quot;), 4, 5)))))</code></pre>
+</div>
+<div id="certification" class="section level2">
+<h2>Certification</h2>
+<p>Certification has a unimodal distribution that is skewed to the right</p>
+<pre class="r"><code>ggplot(diamonds_high, aes(Certification)) +
+  geom_bar()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+<pre class="r"><code>diamonds_high %&gt;%
+  count(Certification)</code></pre>
+<pre><code>## # A tibble: 4 x 2
+##   Certification     n
+##   &lt;chr&gt;         &lt;int&gt;
+## 1 AGS              12
+## 2 DOW               1
+## 3 EGL             119
+## 4 GIA             108</code></pre>
+<div id="turning-certification-numeric" class="section level3">
+<h3>Turning Certification Numeric</h3>
+<pre class="r"><code>diamonds_high &lt;- diamonds_high %&gt;%
+  mutate(Certification = ifelse(Certification %in% c(&quot;AGS&quot;, &quot;DOW&quot;), 1, ifelse(Certification %in% c(&quot;EGL&quot;), 2, 3)))</code></pre>
+</div>
+</div>
+<div id="polish" class="section level2">
+<h2>Polish</h2>
+<p>polish has a bimodal distribution, split between F, G, and I; and v, V, and X</p>
+<pre class="r"><code>ggplot(diamonds_high, aes(Polish)) +
+  geom_bar()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
+<pre class="r"><code>diamonds_high %&gt;%
+  count(Polish)</code></pre>
+<pre><code>## # A tibble: 6 x 2
+##   Polish     n
+##   &lt;chr&gt;  &lt;int&gt;
+## 1 F          5
+## 2 G        112
+## 3 I          5
+## 4 v          1
+## 5 V         96
+## 6 X         21</code></pre>
+<div id="making-polish-numeric" class="section level3">
+<h3>Making Polish Numeric</h3>
+<pre class="r"><code>diamonds_high &lt;- diamonds_high %&gt;%
+  mutate(Polish = ifelse(Polish %in% c(&quot;F&quot;, &quot;G&quot;), 1, ifelse(Polish %in% c(&quot;I&quot;, &quot;v&quot;), 2, 3)))</code></pre>
+</div>
+</div>
+<div id="symmetry" class="section level2">
+<h2>Symmetry</h2>
+<p>symmetry has a bimodal distribution, with a low count of I splitting the bump of F and G with the bump of V and X</p>
+<pre class="r"><code>ggplot(diamonds_high, aes(Symmetry)) +
+  geom_bar()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
+<pre class="r"><code>diamonds_high %&gt;%
+  count(Symmetry)</code></pre>
+<pre><code>## # A tibble: 5 x 2
+##   Symmetry     n
+##   &lt;chr&gt;    &lt;int&gt;
+## 1 F           21
+## 2 G          104
+## 3 I            5
+## 4 V           84
+## 5 X           26</code></pre>
+<div id="making-symmetry-metric" class="section level3">
+<h3>Making Symmetry metric</h3>
+<pre class="r"><code>diamonds_high &lt;- diamonds_high %&gt;%
+  mutate(Symmetry = ifelse(Symmetry %in% c(&quot;F&quot;, &quot;G&quot;), 1, ifelse(Symmetry %in% c(&quot;I&quot;, &quot;V&quot;), 2, 3)))</code></pre>
+</div>
 </div>
 </div>
 <div id="graphing-the-data" class="section level1">
 <h1>Graphing the Data</h1>
-<div id="carat" class="section level2">
+<div id="carat-1" class="section level2">
 <h2>Carat</h2>
 <pre class="r"><code>ggplot(diamonds_high,aes(Carat, Price)) +
   geom_point(aes(color = Carat)) +
@@ -302,7 +239,7 @@ head(diamonds_high)</code></pre>
   labs(x=&#39;Carat&#39;, y=&#39;Price&#39;, title=&#39;Plot of Carat v.s. Price&#39;) +
   theme(plot.title = element_text(hjust=0.5, size=20, face=&#39;bold&#39;)) </code></pre>
 <pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
 <pre class="r"><code>lmcarat &lt;- lm(Price ~ Carat, data = diamonds_high)
 summary(lmcarat)</code></pre>
 <pre><code>## 
@@ -323,7 +260,7 @@ summary(lmcarat)</code></pre>
 ## Residual standard error: 347.9 on 238 degrees of freedom
 ## Multiple R-squared:  0.1072, Adjusted R-squared:  0.1034 
 ## F-statistic: 28.56 on 1 and 238 DF,  p-value: 2.12e-07</code></pre>
-<pre class="r"><code>anovacarat &lt;- aov(Price ~ Carat, data = diamonds_high_nothot)
+<pre class="r"><code>anovacarat &lt;- aov(Price ~ Carat, data = diamonds_high)
 summary(anovacarat)</code></pre>
 <pre><code>##              Df   Sum Sq Mean Sq F value   Pr(&gt;F)    
 ## Carat         1  3456697 3456697   28.57 2.12e-07 ***
@@ -332,163 +269,235 @@ summary(anovacarat)</code></pre>
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <p>The adjusted R-squared value of 0.1034 indicates that there is somewhat of a correlation between carat and price. Interestingly, for these higher priced diamonds, the higher carat diamonds are predicted to actually have a lower price
 ## Color</p>
-<pre class="r"><code>lmcolor &lt;- lm(Price ~ ColourD + ColourE + ColourF + ColourG + ColourH + ColourI + ColourJ, data = diamonds_high)
+<pre class="r"><code>lmcolor &lt;- lm(Price ~ Colour, data = diamonds_high)
 summary(lmcolor)</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = Price ~ ColourD + ColourE + ColourF + ColourG + 
-##     ColourH + ColourI + ColourJ, data = diamonds_high)
+## lm(formula = Price ~ Colour, data = diamonds_high)
 ## 
 ## Residuals:
 ##    Min     1Q Median     3Q    Max 
-## -883.5 -268.2  146.6  294.2  587.0 
+## -883.5 -299.1  134.2  297.4  506.4 
 ## 
 ## Coefficients:
 ##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)  2549.95      57.22  44.566  &lt; 2e-16 ***
-## ColourD       402.98     108.56   3.712 0.000258 ***
-## ColourE       278.44      90.47   3.078 0.002337 ** 
-## ColourF       163.30      92.70   1.762 0.079461 .  
-## ColourG       262.50      85.98   3.053 0.002529 ** 
-## ColourH       204.84      87.62   2.338 0.020239 *  
-## ColourI       228.11      82.59   2.762 0.006204 ** 
-## ColourJ       256.63      80.41   3.191 0.001611 ** 
+## (Intercept)  2952.93      91.56  32.250  &lt; 2e-16 ***
+## ColourE      -124.55     114.98  -1.083  0.27985    
+## ColourF      -239.68     116.72  -2.053  0.04116 *  
+## ColourG      -140.48     111.54  -1.259  0.20913    
+## ColourH      -198.14     112.79  -1.757  0.08028 .  
+## ColourI      -174.88     108.98  -1.605  0.10994    
+## ColourJ      -146.36     107.37  -1.363  0.17417    
+## ColourK      -322.34     114.20  -2.823  0.00518 ** 
+## ColourL      -584.43     137.35  -4.255 3.04e-05 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 357.3 on 232 degrees of freedom
-## Multiple R-squared:  0.08171,    Adjusted R-squared:  0.05401 
-## F-statistic: 2.949 on 7 and 232 DF,  p-value: 0.005595</code></pre>
-<pre class="r"><code>anovacolor &lt;- aov(Price ~ Colour, data = diamonds_high_nothot)
+## Residual standard error: 354.6 on 231 degrees of freedom
+## Multiple R-squared:  0.09941,    Adjusted R-squared:  0.06822 
+## F-statistic: 3.187 on 8 and 231 DF,  p-value: 0.001891</code></pre>
+<pre class="r"><code>anovacolor &lt;- aov(Price ~ Colour, data = diamonds_high)
 summary(anovacolor)</code></pre>
 <pre><code>##              Df   Sum Sq Mean Sq F value  Pr(&gt;F)   
 ## Colour        8  3206603  400825   3.187 0.00189 **
 ## Residuals   231 29050961  125762                   
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<pre class="r"><code>ggplot(diamonds_high_nothot, aes(Colour, Price)) +
-  geom_col(aes(fill = Colour)) +
+<p>With an adjusted R-squared of 0.06822, color seems like a pretty bad predictor of price</p>
+<pre class="r"><code>ggplot(diamonds_high, aes(Colour, Price)) +
+  geom_point() +
   theme_minimal() +
   labs(x=&#39;Colour&#39;, y=&#39;Price&#39;, title=&#39;Plot of Colour v.s. Price&#39;) +
   theme(plot.title = element_text(hjust=0.5, size=20, face=&#39;bold&#39;)) </code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-29-1.png" width="672" /></p>
-</div>
-<div id="clarity-1" class="section level2">
-<h2>Clarity</h2>
-<pre class="r"><code>lmclarity &lt;- lm(Price ~Clarity, data = diamonds_high_nothot)
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-32-1.png" width="672" />
+There is basically no correlation between Colour and Price
+## Clarity</p>
+<pre class="r"><code>lmclarity &lt;- lm(Price ~Clarity, data = diamonds_high)
 summary(lmclarity)</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = Price ~ Clarity, data = diamonds_high_nothot)
+## lm(formula = Price ~ Clarity, data = diamonds_high)
 ## 
 ## Residuals:
-##     Min      1Q  Median      3Q     Max 
-## -763.38 -212.16   35.05  131.83  766.07 
+##      Min       1Q   Median       3Q      Max 
+## -1074.26  -253.42    76.36   258.14   540.24 
 ## 
 ## Coefficients:
 ##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept) 2622.911     32.332  81.124  &lt; 2e-16 ***
-## ClarityI2   -280.983     63.205  -4.446 1.36e-05 ***
-## ClaritySI1   376.607     64.063   5.879 1.42e-08 ***
-## ClaritySI2   368.012     48.124   7.647 5.37e-13 ***
-## ClaritySI3    -3.527     64.975  -0.054 0.956759    
-## ClarityVS1   431.714    106.623   4.049 7.01e-05 ***
-## ClarityVS2   380.517    113.328   3.358 0.000918 ***
+## (Intercept)  2518.39      44.88  56.119  &lt; 2e-16 ***
+## Clarity        82.38      13.47   6.116 3.91e-09 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 287.4 on 233 degrees of freedom
-## Multiple R-squared:  0.4035, Adjusted R-squared:  0.3881 
-## F-statistic: 26.27 on 6 and 233 DF,  p-value: &lt; 2.2e-16</code></pre>
-<pre class="r"><code>anovaclarity &lt;- aov(Price ~ Clarity, data = diamonds_high_nothot)
+## Residual standard error: 342.2 on 238 degrees of freedom
+## Multiple R-squared:  0.1358, Adjusted R-squared:  0.1322 
+## F-statistic:  37.4 on 1 and 238 DF,  p-value: 3.913e-09</code></pre>
+<pre class="r"><code>anovaclarity &lt;- aov(Price ~ Clarity, data = diamonds_high)
 summary(anovaclarity)</code></pre>
-<pre><code>##              Df   Sum Sq Mean Sq F value Pr(&gt;F)    
-## Clarity       6 13015277 2169213   26.27 &lt;2e-16 ***
-## Residuals   233 19242287   82585                   
+<pre><code>##              Df   Sum Sq Mean Sq F value   Pr(&gt;F)    
+## Clarity       1  4380859 4380859    37.4 3.91e-09 ***
+## Residuals   238 27876705  117129                     
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<p>With an adjusted R-squared of 0.3881,Clarity does not seem like a great predictor of Price</p>
-<pre class="r"><code>ggplot(diamonds_high_nothot, aes(Clarity, Price)) +
-  geom_col(aes(fill = Clarity)) +
+<p>With an adjusted R-squared of 0.1322,Clarity seems like an okay predictor of Price</p>
+<pre class="r"><code>ggplot(diamonds_high, aes(Clarity, Price)) +
+  geom_point() +
   geom_smooth(method=&#39;lm&#39;, se=FALSE, color=&#39;red&#39;) +
   theme_minimal() +
   labs(x=&#39;Clarity&#39;, y=&#39;Price&#39;, title=&#39;Plot of Clarity v.s. Price&#39;) +
   theme(plot.title = element_text(hjust=0.5, size=20, face=&#39;bold&#39;)) </code></pre>
 <pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-31-1.png" width="672" />
-# Break: quesitons to ask
-is there a reason to upload to github and turn the data into a csv i feel like reading it from an excel works fine and i do not see a difference
-how are you changing your non metric data to metric? i cannot find a way to code it to do so, and thus I am unable to graph them as dotplots
-are you wanting us to do multivartiate analysis? it seemed like you did not care about that in class but I am not sure
-# Cut</p>
-<pre class="r"><code>lm(Price ~ Cut, data = diamonds_mod)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-34-1.png" width="672" />
+Generally, a higher clarity will cost more, but most of the midrange clarities are avaliable at many price ranges</p>
+</div>
+</div>
+<div id="cut-1" class="section level1">
+<h1>Cut</h1>
+<pre class="r"><code>lmcut &lt;- lm(Price ~Cut, data = diamonds_high)
+summary(lmcut)</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = Price ~ Cut, data = diamonds_mod)
+## lm(formula = Price ~ Cut, data = diamonds_high)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -805.9 -284.9  161.7  293.6  476.1 
 ## 
 ## Coefficients:
-## (Intercept)         CutG         CutI         CutV         CutX  
-##      2455.2       -409.2       -723.5      -1277.1       -797.2</code></pre>
-<pre class="r"><code>ggplot(diamonds_mod,aes(Cut, Price)) +
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  2617.60      52.37  49.980  &lt; 2e-16 ***
+## Cut            44.28      14.87   2.979  0.00319 ** 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 361.5 on 238 degrees of freedom
+## Multiple R-squared:  0.03595,    Adjusted R-squared:  0.0319 
+## F-statistic: 8.874 on 1 and 238 DF,  p-value: 0.003191</code></pre>
+<pre class="r"><code>anovacut &lt;- aov(Price ~ Cut, data = diamonds_high)
+summary(anovacut)</code></pre>
+<pre><code>##              Df   Sum Sq Mean Sq F value  Pr(&gt;F)   
+## Cut           1  1159563 1159563   8.874 0.00319 **
+## Residuals   238 31098000  130664                   
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>With an adjusted r squared of 0.0319, cut seems like it might be a pretty poor predictor of price</p>
+<pre class="r"><code>ggplot(diamonds_high,aes(Cut, Price)) +
   geom_point(aes(color = Cut)) +
   geom_smooth(method=&#39;lm&#39;, se=FALSE, color=&#39;turquoise4&#39;) +
   theme_minimal() +
   labs(x=&#39;Cut&#39;, y=&#39;Price&#39;, title=&#39;Plot of Cut v.s. Price&#39;) +
   theme(plot.title = element_text(hjust=0.5, size=20, face=&#39;bold&#39;)) </code></pre>
 <pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-33-1.png" width="672" />
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-36-1.png" width="672" />
+Different levels of cuts can be found in a range of the higher prices
 # Certification</p>
-<pre class="r"><code>lm(Price ~ Certification, data = diamonds_mod)</code></pre>
+<pre class="r"><code>lmcert &lt;- lm(Price ~Certification, data = diamonds_high)
+summary(lmcert)</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = Price ~ Certification, data = diamonds_mod)
+## lm(formula = Price ~ Certification, data = diamonds_high)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -881.0 -293.8  129.4  319.7  408.0 
 ## 
 ## Coefficients:
-##      (Intercept)  CertificationDOW  CertificationEGL  CertificationGIA  
-##           3033.4           -1002.4            -355.6           -1573.6  
-## CertificationIGI  
-##          -2767.9</code></pre>
-<pre class="r"><code>ggplot(diamonds_mod,aes(Certification, Price)) +
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)    2634.35      99.13  26.576   &lt;2e-16 ***
+## Certification    51.31      40.18   1.277    0.203    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 366.9 on 238 degrees of freedom
+## Multiple R-squared:  0.006806,   Adjusted R-squared:  0.002633 
+## F-statistic: 1.631 on 1 and 238 DF,  p-value: 0.2028</code></pre>
+<pre class="r"><code>anovacert &lt;- aov(Price ~ Certification, data = diamonds_high)
+summary(anovacert)</code></pre>
+<pre><code>##                Df   Sum Sq Mean Sq F value Pr(&gt;F)
+## Certification   1   219541  219541   1.631  0.203
+## Residuals     238 32038023  134614</code></pre>
+<p>With an adjusted Rsquared of 0.002633, Cetification seems like a terrible predictor of price</p>
+<pre class="r"><code>ggplot(diamonds_high,aes(Certification, Price)) +
   geom_point(aes(color = Certification)) +
   geom_smooth(method=&#39;lm&#39;, se=FALSE, color=&#39;blue&#39;) +
   theme_minimal() +
   labs(x=&#39;Clarity&#39;, y=&#39;Price&#39;, title=&#39;Plot of Certification v.s. Price&#39;) +
   theme(plot.title = element_text(hjust=0.5, size=20, face=&#39;bold&#39;)) </code></pre>
 <pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-35-1.png" width="672" />
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-38-1.png" width="672" />
 # Polish</p>
-<pre class="r"><code>lm(Price ~ Polish, data = diamonds_mod)</code></pre>
+<pre class="r"><code>lmpol &lt;- lm(Price ~Polish, data = diamonds_high)
+summary(lmpol)</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = Price ~ Polish, data = diamonds_mod)
+## lm(formula = Price ~ Polish, data = diamonds_high)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -959.1 -257.5  128.2  238.2  507.5 
 ## 
 ## Coefficients:
-## (Intercept)      PolishG      PolishI      Polishv      PolishV      PolishX  
-##      2318.6       -404.0        728.8        762.4       -715.5       -939.8</code></pre>
-<pre class="r"><code>ggplot(diamonds_mod,aes(Polish, Price)) +
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  2517.69      50.81  49.551  &lt; 2e-16 ***
+## Polish        119.79      22.78   5.259 3.23e-07 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 348.5 on 238 degrees of freedom
+## Multiple R-squared:  0.1041, Adjusted R-squared:  0.1003 
+## F-statistic: 27.66 on 1 and 238 DF,  p-value: 3.227e-07</code></pre>
+<pre class="r"><code>anovapol &lt;- aov(Price ~ Polish, data = diamonds_high)
+summary(anovapol)</code></pre>
+<pre><code>##              Df   Sum Sq Mean Sq F value   Pr(&gt;F)    
+## Polish        1  3358090 3358090   27.66 3.23e-07 ***
+## Residuals   238 28899474  121426                     
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>With an adjusted R-squared of 0.1003, Polish seems like a poor predictor of price</p>
+<pre class="r"><code>ggplot(diamonds_high,aes(Polish, Price)) +
   geom_point(aes(color = Polish)) +
   geom_smooth(method=&#39;lm&#39;, se=FALSE, color=&#39;green&#39;) +
   theme_minimal() +
   labs(x=&#39;Polish&#39;, y=&#39;Price&#39;, title=&#39;Plot of Polish v.s. Price&#39;) +
   theme(plot.title = element_text(hjust=0.5, size=20, face=&#39;bold&#39;)) </code></pre>
 <pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-37-1.png" width="672" />
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-40-1.png" width="672" />
 # Symmetry</p>
-<pre class="r"><code>lm(Price ~ Symmetry, data = diamonds_mod)</code></pre>
+<pre class="r"><code>lmsym &lt;- lm(Price ~Symmetry, data = diamonds_high)
+summary(lmsym)</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = Price ~ Symmetry, data = diamonds_mod)
+## lm(formula = Price ~ Symmetry, data = diamonds_high)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -907.15 -273.92   60.31  299.35  480.39 
 ## 
 ## Coefficients:
-## (Intercept)    SymmetryG    SymmetryI    SymmetryV    SymmetryX  
-##      2432.3       -537.9        615.1       -966.8       -673.0</code></pre>
-<pre class="r"><code>ggplot(diamonds_mod,aes(Symmetry, Price)) +
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  2496.07      57.68  43.278  &lt; 2e-16 ***
+## Symmetry      164.54      33.42   4.924 1.59e-06 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 350.7 on 238 degrees of freedom
+## Multiple R-squared:  0.09246,    Adjusted R-squared:  0.08865 
+## F-statistic: 24.25 on 1 and 238 DF,  p-value: 1.585e-06</code></pre>
+<pre class="r"><code>anovasym &lt;- aov(Price ~ Symmetry, data = diamonds_high)
+summary(anovasym)</code></pre>
+<pre><code>##              Df   Sum Sq Mean Sq F value   Pr(&gt;F)    
+## Symmetry      1  2982503 2982503   24.25 1.59e-06 ***
+## Residuals   238 29275060  123004                     
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>With an adjusted R-squared of 0.08865, symmetry seems like a poor predictor of price</p>
+<pre class="r"><code>ggplot(diamonds_high,aes(Symmetry, Price)) +
   geom_point(aes(color = Symmetry)) +
   geom_smooth(method=&#39;lm&#39;, se=FALSE, color=&#39;turquoise4&#39;) +
   theme_minimal() +
   labs(x=&#39;Symmetry&#39;, y=&#39;Price&#39;, title=&#39;Plot of Symmetry v.s. Price&#39;) +
   theme(plot.title = element_text(hjust=0.5, size=20, face=&#39;bold&#39;)) </code></pre>
 <pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-39-1.png" width="672" /></p>
-</div>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-42-1.png" width="672" />
+Generally, the more symmetric diamonds tend to cost a little bit more, but the professor can find a diamond of pretty good symmetry of a range of prices</p>
 </div>

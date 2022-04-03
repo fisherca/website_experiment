@@ -7,8 +7,6 @@ categories: []
 tags: []
 ---
 ```{r}
-library(readr)
-library(readxl)
 library(tidyverse)
 library(dplyr)
 library(ggplot2)
@@ -16,7 +14,7 @@ library(psych)
 ```
 
 ```{r}
-diamonds <- read_excel("/Users/cfish/Downloads/Professor_Proposes_Data.xlsx")
+diamonds <- read_csv("https://raw.githubusercontent.com/fisherca/website_experiment/main/Professor_Proposes_Data.csv")
 glimpse(diamonds)
 ```
 ```{r}
@@ -29,78 +27,6 @@ colnames(diamonds)
 ```
 # Initial analysis of Data
 ## Price
-From the graph below, we can gauge that carat has a bimodal distribution, split at around 0.5 carats
-```{r}
-ggplot(diamonds, aes(Carat)) +
-  geom_bar()
-```
-```{r}
-describe(diamonds$Carat)
-```
-
-## Colour
-Colour has a unimodal, nearly symmetric distribution
-```{r}
-ggplot(diamonds, aes(Colour)) +
-  geom_bar()
-```
-```{r}
-diamonds %>%
-  count(Colour)
-```
-
-
-## Clarity
-clarity has a unimodal distribution that is skewed a little to the left
-```{r}
-ggplot(diamonds, aes(Clarity)) +
-  geom_bar()
-```
-```{r}
-diamonds %>%
-  count(Clarity)
-```
-## Cut
-Cut has a unimodal distribution skewed to the right
-```{r}
-ggplot(diamonds, aes(Cut)) +
-  geom_bar()
-```
-```{r}
-diamonds %>%
-  count(Cut)
-```
-## Certification
-Certification has a unimodal distribution that is skewed to the right
-```{r}
-ggplot(diamonds, aes(Certification)) +
-  geom_bar()
-```
-```{r}
-diamonds %>%
-  count(Certification)
-```
-## Polish
-polish has a bimodal distribution, split between F, G, and I; and v, V, and X
-```{r}
-ggplot(diamonds, aes(Polish)) +
-  geom_bar()
-```
-```{r}
-diamonds %>%
-  count(Polish)
-```
-## Symmetry
-symmetry has a bimodal distribution, with a low count of I splitting the bump of F and G with the bump of V and X
-```{r}
-ggplot(diamonds, aes(Symmetry)) +
-  geom_bar()
-```
-```{r}
-diamonds %>%
-  count(Symmetry)
-```
-## Price
 Price has a bimodal distribution that is split at around $1,500. 
 ```{r}
 ggplot(diamonds, aes(Price)) +
@@ -109,29 +35,123 @@ ggplot(diamonds, aes(Price)) +
 ```{r}
 describe(diamonds$Price)
 ```
-# Converting the Data to Metric
-```{r, warning=FALSE}
-library(caret)
-```
 
-```{r}
-dummy1 <- dummyVars("~ .", data = diamonds)
-diamonds_mod <- data.frame((predict(dummy1, newdata = diamonds)))
-glimpse(diamonds_mod)
-```
 ## Removing Low Price Data
 Because the Professor's diamond ended up being $3,000, we can conclude that he is not really interested in looking at diamonds in the lower hump of price's bimodal distribution
 ```{r}
-diamonds_high <- diamonds_mod %>%
-  filter(diamonds_mod$Price > 1500)
+diamonds_high <- diamonds %>%
+  filter(diamonds$Price > 1500)
 head(diamonds_high)
 ```
-```{r}
-diamonds_high_nothot <- diamonds %>%
-  filter(diamonds$Price > 1500)
 
+## Carat
+From the graph below, we can gauge that carat for high price diamonds has a left skewed distribution
+```{r}
+ggplot(diamonds_high, aes(Carat)) +
+  geom_bar()
 ```
 
+
+```{r}
+describe(diamonds_high$Carat)
+```
+
+## Colour
+Colour has a unimodal, nearly symmetric distribution
+```{r}
+ggplot(diamonds_high, aes(Colour)) +
+  geom_bar()
+```
+```{r}
+diamonds_high %>%
+  count(Colour)
+```
+
+
+## Clarity
+clarity has a  distribution that is skewed a little to the left
+```{r}
+ggplot(diamonds_high, aes(Clarity)) +
+  geom_bar()
+```
+```{r}
+diamonds_high %>%
+  count(Clarity)
+```
+### Making Clarity Numeric
+```{r}
+diamonds_high <- diamonds_high %>%
+  mutate(Clarity = ifelse(Clarity %in% c("I1"), 1, ifelse(Clarity %in% c("I2"), 2, ifelse(Clarity %in% c("SI1"), 3, ifelse(Clarity %in% c("SI2"), 4, ifelse(Clarity %in% c("SI3"), 5, 6))))))
+```
+
+
+## Cut
+Cut has a unimodal distribution skewed to the right
+```{r}
+ggplot(diamonds_high, aes(Cut)) +
+  geom_bar()
+```
+```{r}
+diamonds_high %>%
+  count(Cut)
+```
+## Turning Cut into a numeric
+```{r}
+diamonds_high <- diamonds_high %>%
+  mutate(Cut = ifelse(Cut %in% c("F"), 1, ifelse(Cut %in% c("G"), 2, ifelse(Cut %in% c("I"), 3, ifelse(Cut %in% c("V"), 4, 5)))))
+```
+
+## Certification
+Certification has a unimodal distribution that is skewed to the right
+```{r}
+ggplot(diamonds_high, aes(Certification)) +
+  geom_bar()
+```
+```{r}
+diamonds_high %>%
+  count(Certification)
+```
+```{r}
+
+```
+### Turning Certification Numeric
+```{r}
+diamonds_high <- diamonds_high %>%
+  mutate(Certification = ifelse(Certification %in% c("AGS", "DOW"), 1, ifelse(Certification %in% c("EGL"), 2, 3)))
+```
+
+## Polish
+polish has a bimodal distribution, split between F, G, and I; and v, V, and X
+```{r}
+ggplot(diamonds_high, aes(Polish)) +
+  geom_bar()
+```
+```{r}
+diamonds_high %>%
+  count(Polish)
+```
+### Making Polish Numeric
+```{r}
+diamonds_high <- diamonds_high %>%
+  mutate(Polish = ifelse(Polish %in% c("F", "G"), 1, ifelse(Polish %in% c("I", "v"), 2, 3)))
+```
+
+
+## Symmetry
+symmetry has a bimodal distribution, with a low count of I splitting the bump of F and G with the bump of V and X
+```{r}
+ggplot(diamonds_high, aes(Symmetry)) +
+  geom_bar()
+```
+```{r}
+diamonds_high %>%
+  count(Symmetry)
+```
+### Making Symmetry metric
+```{r}
+diamonds_high <- diamonds_high %>%
+  mutate(Symmetry = ifelse(Symmetry %in% c("F", "G"), 1, ifelse(Symmetry %in% c("I", "V"), 2, 3)))
+```
 # Graphing the Data
 ## Carat
 
@@ -149,70 +169,76 @@ summary(lmcarat)
 
 ```
 ```{r}
-anovacarat <- aov(Price ~ Carat, data = diamonds_high_nothot)
+anovacarat <- aov(Price ~ Carat, data = diamonds_high)
 summary(anovacarat)
 ```
 
 The adjusted R-squared value of 0.1034 indicates that there is somewhat of a correlation between carat and price. Interestingly, for these higher priced diamonds, the higher carat diamonds are predicted to actually have a lower price
 ## Color
 ```{r}
-lmcolor <- lm(Price ~ ColourD + ColourE + ColourF + ColourG + ColourH + ColourI + ColourJ, data = diamonds_high)
+lmcolor <- lm(Price ~ Colour, data = diamonds_high)
 summary(lmcolor)
-anovacolor <- aov(Price ~ Colour, data = diamonds_high_nothot)
+anovacolor <- aov(Price ~ Colour, data = diamonds_high)
 summary(anovacolor)
 
 ```
-
+With an adjusted R-squared of 0.06822, color seems like a pretty bad predictor of price
 
 
 ```{r}
-ggplot(diamonds_high_nothot, aes(Colour, Price)) +
-  geom_col(aes(fill = Colour)) +
+ggplot(diamonds_high, aes(Colour, Price)) +
+  geom_point() +
   theme_minimal() +
   labs(x='Colour', y='Price', title='Plot of Colour v.s. Price') +
   theme(plot.title = element_text(hjust=0.5, size=20, face='bold')) 
 ```
-
+There is basically no correlation between Colour and Price
 ## Clarity
 ```{r}
-lmclarity <- lm(Price ~Clarity, data = diamonds_high_nothot)
+lmclarity <- lm(Price ~Clarity, data = diamonds_high)
 summary(lmclarity)
-anovaclarity <- aov(Price ~ Clarity, data = diamonds_high_nothot)
+anovaclarity <- aov(Price ~ Clarity, data = diamonds_high)
 summary(anovaclarity)
 ```
-With an adjusted R-squared of 0.3881,Clarity does not seem like a great predictor of Price 
+With an adjusted R-squared of 0.1322,Clarity seems like an okay predictor of Price 
 
 ```{r}
-ggplot(diamonds_high_nothot, aes(Clarity, Price)) +
-  geom_col(aes(fill = Clarity)) +
+ggplot(diamonds_high, aes(Clarity, Price)) +
+  geom_point() +
   geom_smooth(method='lm', se=FALSE, color='red') +
   theme_minimal() +
   labs(x='Clarity', y='Price', title='Plot of Clarity v.s. Price') +
   theme(plot.title = element_text(hjust=0.5, size=20, face='bold')) 
 ```
-# Break: quesitons to ask
-is there a reason to upload to github and turn the data into a csv i feel like reading it from an excel works fine and i do not see a difference
-how are you changing your non metric data to metric? i cannot find a way to code it to do so, and thus I am unable to graph them as dotplots
-are you wanting us to do multivartiate analysis? it seemed like you did not care about that in class but I am not sure
+Generally, a higher clarity will cost more, but most of the midrange clarities are avaliable at many price ranges
+
 # Cut
 ```{r}
-lm(Price ~ Cut, data = diamonds_mod)
+lmcut <- lm(Price ~Cut, data = diamonds_high)
+summary(lmcut)
+anovacut <- aov(Price ~ Cut, data = diamonds_high)
+summary(anovacut)
 ```
+With an adjusted r squared of 0.0319, cut seems like it might be a pretty poor predictor of price
 ```{r}
-ggplot(diamonds_mod,aes(Cut, Price)) +
+ggplot(diamonds_high,aes(Cut, Price)) +
   geom_point(aes(color = Cut)) +
   geom_smooth(method='lm', se=FALSE, color='turquoise4') +
   theme_minimal() +
   labs(x='Cut', y='Price', title='Plot of Cut v.s. Price') +
   theme(plot.title = element_text(hjust=0.5, size=20, face='bold')) 
 ```
+Different levels of cuts can be found in a range of the higher prices
 # Certification
 ```{r}
-lm(Price ~ Certification, data = diamonds_mod)
+lmcert <- lm(Price ~Certification, data = diamonds_high)
+summary(lmcert)
+anovacert <- aov(Price ~ Certification, data = diamonds_high)
+summary(anovacert)
 ```
-
+With an adjusted Rsquared of 0.002633, Cetification seems like a terrible predictor of price
 ```{r}
-ggplot(diamonds_mod,aes(Certification, Price)) +
+ggplot(diamonds_high,aes(Certification, Price)) +
   geom_point(aes(color = Certification)) +
   geom_smooth(method='lm', se=FALSE, color='blue') +
   theme_minimal() +
@@ -221,11 +247,14 @@ ggplot(diamonds_mod,aes(Certification, Price)) +
 ```
 # Polish
 ```{r}
-lm(Price ~ Polish, data = diamonds_mod)
+lmpol <- lm(Price ~Polish, data = diamonds_high)
+summary(lmpol)
+anovapol <- aov(Price ~ Polish, data = diamonds_high)
+summary(anovapol)
 ```
-
+With an adjusted R-squared of 0.1003, Polish seems like a poor predictor of price
 ```{r}
-ggplot(diamonds_mod,aes(Polish, Price)) +
+ggplot(diamonds_high,aes(Polish, Price)) +
   geom_point(aes(color = Polish)) +
   geom_smooth(method='lm', se=FALSE, color='green') +
   theme_minimal() +
@@ -234,17 +263,21 @@ ggplot(diamonds_mod,aes(Polish, Price)) +
 ```
 # Symmetry
 ```{r}
-lm(Price ~ Symmetry, data = diamonds_mod)
+lmsym <- lm(Price ~Symmetry, data = diamonds_high)
+summary(lmsym)
+anovasym <- aov(Price ~ Symmetry, data = diamonds_high)
+summary(anovasym)
+        
 ```
-
+With an adjusted R-squared of 0.08865, symmetry seems like a poor predictor of price
 ```{r}
-ggplot(diamonds_mod,aes(Symmetry, Price)) +
+ggplot(diamonds_high,aes(Symmetry, Price)) +
   geom_point(aes(color = Symmetry)) +
   geom_smooth(method='lm', se=FALSE, color='turquoise4') +
   theme_minimal() +
   labs(x='Symmetry', y='Price', title='Plot of Symmetry v.s. Price') +
   theme(plot.title = element_text(hjust=0.5, size=20, face='bold')) 
 ```
-
+Generally, the more symmetric diamonds tend to cost a little bit more, but the professor can find a diamond of pretty good symmetry of a range of prices 
 
 
