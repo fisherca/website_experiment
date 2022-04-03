@@ -20,25 +20,29 @@ LOOCV is even more time consuming than a typical K-fold validation, so K fold ha
 In bootstrapping, random sampling with replacement is used in a way that each data point is represented in a proportion of 0.623. One pro of bootstrapping is that it takes samples in a way that it can better reflect the variability of a population from the sample data then other models. Another pro is that bootstrapping is overall more accurate than simple standard intervals, and can better represent data that is not completely normal.
 Some cons of bootstrapping are that it heavily relies on the data in the sample in order to predict values/variance of the population, which may give the data scientist a false sense of security about their model. It can also be relatively time consuming. It is particularly weak as a model if the sample size is too small or the distribution of the population does not have finite moments.
 # Uploading the data in your GitHub account and directly access in your solution file (2)</p>
-<pre class="r"><code>library(readr)
-library(readxl)</code></pre>
-<pre class="r"><code>real_estate &lt;- read_excel(&quot;/Users/cfish/Downloads/Real_estate_data.xlsx&quot;)
-real_estate</code></pre>
-<pre><code>## # A tibble: 414 x 8
-##       No `X1 transaction date` `X2 house age` `X3 distance to~` `X4 number of ~`
-##    &lt;dbl&gt;                 &lt;dbl&gt;          &lt;dbl&gt;             &lt;dbl&gt;            &lt;dbl&gt;
-##  1     1                 2013.           32                84.9               10
-##  2     2                 2013.           19.5             307.                 9
-##  3     3                 2014.           13.3             562.                 5
-##  4     4                 2014.           13.3             562.                 5
-##  5     5                 2013.            5               391.                 5
-##  6     6                 2013.            7.1            2175.                 3
-##  7     7                 2013.           34.5             623.                 7
-##  8     8                 2013.           20.3             288.                 6
-##  9     9                 2014.           31.7            5512.                 1
-## 10    10                 2013.           17.9            1783.                 3
-## # ... with 404 more rows, and 3 more variables: `X5 latitude` &lt;dbl&gt;,
-## #   `X6 longitude` &lt;dbl&gt;, `Y house price of unit area` &lt;dbl&gt;</code></pre>
+<pre class="r"><code>real_estate &lt;- read.csv(&quot;https://raw.githubusercontent.com/fisherca/website_experiment/main/Real_estate_data-_1_.csv&quot;)
+head(real_estate)</code></pre>
+<pre><code>##   No X1.transaction.date X2.house.age X3.distance.to.the.nearest.MRT.station
+## 1  1            2012.917         32.0                               84.87882
+## 2  2            2012.917         19.5                              306.59470
+## 3  3            2013.583         13.3                              561.98450
+## 4  4            2013.500         13.3                              561.98450
+## 5  5            2012.833          5.0                              390.56840
+## 6  6            2012.667          7.1                             2175.03000
+##   X4.number.of.convenience.stores X5.latitude X6.longitude
+## 1                              10    24.98298     121.5402
+## 2                               9    24.98034     121.5395
+## 3                               5    24.98746     121.5439
+## 4                               5    24.98746     121.5439
+## 5                               5    24.97937     121.5425
+## 6                               3    24.96305     121.5125
+##   Y.house.price.of.unit.area
+## 1                       37.9
+## 2                       42.2
+## 3                       47.3
+## 4                       54.8
+## 5                       43.1
+## 6                       32.1</code></pre>
 <pre class="r"><code>dim(real_estate)</code></pre>
 <pre><code>## [1] 414   8</code></pre>
 <div id="changing-the-column-names-to-1-string" class="section level2">
@@ -54,52 +58,50 @@ real_estate</code></pre>
 <pre class="r"><code>train1 &lt;- sample(414, 207)</code></pre>
 <div id="x1-transaction-date" class="section level2">
 <h2>X1 Transaction Date</h2>
-<pre class="r"><code>plot(real_estate$`X1 transaction date`, real_estate$`Y house price of unit area`)</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-8-1.png" width="672" />
+<pre class="r"><code>plot(real_estate$`X1.transaction.date`, real_estate$`Y.house.price.of.unit.area`)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-1.png" width="672" />
 This simple plot indicates that this correlation has hardly any linearity or pattern at all, so it is not a good independent variable to explore</p>
 </div>
 <div id="x2-house-age" class="section level2">
 <h2>X2 House Age</h2>
-<pre class="r"><code>plot(real_estate$`X2 house age`, real_estate$`Y house price of unit area` )</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+<pre class="r"><code>plot(real_estate$`X2.house.age`, real_estate$`Y.house.price.of.unit.area` )</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-8-1.png" width="672" />
 K at 5</p>
 <pre class="r"><code>K = 5
 cv.error.5 &lt;- rep(0,5)
 degree &lt;- 1:5
 for(d in degree){
-  glm.fit &lt;- glm(poly(`Y house price of unit area`)~`X2 house age`, data = real_estate)
+  glm.fit &lt;- glm(`Y.house.price.of.unit.area`~poly(`X2.house.age`), data = real_estate)
   cv.error.5[d] &lt;- cv.glm(real_estate, glm.fit, K = K)$delta[1]
 }
 cv.error.5</code></pre>
-<pre><code>## [1] 0.002321315 0.002312941 0.002320018 0.002314970 0.002311868</code></pre>
+<pre><code>## [1] 177.6636 177.8657 178.2663 178.3291 176.7538</code></pre>
 <pre class="r"><code>plot(degree, cv.error.5, type = &quot;b&quot;)</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-11-1.png" width="672" />
-It looks like a polynomial of Y at the 2nd degree was the best fit
-K at 10</p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 <pre class="r"><code>K = 10
 cv.error.10 &lt;- rep(0,10)
 degree &lt;- 1:11
 for(d in degree){
-  glm.fit &lt;- glm(poly(`Y house price of unit area`)~`X1 transaction date`, data = real_estate)
+  glm.fit &lt;- glm(`Y.house.price.of.unit.area`~poly(`X1.transaction.date`), data = real_estate)
   cv.error.10[d] &lt;- cv.glm(real_estate, glm.fit, K = K)$delta[1]
 }
 cv.error.10</code></pre>
-<pre><code>##  [1] 0.002406478 0.002402161 0.002406942 0.002406388 0.002404832 0.002402886
-##  [7] 0.002409531 0.002408710 0.002401613 0.002409485 0.002406290</code></pre>
+<pre><code>##  [1] 185.0714 185.1803 184.9083 184.7938 184.3655 184.5440 184.7002 184.5534
+##  [9] 185.4319 185.4850 184.2646</code></pre>
 <pre class="r"><code>plot(degree, cv.error.10, type = &quot;b&quot;)</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-13-1.png" width="672" />
-Error was minimized at a 3rd degree polynomial for K = 10, so either a 2nd or 3rd degree polynomial over y would be the best fit for this model</p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-12-1.png" width="672" />
+Error was minimized at a 10th degree polynomial for K = 10, so this degree polynomial over x would be the best fit for this model</p>
 </div>
 <div id="x3-distance-to-the-nearest-mrt-station" class="section level2">
 <h2>X3 distance to the nearest MRT station</h2>
-<pre class="r"><code>plot(real_estate$`X3 distance to the nearest MRT station` , real_estate$`Y house price of unit area` )</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-14-1.png" width="672" />
+<pre class="r"><code>plot(real_estate$`X3.distance.to.the.nearest.MRT.station` , real_estate$`Y.house.price.of.unit.area` )</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-13-1.png" width="672" />
 K at 5</p>
 <pre class="r"><code>K = 5
 cv.error.53 &lt;- rep(0,5)
 degree &lt;- 1:5
 for(d in degree){
-  glm.fit &lt;- glm(log(`Y house price of unit area`)~poly(`X3 distance to the nearest MRT station`, d), data = real_estate)
+  glm.fit &lt;- glm(log(`Y.house.price.of.unit.area`)~poly(`X3.distance.to.the.nearest.MRT.station`, d), data = real_estate)
   cv.error.53[d] &lt;- cv.glm(real_estate, glm.fit, K = K)$delta[1]
 }
 cv.error.53</code></pre>
@@ -109,80 +111,80 @@ cv.error.53</code></pre>
 cv.error.103 &lt;- rep(0,10)
 degree &lt;- 1:10
 for(d in degree){
-  glm.fit &lt;- glm(log(`Y house price of unit area`)~poly(`X3 distance to the nearest MRT station`, d), data = real_estate)
+  glm.fit &lt;- glm(log(`Y.house.price.of.unit.area`)~poly(`X3.distance.to.the.nearest.MRT.station`, d), data = real_estate)
   cv.error.103[d] &lt;- cv.glm(real_estate, glm.fit, K = K)$delta[1]
 }
 cv.error.103</code></pre>
 <pre><code>##  [1] 0.06742058 0.06242462 0.05918923 0.05841451 0.05887588 0.05593848
 ##  [7] 0.05609590 0.05648827 0.05664815 0.64921171</code></pre>
 <pre class="r"><code>plot(degree, cv.error.103, type = &quot;b&quot;)</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-17-1.png" width="672" />
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-16-1.png" width="672" />
 It looks like using 6th degree polynomial on x and taking the log of y was the best way to reduct CV error
 ## X4 number of convenience stores</p>
-<pre class="r"><code>plot(real_estate$`X4 number of convenience stores` , real_estate$`Y house price of unit area` )</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-18-1.png" width="672" />
+<pre class="r"><code>plot(real_estate$`X4.number.of.convenience.stores` , real_estate$`Y.house.price.of.unit.area` )</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-17-1.png" width="672" />
 This simple plot indicates that this correlation has hardly any linearity or pattern at all, so it is not a good independent variable to explore</p>
 </div>
 <div id="x5-latitude" class="section level2">
 <h2>X5 latitude</h2>
-<pre class="r"><code>plot(real_estate$`X5 latitude`, real_estate$`Y house price of unit area`)</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+<pre class="r"><code>plot(real_estate$`X5.latitude`, real_estate$`Y.house.price.of.unit.area`)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
 <p>K at 5</p>
 <pre class="r"><code>K = 5
 cv.error.55 &lt;- rep(0,5)
 degree &lt;- 1:5
 for(d in degree){
-  glm.fit &lt;- glm(`Y house price of unit area`~poly(`X5 latitude`, d), data = real_estate)
+  glm.fit &lt;- glm(`Y.house.price.of.unit.area`~poly(`X5.latitude`, d), data = real_estate)
   cv.error.55[d] &lt;- cv.glm(real_estate, glm.fit, K = K)$delta[1]
 }
 cv.error.55</code></pre>
 <pre><code>## [1] 134.1032 126.8801 120.9809 113.8525 130.8325</code></pre>
 <pre class="r"><code>plot(degree, cv.error.55, type = &quot;b&quot;)</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
 <p>K at 10</p>
 <pre class="r"><code>K = 10
 cv.error.105 &lt;- rep(0,10)
 degree &lt;- 1:10
 for(d in degree){
-  glm.fit &lt;- glm(`Y house price of unit area`~poly(`X5 latitude`, d), data = real_estate)
+  glm.fit &lt;- glm(`Y.house.price.of.unit.area`~poly(`X5.latitude`, d), data = real_estate)
   cv.error.105[d] &lt;- cv.glm(real_estate, glm.fit, K = K)$delta[1]
 }
 cv.error.105</code></pre>
 <pre><code>##  [1]  130.5954  124.7950  125.6119  116.1124  127.0852  767.5464 3118.3616
 ##  [8]  814.5038  117.4373  139.3293</code></pre>
 <pre class="r"><code>plot(degree, cv.error.105, type = &quot;b&quot;)</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-23-1.png" width="672" />
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-22-1.png" width="672" />
 Both K = 5 and K = 10 seem to indicate that a 4th degree polynomial would be the best fit for this data, but the level of error is still very high, indicating that latitide might overall not be a great predictor</p>
 </div>
 <div id="x6-longitude" class="section level2">
 <h2>X6 longitude</h2>
-<pre class="r"><code>plot(real_estate$`X6 longitude` , real_estate$`Y house price of unit area`)</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-24-1.png" width="672" />
+<pre class="r"><code>plot(real_estate$`X6.longitude` , real_estate$`Y.house.price.of.unit.area`)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-23-1.png" width="672" />
 K at 5</p>
 <pre class="r"><code>K = 5
 cv.error.56 &lt;- rep(0,5)
 degree &lt;- 1:5
 for(d in degree){
-  glm.fit &lt;- glm(`Y house price of unit area`~ - poly(`X6 longitude`, d), data = real_estate)
+  glm.fit &lt;- glm(`Y.house.price.of.unit.area`~ - poly(`X6.longitude`, d), data = real_estate)
   cv.error.56[d] &lt;- cv.glm(real_estate, glm.fit, K = K)$delta[1]
 }
 cv.error.56</code></pre>
 <pre><code>## [1] 184.9423 184.9460 186.7774 186.3300 186.9804</code></pre>
 <pre class="r"><code>plot(degree, cv.error.56, type = &quot;b&quot;)</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-26-1.png" width="672" /></p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
 <p>K at 12</p>
 <pre class="r"><code>K = 12
 cv.error.106 &lt;- rep(0,12)
 degree &lt;- 1:12
 for(d in degree){
-  glm.fit &lt;- glm(`Y house price of unit area`~poly(`X6 longitude`, d), data = real_estate)
+  glm.fit &lt;- glm(`Y.house.price.of.unit.area`~poly(`X6.longitude`, d), data = real_estate)
   cv.error.106[d] &lt;- cv.glm(real_estate, glm.fit, K = K)$delta[1]
 }
 cv.error.106</code></pre>
 <pre><code>##  [1] 135.62624 128.55505 110.88255 111.33729 109.08904 106.81904 103.32859
 ##  [8] 104.11203 103.43382 113.15640  98.85824 115.99622</code></pre>
 <pre class="r"><code>plot(degree, cv.error.106, type = &quot;b&quot;)</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-28-1.png" width="672" />
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-27-1.png" width="672" />
 The polynomial that looks like the best fit seems to have 11 degrees, however, the error is still relatively high</p>
 </div>
 </div>
@@ -191,12 +193,12 @@ The polynomial that looks like the best fit seems to have 11 degrees, however, t
 <div id="x2" class="section level2">
 <h2>X2:</h2>
 <pre class="r"><code>boot.fn2 &lt;- function(data, index){
-  return(coef(lm(`Y house price of unit area`~poly(`X2 house age`,2), data = data, subset = index)))
+  return(coef(lm(`Y.house.price.of.unit.area`~poly(`X2.house.age`,2), data = data, subset = index)))
 }</code></pre>
 <pre class="r"><code>set.seed(3)
 boot.fn2(real_estate, sample(414, 414, replace = T))</code></pre>
-<pre><code>##              (Intercept) poly(`X2 house age`, 2)1 poly(`X2 house age`, 2)2 
-##                 38.06925                -61.58486                116.46209</code></pre>
+<pre><code>##            (Intercept) poly(X2.house.age, 2)1 poly(X2.house.age, 2)2 
+##               38.06925              -61.58486              116.46209</code></pre>
 <pre class="r"><code>boot.out2 &lt;- boot(Auto, boot.fn2, 100)
 boot.out2</code></pre>
 <pre><code>## 
@@ -213,23 +215,19 @@ boot.out2</code></pre>
 ## t2* -57.38340 -0.93989976  10.9757919
 ## t3* 113.75303  0.93210690  13.1958725</code></pre>
 <pre class="r"><code>plot(boot.out2)</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-31-1.png" width="672" /></p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-30-1.png" width="672" /></p>
 </div>
 <div id="x3" class="section level2">
 <h2>X3:</h2>
 <pre class="r"><code>boot.fn3 &lt;- function(data, index){
-  return(coef(lm(log(`Y house price of unit area`)~`X3 distance to the nearest MRT station`, data = data, subset = index)))
+  return(coef(lm(`Y.house.price.of.unit.area`~`X3.distance.to.the.nearest.MRT.station`, data = data, subset = index)))
 }</code></pre>
 <pre class="r"><code>boot.fn3(real_estate, 1:414)</code></pre>
-<pre><code>##                              (Intercept) 
-##                             3.8202706660 
-## `X3 distance to the nearest MRT station` 
-##                            -0.0002339507</code></pre>
+<pre><code>##                            (Intercept) X3.distance.to.the.nearest.MRT.station 
+##                           45.851427058                           -0.007262052</code></pre>
 <pre class="r"><code>boot.fn3(real_estate, sample(414, 414, replace = T))</code></pre>
-<pre><code>##                              (Intercept) 
-##                             3.8414558443 
-## `X3 distance to the nearest MRT station` 
-##                            -0.0002369129</code></pre>
+<pre><code>##                            (Intercept) X3.distance.to.the.nearest.MRT.station 
+##                           46.853355733                           -0.007621958</code></pre>
 <pre class="r"><code>boot.out3 &lt;- boot(Auto, boot.fn3, 100)
 boot.out3</code></pre>
 <pre><code>## 
@@ -241,22 +239,22 @@ boot.out3</code></pre>
 ## 
 ## 
 ## Bootstrap Statistics :
-##          original       bias     std. error
-## t1*  3.8237111394 3.379028e-04 1.769115e-02
-## t2* -0.0002351181 7.316555e-08 1.062796e-05</code></pre>
+##         original        bias    std. error
+## t1* 46.018546958  4.765792e-02 0.778269445
+## t2* -0.007298169 -1.334937e-05 0.000354673</code></pre>
 <pre class="r"><code>plot(boot.out3)</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-35-1.png" width="672" /></p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-34-1.png" width="672" /></p>
 </div>
 <div id="x5" class="section level2">
 <h2>X5:</h2>
 <pre class="r"><code>boot.fn5 &lt;- function(data, index){
-  return(coef(lm(`Y house price of unit area`~poly(`X5 latitude`, 4), data = data, subset = index)))
+  return(coef(lm(`Y.house.price.of.unit.area`~poly(`X5.latitude`, 4), data = data, subset = index)))
 }</code></pre>
 <pre class="r"><code>boot.fn5(real_estate, sample(414, 414, replace = T))</code></pre>
-<pre><code>##             (Intercept) poly(`X5 latitude`, 4)1 poly(`X5 latitude`, 4)2 
-##                37.99171               149.78784               -58.55416 
-## poly(`X5 latitude`, 4)3 poly(`X5 latitude`, 4)4 
-##               -36.69535                36.01148</code></pre>
+<pre><code>##           (Intercept) poly(X5.latitude, 4)1 poly(X5.latitude, 4)2 
+##              37.99171             149.78784             -58.55416 
+## poly(X5.latitude, 4)3 poly(X5.latitude, 4)4 
+##             -36.69535              36.01148</code></pre>
 <pre class="r"><code>boot.out5 &lt;- boot(Auto, boot.fn5, 100)
 boot.out5</code></pre>
 <pre><code>## 
@@ -275,26 +273,22 @@ boot.out5</code></pre>
 ## t4* -49.61589 -0.39163999  22.5274664
 ## t5*  45.32394 -0.51200909  14.4634592</code></pre>
 <pre class="r"><code>plot(boot.out5)</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-38-1.png" width="672" /></p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-37-1.png" width="672" /></p>
 </div>
 <div id="x6" class="section level2">
 <h2>X6:</h2>
 <pre class="r"><code>boot.fn6 &lt;- function(data, index){
-  return(coef(lm(`Y house price of unit area`~poly(`X6 longitude`, 11), data = data, subset = index)))
+  return(coef(lm(`Y.house.price.of.unit.area`~poly(`X6.longitude`, 11), data = data, subset = index)))
 }</code></pre>
 <pre class="r"><code>boot.fn6(real_estate, sample(414, 414, replace = T))</code></pre>
-<pre><code>##                (Intercept)  poly(`X6 longitude`, 11)1 
-##                   38.65327                  135.53895 
-##  poly(`X6 longitude`, 11)2  poly(`X6 longitude`, 11)3 
-##                  -75.05530                 -106.56943 
-##  poly(`X6 longitude`, 11)4  poly(`X6 longitude`, 11)5 
-##                   12.15287                   35.53417 
-##  poly(`X6 longitude`, 11)6  poly(`X6 longitude`, 11)7 
-##                   32.55048                   25.87549 
-##  poly(`X6 longitude`, 11)8  poly(`X6 longitude`, 11)9 
-##                   15.96447                  -33.50095 
-## poly(`X6 longitude`, 11)10 poly(`X6 longitude`, 11)11 
-##                  -29.98921                  -26.43464</code></pre>
+<pre><code>##              (Intercept)  poly(X6.longitude, 11)1  poly(X6.longitude, 11)2 
+##                 38.65327                135.53895                -75.05530 
+##  poly(X6.longitude, 11)3  poly(X6.longitude, 11)4  poly(X6.longitude, 11)5 
+##               -106.56943                 12.15287                 35.53417 
+##  poly(X6.longitude, 11)6  poly(X6.longitude, 11)7  poly(X6.longitude, 11)8 
+##                 32.55048                 25.87549                 15.96447 
+##  poly(X6.longitude, 11)9 poly(X6.longitude, 11)10 poly(X6.longitude, 11)11 
+##                -33.50095                -29.98921                -26.43464</code></pre>
 <pre class="r"><code>boot.out6 &lt;- boot(Auto, boot.fn5, 100)
 boot.out6</code></pre>
 <pre><code>## 
@@ -313,6 +307,6 @@ boot.out6</code></pre>
 ## t4* -49.61589 -0.24216250  28.8589766
 ## t5*  45.32394 -1.02079732  19.0201262</code></pre>
 <pre class="r"><code>plot(boot.out6)</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-41-1.png" width="672" /></p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-40-1.png" width="672" /></p>
 </div>
 </div>

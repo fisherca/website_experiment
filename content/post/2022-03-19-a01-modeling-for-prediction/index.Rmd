@@ -16,14 +16,10 @@ LOOCV is even more time consuming than a typical K-fold validation, so K fold ha
 In bootstrapping, random sampling with replacement is used in a way that each data point is represented in a proportion of 0.623. One pro of bootstrapping is that it takes samples in a way that it can better reflect the variability of a population from the sample data then other models. Another pro is that bootstrapping is overall more accurate than simple standard intervals, and can better represent data that is not completely normal. 
 Some cons of bootstrapping are that it heavily relies on the data in the sample in order to predict values/variance of the population, which may give the data scientist a false sense of security about their model. It can also be relatively time consuming. It is particularly weak as a model if the sample size is too small or the distribution of the population does not have finite moments. 
 # Uploading the data in your GitHub account and directly access in your solution file (2)
-```{r}
-library(readr)
-library(readxl)
-```
 
 ```{r}
-real_estate <- read_excel("/Users/cfish/Downloads/Real_estate_data.xlsx")
-real_estate
+real_estate <- read.csv("https://raw.githubusercontent.com/fisherca/website_experiment/main/Real_estate_data-_1_.csv")
+head(real_estate)
 ```
 
 ```{r}
@@ -51,14 +47,14 @@ train1 <- sample(414, 207)
 
 ## X1 Transaction Date
 ```{r}
-plot(real_estate$`X1 transaction date`, real_estate$`Y house price of unit area`)
+plot(real_estate$`X1.transaction.date`, real_estate$`Y.house.price.of.unit.area`)
 ```
 This simple plot indicates that this correlation has hardly any linearity or pattern at all, so it is not a good independent variable to explore
 
 
 ## X2 House Age
 ```{r}
-plot(real_estate$`X2 house age`, real_estate$`Y house price of unit area` )
+plot(real_estate$`X2.house.age`, real_estate$`Y.house.price.of.unit.area` )
 ```
 K at 5
 ```{r, warning = FALSE}
@@ -66,7 +62,7 @@ K = 5
 cv.error.5 <- rep(0,5)
 degree <- 1:5
 for(d in degree){
-  glm.fit <- glm(poly(`Y house price of unit area`)~`X2 house age`, data = real_estate)
+  glm.fit <- glm(`Y.house.price.of.unit.area`~poly(`X2.house.age`), data = real_estate)
   cv.error.5[d] <- cv.glm(real_estate, glm.fit, K = K)$delta[1]
 }
 cv.error.5
@@ -74,14 +70,13 @@ cv.error.5
 ```{r}
 plot(degree, cv.error.5, type = "b")
 ```
-It looks like a polynomial of Y at the 2nd degree was the best fit
-K at 10
+
 ```{r, warning=FALSE}
 K = 10
 cv.error.10 <- rep(0,10)
 degree <- 1:11
 for(d in degree){
-  glm.fit <- glm(poly(`Y house price of unit area`)~`X1 transaction date`, data = real_estate)
+  glm.fit <- glm(`Y.house.price.of.unit.area`~poly(`X1.transaction.date`), data = real_estate)
   cv.error.10[d] <- cv.glm(real_estate, glm.fit, K = K)$delta[1]
 }
 cv.error.10
@@ -89,11 +84,11 @@ cv.error.10
 ```{r}
 plot(degree, cv.error.10, type = "b")
 ```
-Error was minimized at a 3rd degree polynomial for K = 10, so either a 2nd or 3rd degree polynomial over y would be the best fit for this model
+Error was minimized at a 10th degree polynomial for K = 10, so this degree polynomial over x would be the best fit for this model
 
 ## X3  distance to the nearest MRT station
 ```{r}
-plot(real_estate$`X3 distance to the nearest MRT station` , real_estate$`Y house price of unit area` )
+plot(real_estate$`X3.distance.to.the.nearest.MRT.station` , real_estate$`Y.house.price.of.unit.area` )
 ```
 K at 5
 ```{r, warning = FALSE}
@@ -101,7 +96,7 @@ K = 5
 cv.error.53 <- rep(0,5)
 degree <- 1:5
 for(d in degree){
-  glm.fit <- glm(log(`Y house price of unit area`)~poly(`X3 distance to the nearest MRT station`, d), data = real_estate)
+  glm.fit <- glm(log(`Y.house.price.of.unit.area`)~poly(`X3.distance.to.the.nearest.MRT.station`, d), data = real_estate)
   cv.error.53[d] <- cv.glm(real_estate, glm.fit, K = K)$delta[1]
 }
 cv.error.53
@@ -112,7 +107,7 @@ K = 10
 cv.error.103 <- rep(0,10)
 degree <- 1:10
 for(d in degree){
-  glm.fit <- glm(log(`Y house price of unit area`)~poly(`X3 distance to the nearest MRT station`, d), data = real_estate)
+  glm.fit <- glm(log(`Y.house.price.of.unit.area`)~poly(`X3.distance.to.the.nearest.MRT.station`, d), data = real_estate)
   cv.error.103[d] <- cv.glm(real_estate, glm.fit, K = K)$delta[1]
 }
 cv.error.103
@@ -123,13 +118,13 @@ plot(degree, cv.error.103, type = "b")
 It looks like using 6th degree polynomial on x and taking the log of y was the best way to reduct CV error
 ## X4 number of convenience stores
 ```{r}
-plot(real_estate$`X4 number of convenience stores` , real_estate$`Y house price of unit area` )
+plot(real_estate$`X4.number.of.convenience.stores` , real_estate$`Y.house.price.of.unit.area` )
 ```
 This simple plot indicates that this correlation has hardly any linearity or pattern at all, so it is not a good independent variable to explore
 
 ## X5 latitude
 ```{r}
-plot(real_estate$`X5 latitude`, real_estate$`Y house price of unit area`)
+plot(real_estate$`X5.latitude`, real_estate$`Y.house.price.of.unit.area`)
 ```
 
 K at 5
@@ -138,7 +133,7 @@ K = 5
 cv.error.55 <- rep(0,5)
 degree <- 1:5
 for(d in degree){
-  glm.fit <- glm(`Y house price of unit area`~poly(`X5 latitude`, d), data = real_estate)
+  glm.fit <- glm(`Y.house.price.of.unit.area`~poly(`X5.latitude`, d), data = real_estate)
   cv.error.55[d] <- cv.glm(real_estate, glm.fit, K = K)$delta[1]
 }
 cv.error.55
@@ -153,7 +148,7 @@ K = 10
 cv.error.105 <- rep(0,10)
 degree <- 1:10
 for(d in degree){
-  glm.fit <- glm(`Y house price of unit area`~poly(`X5 latitude`, d), data = real_estate)
+  glm.fit <- glm(`Y.house.price.of.unit.area`~poly(`X5.latitude`, d), data = real_estate)
   cv.error.105[d] <- cv.glm(real_estate, glm.fit, K = K)$delta[1]
 }
 cv.error.105
@@ -165,7 +160,7 @@ Both K = 5 and K = 10 seem to indicate that a 4th degree polynomial would be the
 
 ## X6 longitude
 ```{r}
-plot(real_estate$`X6 longitude` , real_estate$`Y house price of unit area`)
+plot(real_estate$`X6.longitude` , real_estate$`Y.house.price.of.unit.area`)
 ```
 K at 5
 ```{r, warning = FALSE}
@@ -173,7 +168,7 @@ K = 5
 cv.error.56 <- rep(0,5)
 degree <- 1:5
 for(d in degree){
-  glm.fit <- glm(`Y house price of unit area`~ - poly(`X6 longitude`, d), data = real_estate)
+  glm.fit <- glm(`Y.house.price.of.unit.area`~ - poly(`X6.longitude`, d), data = real_estate)
   cv.error.56[d] <- cv.glm(real_estate, glm.fit, K = K)$delta[1]
 }
 cv.error.56
@@ -188,7 +183,7 @@ K = 12
 cv.error.106 <- rep(0,12)
 degree <- 1:12
 for(d in degree){
-  glm.fit <- glm(`Y house price of unit area`~poly(`X6 longitude`, d), data = real_estate)
+  glm.fit <- glm(`Y.house.price.of.unit.area`~poly(`X6.longitude`, d), data = real_estate)
   cv.error.106[d] <- cv.glm(real_estate, glm.fit, K = K)$delta[1]
 }
 cv.error.106
@@ -206,7 +201,7 @@ The polynomial that looks like the best fit seems to have 11 degrees, however, t
 ## X2:
 ```{r}
 boot.fn2 <- function(data, index){
-  return(coef(lm(`Y house price of unit area`~poly(`X2 house age`,2), data = data, subset = index)))
+  return(coef(lm(`Y.house.price.of.unit.area`~poly(`X2.house.age`,2), data = data, subset = index)))
 }
 ```
 
@@ -225,7 +220,7 @@ plot(boot.out2)
 ## X3:
 ```{r}
 boot.fn3 <- function(data, index){
-  return(coef(lm(log(`Y house price of unit area`)~`X3 distance to the nearest MRT station`, data = data, subset = index)))
+  return(coef(lm(`Y.house.price.of.unit.area`~`X3.distance.to.the.nearest.MRT.station`, data = data, subset = index)))
 }
 ```
 
@@ -244,7 +239,7 @@ plot(boot.out3)
 ## X5:
 ```{r}
 boot.fn5 <- function(data, index){
-  return(coef(lm(`Y house price of unit area`~poly(`X5 latitude`, 4), data = data, subset = index)))
+  return(coef(lm(`Y.house.price.of.unit.area`~poly(`X5.latitude`, 4), data = data, subset = index)))
 }
 ```
 
@@ -260,7 +255,7 @@ plot(boot.out5)
 ## X6: 
 ```{r}
 boot.fn6 <- function(data, index){
-  return(coef(lm(`Y house price of unit area`~poly(`X6 longitude`, 11), data = data, subset = index)))
+  return(coef(lm(`Y.house.price.of.unit.area`~poly(`X6.longitude`, 11), data = data, subset = index)))
 }
 ```
 
