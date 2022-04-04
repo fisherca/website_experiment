@@ -13,9 +13,12 @@ your submission should have:
 a "PassengerId" column containing the IDs of each passenger from test.csv.
 a "Survived" column (that you will create!) with a "1" for the rows where you think the passenger survived, and a "0" where you predict that the passenger died.
 #Loading in / Preparing the data
-```{r}
+
+```{r, warning = FALSE}
 library(openintro)
 library(tidyverse)
+library(ggridges)
+library(tidymodels)
 
 ```
 ```{r}
@@ -33,10 +36,23 @@ glimpse(test)
 # Experimenting with the Data
 ## Quick tables to explore patterns
 This was not in the instructions, but I thought it would help me visualize the data
+### Sex
 ```{r}
 table(train$Survived, train$Sex)
 ```
+
+```{r}
+train %>%
+  ggplot(aes(x = Sex, fill = Survived)) +
+  geom_bar(position = "fill") +
+  labs(
+    x = 'Sex', 
+    fill = "Survived", 
+    y = NULL,
+    title = 'Survived vs. Sex')
+```
 More Females survived than males, and a far higher proportion of females survived overall
+## Passenger Class
 ```{r}
 table(train$Survived, train$Pclass)
 ```
@@ -46,7 +62,18 @@ table(train$Survived, train$Pclass)
 119/(372+119)
 ```
 62% of the First class passengers survived, wheras only 47% of second class and 24% of third class passengers survived
-
+```{r}
+train %>%
+  ggplot(aes(x = Pclass, fill = Survived)) +
+  geom_bar(position = "fill") +
+  labs(
+    x = 'Passenger Class', 
+    fill = "Survived", 
+    y = NULL,
+    title = 'Survived vs. Passenger Class')
+```
+The higher class passengers were slightly more likely to survive than the lower class passengers
+## Siblings and Spouses
 ```{r}
 table(train$Survived, train$SibSp)
 ```
@@ -56,7 +83,18 @@ table(train$Survived, train$SibSp)
 ```
 
 34.5% of people who had no siblings or spouse survived, whereas 46% of people with at least one sibling or spouse survived
-
+```{r}
+train %>%
+  ggplot(aes(x = SibSp, fill = Survived)) +
+  geom_bar(position = "fill") +
+  labs(
+    x = 'Siblings and Spouses', 
+    fill = "Survived", 
+    y = NULL,
+    title = 'Survived vs. Siblings and Spouses')
+```
+Having a smallernumber of siblings or spouses seems to increase liklihood of survival slightly
+### Parents and Childern
 ```{r}
 table(train$Survived, train$Parch)
 ```
@@ -66,9 +104,41 @@ table(train$Survived, train$Parch)
 ```
 
 Only 34% of people with no parents or children survived, but 51% of people with at least 1 parent or child survived
-
-
-
+```{r}
+train %>%
+  ggplot(aes(x = Parch, fill = Survived)) +
+  geom_bar(position = "fill") +
+  labs(
+    x = 'Parents and Childern', 
+    fill = "Survived", 
+    y = NULL,
+    title = 'Survived vs. Parents and Childern')
+```
+People with a low to moderate amount of parents and children seem to be the most likely to survive
+##Age
+```{r}
+train %>%
+  ggplot(aes(x = Age, fill = Survived)) +
+  geom_histogram(position = "fill", bins = 20) +
+  labs(
+    x = 'Age', 
+    fill = "Survived", 
+    y = NULL,
+    title = 'Survived vs. Age')
+```
+Age does not seem to strongly predict survival, except very young and very old people seem slightly more likely to survive
+## Fare
+```{r}
+train %>%
+  ggplot(aes(x = Fare, fill = Survived)) +
+  geom_histogram(position = "fill", bins = 10) +
+  labs(
+    x = 'Fare', 
+    fill = "Survived", 
+    y = NULL,
+    title = 'Survived vs. Fare')
+```
+It seems like the more expensive the fare was, the more likely it was that the passenger would survive
 ## Is gender a good predictor of death? Recreation of exercise done in tutorial
 ```{r}
 women_tot <- train %>%
@@ -90,7 +160,7 @@ men_rate
 ```
 18% of the men in the train data survived
 
-#Building a random forest model:
+#Building a model:
 We are going to look at Pclass,Age, Fare Sex, SibSp, and Parch as potential predictors for Survived
 ##Preparing the Data
 adding empty row to test data
@@ -99,13 +169,15 @@ test$Survived <- NA
 ```
 removing rows I will not use
 ```{r}
-train <- train[c("PassengerId", "Survived", "Pclass", "Sex", "Age", "SibSp", "Parch", "Fare")]
+ 
+train <- train[c("Survived", "Pclass", "Sex", "Age", "SibSp", "Parch", "Fare")]
 
-test <- test[c("PassengerId", "Survived", "Pclass", "Sex", "Age", "SibSp", "Parch", "Fare")]
+test <- test[c("Survived", "Pclass", "Sex", "Age", "SibSp", "Parch", "Fare")]
 ```
 
 replacing NA values and changing data types if needed 
 ```{r}
+train[train == ""] <- NA
 train[is.na(train$Age), "Age"] <- median(train$Age, na.rm = TRUE)
 
 test[is.na(test$Age), "Age"] <- median(test$Age, na.rm = TRUE)
@@ -116,9 +188,9 @@ train[is.na(train$Fare), "Fare"] <- median(train$Fare, na.rm = TRUE)
 test[is.na(test$Fare), "Fare"] <- median(test$Fare, na.rm = TRUE)
 ```
 ```{r}
-train <- transform(train, Survived = as.factor(Survived), Pclass = as.factor(Pclass), Sex = as.factor(Sex))
+train <- transform(train, Survived = as.factor(Survived), Sex = as.factor(Sex))
 
-test <- transform(test, Pclass = as.factor(Pclass), Sex = as.factor(Sex))
+test <- transform(test, Sex = as.factor(Sex))
 ```
 
 making a full dataset
@@ -126,44 +198,202 @@ making a full dataset
 full_data <- rbind(train, test)
 ```
 
-
-
-##Doing random forest analysis
-```{r, warning = FALSE}
-library(randomForest)
-require(caTools)
-library(caret)
+# Logistic Regression Practice
+## Noting General Correlation Trends:
+```{r}
+train.numeric <- transform(train, Survived = as.numeric(Survived), Pclass = as.numeric(Pclass), Sex = as.numeric(Sex), Age = as.numeric(Age), SibSp = as.numeric(SibSp), Parch = as.numeric(Parch), Fare = as.numeric(Fare))
+cor(train.numeric)
 ```
 
+## Pclass
+```{r}
+logpclass <- logistic_reg() %>%
+  set_engine("glm") %>%
+  fit(Survived~Pclass, data = train, family = "binomial")
 
-
-```{r, warning = FALSE}
-trainrf <- Survived~ Pclass+Sex+Age+SibSp+Parch+Fare
-rf <- randomForest(trainrf, data = train, mtry = 3)
+tidy(logpclass)
 ```
 
 ```{r}
-varImpPlot(rf)
-```
-From this graph, it is clear that Sex is the best predictor variable of Survival of all these variables, followed by Fare and Age
+yhat <- predict(logpclass, test, type = "raw")
+phat <- exp(yhat)/(1 + exp(yhat))
+test <- test %>%
+  bind_cols(yhat = yhat, phat = phat)
 
-#Creating Output Dataframe
-```{r}
-testrf <- "Pclass+Sex+Age+SibSp+Parch+Fare"
-```
-
-```{r}
-Survivedpredict<- predict(rf, newdata = test)
-
+logpclassaug <- augment(logpclass$fit) %>%
+  mutate(prob = exp(.fitted)/(1+exp(.fitted)))
+logpclassaug
 ```
 ```{r}
-PassengerID <- test$PassengerId
-outputdata <- as.data.frame(PassengerID)
-outputdata$Survived <- Survivedpredict
+ggplot(logpclassaug, aes(x = Pclass)) +
+  geom_point(aes(y = as.numeric(Survived), color = Survived), alpha = 0.5) +
+  scale_y_continuous(breaks = c(0,1)) +
+  guides(color = "none") +
+  geom_line(aes(y = prob)) +
+  geom_point(data = test, aes(x = Pclass, y = phat),
+             stroke = 1, size = 6) +
+  labs(
+    x = "Pclass",
+    y = "Survived", 
+    title = "Survived vs. Pclass"
+  )
 ```
 
+## Sex
 ```{r}
-write.csv(outputdata, file = "A03_data_output.csv", row.names = FALSE)
+logsex <- logistic_reg() %>%
+  set_engine("glm") %>%
+  fit(Survived~Sex, data = train, family = "binomial")
+
+tidy(logsex)
+```
+```{r}
+yhat2 <- predict(logsex, test, type = "raw")
+phat2 <- exp(yhat2)/(1 + exp(yhat2))
+test <- test %>%
+  bind_cols(yhat2 = yhat2, phat2 = phat2)
+
+logsexaug <- augment(logsex$fit) %>%
+  mutate(prob2 = exp(.fitted)/(1+exp(.fitted)))
+```
+```{r}
+ggplot(logsexaug, aes(x = Sex)) +
+  geom_point(aes(y = as.numeric(Survived), color = Survived), alpha = 0.5) +
+  scale_y_continuous(breaks = c(0,1)) +
+  guides(color = "none") +
+  geom_line(aes(y = prob2)) +
+  geom_point(data = test, aes(x = Sex, y = phat2),
+             stroke = 1, size = 6) +
+  labs(
+    x = "Sex",
+    y = "Survived", 
+    title = "Survived vs. Sex"
+  )
+```
+## Age
+```{r}
+logage <- logistic_reg() %>%
+  set_engine("glm") %>%
+  fit(Survived~Age, data = train, family = "binomial")
+
+tidy(logage)
+```
+```{r}
+yhat3 <- predict(logage, test, type = "raw")
+phat3 <- exp(yhat3)/(1 + exp(yhat3))
+test <- test %>%
+  bind_cols(yhat3 = yhat3, phat3 = phat3)
+
+logageaug <- augment(logage$fit) %>%
+  mutate(prob3 = exp(.fitted)/(1+exp(.fitted)))
+```
+```{r}
+ggplot(logageaug, aes(x = Age)) +
+  geom_point(aes(y = as.numeric(Survived), color = Survived), alpha = 0.5) +
+  scale_y_continuous(breaks = c(0,1)) +
+  guides(color = "none") +
+  geom_line(aes(y = prob3)) +
+  geom_point(data = test, aes(x = Age, y = phat3),
+             stroke = 1, size = 6) +
+  labs(
+    x = "Age",
+    y = "Survived", 
+    title = "Survived vs. Age"
+  )
+```
+## SibSp
+```{r}
+logsibsp <- logistic_reg() %>%
+  set_engine("glm") %>%
+  fit(Survived~SibSp, data = train, family = "binomial")
+
+tidy(logsibsp)
+```
+```{r}
+yhat4 <- predict(logsibsp, test, type = "raw")
+phat4 <- exp(yhat4)/(1 + exp(yhat4))
+test <- test %>%
+  bind_cols(yhat4 = yhat4, phat4 = phat4)
+
+logsibspaug <- augment(logsibsp$fit) %>%
+  mutate(prob4 = exp(.fitted)/(1+exp(.fitted)))
+```
+```{r}
+ggplot(logsibspaug, aes(x = SibSp)) +
+  geom_point(aes(y = as.numeric(Survived), color = Survived), alpha = 0.5) +
+  scale_y_continuous(breaks = c(0,1)) +
+  guides(color = "none") +
+  geom_line(aes(y = prob4)) +
+  geom_point(data = test, aes(x = SibSp, y = phat4),
+             stroke = 1, size = 6) +
+  labs(
+    x = "Siblings and Spouses",
+    y = "Survived", 
+    title = "Survived vs. Number of Siblings and Spouses"
+  )
 ```
 
+## Parch
+```{r}
+logparch <- logistic_reg() %>%
+  set_engine("glm") %>%
+  fit(Survived~Parch, data = train, family = "binomial")
 
+tidy(logparch)
+```
+```{r}
+yhat5 <- predict(logparch, test, type = "raw")
+phat5 <- exp(yhat5)/(1 + exp(yhat5))
+test <- test %>%
+  bind_cols(yhat5 = yhat5, phat5 = phat5)
+
+logparchaug <- augment(logparch$fit) %>%
+  mutate(prob5 = exp(.fitted)/(1+exp(.fitted)))
+```
+```{r}
+ggplot(logparchaug, aes(x = Parch)) +
+  geom_point(aes(y = as.numeric(Survived), color = Survived), alpha = 0.5) +
+  scale_y_continuous(breaks = c(0,1)) +
+  guides(color = "none") +
+  geom_line(aes(y = prob5)) +
+  geom_point(data = test, aes(x = Parch, y = phat5),
+             stroke = 1, size = 6) +
+  labs(
+    x = "Parents and Children",
+    y = "Survived", 
+    title = "Survived vs. Number of Parents and Children"
+  )
+```
+
+## Fare
+```{r}
+logfare <- logistic_reg() %>%
+  set_engine("glm") %>%
+  fit(Survived~Fare, data = train, family = "binomial")
+
+tidy(logfare)
+```
+```{r}
+yhat6 <- predict(logfare, test, type = "raw")
+phat6 <- exp(yhat6)/(1 + exp(yhat6))
+test <- test %>%
+  bind_cols(yhat6 = yhat6, phat6 = phat6)
+
+logfareaug <- augment(logfare$fit) %>%
+  mutate(prob6 = exp(.fitted)/(1+exp(.fitted)))
+
+```
+```{r}
+ggplot(logfareaug, aes(x = Fare)) +
+  geom_point(aes(y = as.numeric(Survived), color = Survived), alpha = 0.5) +
+  scale_y_continuous(breaks = c(0,1)) +
+  guides(color = "none") +
+  geom_line(aes(y = prob6)) +
+  geom_point(data = test, aes(x = Fare, y = phat6),
+             stroke = 1, size = 6) +
+  labs(
+    x = "Fare",
+    y = "Survived", 
+    title = "Survived vs. Fare"
+  )
+```

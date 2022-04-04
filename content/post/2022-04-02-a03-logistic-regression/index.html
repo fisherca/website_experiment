@@ -22,12 +22,29 @@ a “Survived” column (that you will create!) with a “1” for the rows wher
 <pre class="r"><code>library(tidyverse)</code></pre>
 <pre><code>## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
 <pre><code>## v ggplot2 3.3.5     v purrr   0.3.4
-## v tibble  3.1.6     v dplyr   1.0.7
+## v tibble  3.1.6     v dplyr   1.0.8
 ## v tidyr   1.2.0     v stringr 1.4.0
 ## v readr   2.1.2     v forcats 0.5.1</code></pre>
 <pre><code>## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
 ## x dplyr::filter() masks stats::filter()
 ## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(ggridges)
+library(tidymodels)</code></pre>
+<pre><code>## -- Attaching packages -------------------------------------- tidymodels 0.2.0 --</code></pre>
+<pre><code>## v broom        0.7.12     v rsample      0.1.1 
+## v dials        0.1.0      v tune         0.2.0 
+## v infer        1.0.0      v workflows    0.2.6 
+## v modeldata    0.1.1      v workflowsets 0.2.1 
+## v parsnip      0.2.1      v yardstick    0.0.9 
+## v recipes      0.2.0</code></pre>
+<pre><code>## -- Conflicts ----------------------------------------- tidymodels_conflicts() --
+## x scales::discard() masks purrr::discard()
+## x dplyr::filter()   masks stats::filter()
+## x recipes::fixed()  masks stringr::fixed()
+## x dplyr::lag()      masks stats::lag()
+## x yardstick::spec() masks readr::spec()
+## x recipes::step()   masks stats::step()
+## * Use suppressPackageStartupMessages() to eliminate package startup messages</code></pre>
 <pre class="r"><code>train &lt;- read_csv(&quot;https://raw.githubusercontent.com/fisherca/website_experiment/main/train.csv&quot;)</code></pre>
 <pre><code>## Rows: 891 Columns: 12
 ## -- Column specification --------------------------------------------------------
@@ -85,13 +102,24 @@ glimpse(train)</code></pre>
 <h1>Experimenting with the Data</h1>
 <div id="quick-tables-to-explore-patterns" class="section level2">
 <h2>Quick tables to explore patterns</h2>
-<p>This was not in the instructions, but I thought it would help me visualize the data</p>
+<p>This was not in the instructions, but I thought it would help me visualize the data
+### Sex</p>
 <pre class="r"><code>table(train$Survived, train$Sex)</code></pre>
 <pre><code>##    
 ##     female male
 ##   0     81  468
 ##   1    233  109</code></pre>
-<p>More Females survived than males, and a far higher proportion of females survived overall</p>
+<pre class="r"><code>train %&gt;%
+  ggplot(aes(x = Sex, fill = Survived)) +
+  geom_bar(position = &quot;fill&quot;) +
+  labs(
+    x = &#39;Sex&#39;, 
+    fill = &quot;Survived&quot;, 
+    y = NULL,
+    title = &#39;Survived vs. Sex&#39;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" />
+More Females survived than males, and a far higher proportion of females survived overall
+## Passenger Class</p>
 <pre class="r"><code>table(train$Survived, train$Pclass)</code></pre>
 <pre><code>##    
 ##       1   2   3
@@ -104,6 +132,17 @@ glimpse(train)</code></pre>
 <pre class="r"><code>119/(372+119)</code></pre>
 <pre><code>## [1] 0.2423625</code></pre>
 <p>62% of the First class passengers survived, wheras only 47% of second class and 24% of third class passengers survived</p>
+<pre class="r"><code>train %&gt;%
+  ggplot(aes(x = Pclass, fill = Survived)) +
+  geom_bar(position = &quot;fill&quot;) +
+  labs(
+    x = &#39;Passenger Class&#39;, 
+    fill = &quot;Survived&quot;, 
+    y = NULL,
+    title = &#39;Survived vs. Passenger Class&#39;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-8-1.png" width="672" />
+The higher class passengers were slightly more likely to survive than the lower class passengers
+## Siblings and Spouses</p>
 <pre class="r"><code>table(train$Survived, train$SibSp)</code></pre>
 <pre><code>##    
 ##       0   1   2   3   4   5   8
@@ -114,6 +153,17 @@ glimpse(train)</code></pre>
 <pre class="r"><code>(112+13+4+3+1)/(97+112+15+13+12+4+15+3+5+1+7)</code></pre>
 <pre><code>## [1] 0.4683099</code></pre>
 <p>34.5% of people who had no siblings or spouse survived, whereas 46% of people with at least one sibling or spouse survived</p>
+<pre class="r"><code>train %&gt;%
+  ggplot(aes(x = SibSp, fill = Survived)) +
+  geom_bar(position = &quot;fill&quot;) +
+  labs(
+    x = &#39;Siblings and Spouses&#39;, 
+    fill = &quot;Survived&quot;, 
+    y = NULL,
+    title = &#39;Survived vs. Siblings and Spouses&#39;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-11-1.png" width="672" />
+Having a smallernumber of siblings or spouses seems to increase liklihood of survival slightly
+### Parents and Childern</p>
 <pre class="r"><code>table(train$Survived, train$Parch)</code></pre>
 <pre><code>##    
 ##       0   1   2   3   4   5   6
@@ -124,9 +174,41 @@ glimpse(train)</code></pre>
 <pre class="r"><code>(65+40+3+1+1)/(65+40+3+1+1+53+40+2+4+4+1)</code></pre>
 <pre><code>## [1] 0.5140187</code></pre>
 <p>Only 34% of people with no parents or children survived, but 51% of people with at least 1 parent or child survived</p>
-</div>
-<div id="is-gender-a-good-predictor-of-death-recreation-of-exercise-done-in-tutorial" class="section level2">
-<h2>Is gender a good predictor of death? Recreation of exercise done in tutorial</h2>
+<pre class="r"><code>train %&gt;%
+  ggplot(aes(x = Parch, fill = Survived)) +
+  geom_bar(position = &quot;fill&quot;) +
+  labs(
+    x = &#39;Parents and Childern&#39;, 
+    fill = &quot;Survived&quot;, 
+    y = NULL,
+    title = &#39;Survived vs. Parents and Childern&#39;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-14-1.png" width="672" />
+People with a low to moderate amount of parents and children seem to be the most likely to survive
+##Age</p>
+<pre class="r"><code>train %&gt;%
+  ggplot(aes(x = Age, fill = Survived)) +
+  geom_histogram(position = &quot;fill&quot;, bins = 20) +
+  labs(
+    x = &#39;Age&#39;, 
+    fill = &quot;Survived&quot;, 
+    y = NULL,
+    title = &#39;Survived vs. Age&#39;)</code></pre>
+<pre><code>## Warning: Removed 177 rows containing non-finite values (stat_bin).</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-15-1.png" width="672" />
+Age does not seem to strongly predict survival, except very young and very old people seem slightly more likely to survive
+## Fare</p>
+<pre class="r"><code>train %&gt;%
+  ggplot(aes(x = Fare, fill = Survived)) +
+  geom_histogram(position = &quot;fill&quot;, bins = 10) +
+  labs(
+    x = &#39;Fare&#39;, 
+    fill = &quot;Survived&quot;, 
+    y = NULL,
+    title = &#39;Survived vs. Fare&#39;)</code></pre>
+<pre><code>## Warning: Removed 3 rows containing missing values (geom_bar).</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-16-1.png" width="672" />
+It seems like the more expensive the fare was, the more likely it was that the passenger would survive
+## Is gender a good predictor of death? Recreation of exercise done in tutorial</p>
 <pre class="r"><code>women_tot &lt;- train %&gt;%
   filter(Sex == &#39;female&#39;)
 women_alive &lt;- train %&gt;%
@@ -145,67 +227,260 @@ men_rate</code></pre>
 <pre><code>##           n
 ## 1 0.1889081</code></pre>
 <p>18% of the men in the train data survived</p>
-<p>#Building a random forest model:
+<p>#Building a model:
 We are going to look at Pclass,Age, Fare Sex, SibSp, and Parch as potential predictors for Survived
 ##Preparing the Data
 adding empty row to test data</p>
 <pre class="r"><code>test$Survived &lt;- NA</code></pre>
 <p>removing rows I will not use</p>
-<pre class="r"><code>train &lt;- train[c(&quot;PassengerId&quot;, &quot;Survived&quot;, &quot;Pclass&quot;, &quot;Sex&quot;, &quot;Age&quot;, &quot;SibSp&quot;, &quot;Parch&quot;, &quot;Fare&quot;)]
+<pre class="r"><code>train &lt;- train[c(&quot;Survived&quot;, &quot;Pclass&quot;, &quot;Sex&quot;, &quot;Age&quot;, &quot;SibSp&quot;, &quot;Parch&quot;, &quot;Fare&quot;)]
 
-test &lt;- test[c(&quot;PassengerId&quot;, &quot;Survived&quot;, &quot;Pclass&quot;, &quot;Sex&quot;, &quot;Age&quot;, &quot;SibSp&quot;, &quot;Parch&quot;, &quot;Fare&quot;)]</code></pre>
+test &lt;- test[c(&quot;Survived&quot;, &quot;Pclass&quot;, &quot;Sex&quot;, &quot;Age&quot;, &quot;SibSp&quot;, &quot;Parch&quot;, &quot;Fare&quot;)]</code></pre>
 <p>replacing NA values and changing data types if needed</p>
-<pre class="r"><code>train[is.na(train$Age), &quot;Age&quot;] &lt;- median(train$Age, na.rm = TRUE)
+<pre class="r"><code>train[train == &quot;&quot;] &lt;- NA
+train[is.na(train$Age), &quot;Age&quot;] &lt;- median(train$Age, na.rm = TRUE)
 
 test[is.na(test$Age), &quot;Age&quot;] &lt;- median(test$Age, na.rm = TRUE)</code></pre>
 <pre class="r"><code>train[is.na(train$Fare), &quot;Fare&quot;] &lt;- median(train$Fare, na.rm = TRUE)
 
 test[is.na(test$Fare), &quot;Fare&quot;] &lt;- median(test$Fare, na.rm = TRUE)</code></pre>
-<pre class="r"><code>train &lt;- transform(train, Survived = as.factor(Survived), Pclass = as.factor(Pclass), Sex = as.factor(Sex))
+<pre class="r"><code>train &lt;- transform(train, Survived = as.factor(Survived), Sex = as.factor(Sex))
 
-test &lt;- transform(test, Pclass = as.factor(Pclass), Sex = as.factor(Sex))</code></pre>
+test &lt;- transform(test, Sex = as.factor(Sex))</code></pre>
 <p>making a full dataset</p>
 <pre class="r"><code>full_data &lt;- rbind(train, test)</code></pre>
-<p>##Doing random forest analysis</p>
-<pre class="r"><code>library(randomForest)</code></pre>
-<pre><code>## randomForest 4.7-1</code></pre>
-<pre><code>## Type rfNews() to see new features/changes/bug fixes.</code></pre>
-<pre><code>## 
-## Attaching package: &#39;randomForest&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
-## 
-##     combine</code></pre>
-<pre><code>## The following object is masked from &#39;package:ggplot2&#39;:
-## 
-##     margin</code></pre>
-<pre class="r"><code>require(caTools)</code></pre>
-<pre><code>## Loading required package: caTools</code></pre>
-<pre class="r"><code>library(caret)</code></pre>
-<pre><code>## Loading required package: lattice</code></pre>
-<pre><code>## 
-## Attaching package: &#39;lattice&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:openintro&#39;:
-## 
-##     ethanol, lsegments</code></pre>
-<pre><code>## 
-## Attaching package: &#39;caret&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:purrr&#39;:
-## 
-##     lift</code></pre>
-<pre><code>## The following object is masked from &#39;package:openintro&#39;:
-## 
-##     dotPlot</code></pre>
-<pre class="r"><code>trainrf &lt;- Survived~ Pclass+Sex+Age+SibSp+Parch+Fare
-rf &lt;- randomForest(trainrf, data = train, mtry = 3)</code></pre>
-<pre class="r"><code>varImpPlot(rf)</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-21-1.png" width="672" />
-From this graph, it is clear that Sex is the best predictor variable of Survival of all these variables, followed by Fare and Age</p>
-<p>#Creating Output Dataframe</p>
-<pre class="r"><code>testrf &lt;- &quot;Pclass+Sex+Age+SibSp+Parch+Fare&quot;</code></pre>
-<pre class="r"><code>Survivedpredict&lt;- predict(rf, newdata = test)</code></pre>
-<pre class="r"><code>PassengerID &lt;- test$PassengerId
-outputdata &lt;- as.data.frame(PassengerID)
-outputdata$Survived &lt;- Survivedpredict</code></pre>
-<pre class="r"><code>write.csv(outputdata, file = &quot;A03_data_output.csv&quot;, row.names = FALSE)</code></pre>
+</div>
+</div>
+<div id="logistic-regression-practice" class="section level1">
+<h1>Logistic Regression Practice</h1>
+<div id="noting-general-correlation-trends" class="section level2">
+<h2>Noting General Correlation Trends:</h2>
+<pre class="r"><code>train.numeric &lt;- transform(train, Survived = as.numeric(Survived), Pclass = as.numeric(Pclass), Sex = as.numeric(Sex), Age = as.numeric(Age), SibSp = as.numeric(SibSp), Parch = as.numeric(Parch), Fare = as.numeric(Fare))
+cor(train.numeric)</code></pre>
+<pre><code>##             Survived      Pclass         Sex         Age       SibSp
+## Survived  1.00000000 -0.33848104 -0.54335138 -0.06491042 -0.03532250
+## Pclass   -0.33848104  1.00000000  0.13190049 -0.33989833  0.08308136
+## Sex      -0.54335138  0.13190049  1.00000000  0.08116254 -0.11463081
+## Age      -0.06491042 -0.33989833  0.08116254  1.00000000 -0.23329633
+## SibSp    -0.03532250  0.08308136 -0.11463081 -0.23329633  1.00000000
+## Parch     0.08162941  0.01844267 -0.24548896 -0.17248195  0.41483770
+## Fare      0.25730652 -0.54949962 -0.18233283  0.09668842  0.15965104
+##                Parch        Fare
+## Survived  0.08162941  0.25730652
+## Pclass    0.01844267 -0.54949962
+## Sex      -0.24548896 -0.18233283
+## Age      -0.17248195  0.09668842
+## SibSp     0.41483770  0.15965104
+## Parch     1.00000000  0.21622494
+## Fare      0.21622494  1.00000000</code></pre>
+</div>
+<div id="pclass" class="section level2">
+<h2>Pclass</h2>
+<pre class="r"><code>logpclass &lt;- logistic_reg() %&gt;%
+  set_engine(&quot;glm&quot;) %&gt;%
+  fit(Survived~Pclass, data = train, family = &quot;binomial&quot;)
+
+tidy(logpclass)</code></pre>
+<pre><code>## # A tibble: 2 x 5
+##   term        estimate std.error statistic  p.value
+##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+## 1 (Intercept)    1.45     0.207       6.97 3.06e-12
+## 2 Pclass        -0.850    0.0871     -9.76 1.75e-22</code></pre>
+<pre class="r"><code>yhat &lt;- predict(logpclass, test, type = &quot;raw&quot;)
+phat &lt;- exp(yhat)/(1 + exp(yhat))
+test &lt;- test %&gt;%
+  bind_cols(yhat = yhat, phat = phat)
+
+logpclassaug &lt;- augment(logpclass$fit) %&gt;%
+  mutate(prob = exp(.fitted)/(1+exp(.fitted)))
+logpclassaug</code></pre>
+<pre><code>## # A tibble: 891 x 9
+##    Survived Pclass .fitted .resid .std.resid    .hat .sigma  .cooksd  prob
+##    &lt;fct&gt;     &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
+##  1 0             3  -1.10  -0.757     -0.758 0.00185   1.10 0.000308 0.249
+##  2 1             1   0.597  0.937      0.938 0.00385   1.10 0.00107  0.645
+##  3 1             3  -1.10   1.67       1.67  0.00185   1.10 0.00280  0.249
+##  4 1             1   0.597  0.937      0.938 0.00385   1.10 0.00107  0.645
+##  5 0             3  -1.10  -0.757     -0.758 0.00185   1.10 0.000308 0.249
+##  6 0             3  -1.10  -0.757     -0.758 0.00185   1.10 0.000308 0.249
+##  7 0             1   0.597 -1.44      -1.44  0.00385   1.10 0.00352  0.645
+##  8 0             3  -1.10  -0.757     -0.758 0.00185   1.10 0.000308 0.249
+##  9 1             3  -1.10   1.67       1.67  0.00185   1.10 0.00280  0.249
+## 10 1             2  -0.253  1.29       1.29  0.00142   1.10 0.000914 0.437
+## # ... with 881 more rows</code></pre>
+<pre class="r"><code>ggplot(logpclassaug, aes(x = Pclass)) +
+  geom_point(aes(y = as.numeric(Survived), color = Survived), alpha = 0.5) +
+  scale_y_continuous(breaks = c(0,1)) +
+  guides(color = &quot;none&quot;) +
+  geom_line(aes(y = prob)) +
+  geom_point(data = test, aes(x = Pclass, y = phat),
+             stroke = 1, size = 6) +
+  labs(
+    x = &quot;Pclass&quot;,
+    y = &quot;Survived&quot;, 
+    title = &quot;Survived vs. Pclass&quot;
+  )</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
+</div>
+<div id="sex" class="section level2">
+<h2>Sex</h2>
+<pre class="r"><code>logsex &lt;- logistic_reg() %&gt;%
+  set_engine(&quot;glm&quot;) %&gt;%
+  fit(Survived~Sex, data = train, family = &quot;binomial&quot;)
+
+tidy(logsex)</code></pre>
+<pre><code>## # A tibble: 2 x 5
+##   term        estimate std.error statistic  p.value
+##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+## 1 (Intercept)     1.06     0.129      8.19 2.58e-16
+## 2 Sexmale        -2.51     0.167    -15.0  4.26e-51</code></pre>
+<pre class="r"><code>yhat2 &lt;- predict(logsex, test, type = &quot;raw&quot;)
+phat2 &lt;- exp(yhat2)/(1 + exp(yhat2))
+test &lt;- test %&gt;%
+  bind_cols(yhat2 = yhat2, phat2 = phat2)
+
+logsexaug &lt;- augment(logsex$fit) %&gt;%
+  mutate(prob2 = exp(.fitted)/(1+exp(.fitted)))</code></pre>
+<pre class="r"><code>ggplot(logsexaug, aes(x = Sex)) +
+  geom_point(aes(y = as.numeric(Survived), color = Survived), alpha = 0.5) +
+  scale_y_continuous(breaks = c(0,1)) +
+  guides(color = &quot;none&quot;) +
+  geom_line(aes(y = prob2)) +
+  geom_point(data = test, aes(x = Sex, y = phat2),
+             stroke = 1, size = 6) +
+  labs(
+    x = &quot;Sex&quot;,
+    y = &quot;Survived&quot;, 
+    title = &quot;Survived vs. Sex&quot;
+  )</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-31-1.png" width="672" />
+## Age</p>
+<pre class="r"><code>logage &lt;- logistic_reg() %&gt;%
+  set_engine(&quot;glm&quot;) %&gt;%
+  fit(Survived~Age, data = train, family = &quot;binomial&quot;)
+
+tidy(logage)</code></pre>
+<pre><code>## # A tibble: 2 x 5
+##   term        estimate std.error statistic p.value
+##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
+## 1 (Intercept)  -0.170    0.170       -1.00  0.317 
+## 2 Age          -0.0104   0.00538     -1.93  0.0533</code></pre>
+<pre class="r"><code>yhat3 &lt;- predict(logage, test, type = &quot;raw&quot;)
+phat3 &lt;- exp(yhat3)/(1 + exp(yhat3))
+test &lt;- test %&gt;%
+  bind_cols(yhat3 = yhat3, phat3 = phat3)
+
+logageaug &lt;- augment(logage$fit) %&gt;%
+  mutate(prob3 = exp(.fitted)/(1+exp(.fitted)))</code></pre>
+<pre class="r"><code>ggplot(logageaug, aes(x = Age)) +
+  geom_point(aes(y = as.numeric(Survived), color = Survived), alpha = 0.5) +
+  scale_y_continuous(breaks = c(0,1)) +
+  guides(color = &quot;none&quot;) +
+  geom_line(aes(y = prob3)) +
+  geom_point(data = test, aes(x = Age, y = phat3),
+             stroke = 1, size = 6) +
+  labs(
+    x = &quot;Age&quot;,
+    y = &quot;Survived&quot;, 
+    title = &quot;Survived vs. Age&quot;
+  )</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-34-1.png" width="672" />
+## SibSp</p>
+<pre class="r"><code>logsibsp &lt;- logistic_reg() %&gt;%
+  set_engine(&quot;glm&quot;) %&gt;%
+  fit(Survived~SibSp, data = train, family = &quot;binomial&quot;)
+
+tidy(logsibsp)</code></pre>
+<pre><code>## # A tibble: 2 x 5
+##   term        estimate std.error statistic       p.value
+##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;         &lt;dbl&gt;
+## 1 (Intercept)  -0.438     0.0763     -5.74 0.00000000923
+## 2 SibSp        -0.0686    0.0654     -1.05 0.294</code></pre>
+<pre class="r"><code>yhat4 &lt;- predict(logsibsp, test, type = &quot;raw&quot;)
+phat4 &lt;- exp(yhat4)/(1 + exp(yhat4))
+test &lt;- test %&gt;%
+  bind_cols(yhat4 = yhat4, phat4 = phat4)
+
+logsibspaug &lt;- augment(logsibsp$fit) %&gt;%
+  mutate(prob4 = exp(.fitted)/(1+exp(.fitted)))</code></pre>
+<pre class="r"><code>ggplot(logsibspaug, aes(x = SibSp)) +
+  geom_point(aes(y = as.numeric(Survived), color = Survived), alpha = 0.5) +
+  scale_y_continuous(breaks = c(0,1)) +
+  guides(color = &quot;none&quot;) +
+  geom_line(aes(y = prob4)) +
+  geom_point(data = test, aes(x = SibSp, y = phat4),
+             stroke = 1, size = 6) +
+  labs(
+    x = &quot;Siblings and Spouses&quot;,
+    y = &quot;Survived&quot;, 
+    title = &quot;Survived vs. Number of Siblings and Spouses&quot;
+  )</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-37-1.png" width="672" /></p>
+</div>
+<div id="parch" class="section level2">
+<h2>Parch</h2>
+<pre class="r"><code>logparch &lt;- logistic_reg() %&gt;%
+  set_engine(&quot;glm&quot;) %&gt;%
+  fit(Survived~Parch, data = train, family = &quot;binomial&quot;)
+
+tidy(logparch)</code></pre>
+<pre><code>## # A tibble: 2 x 5
+##   term        estimate std.error statistic  p.value
+##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+## 1 (Intercept)   -0.553    0.0769     -7.19 6.37e-13
+## 2 Parch          0.203    0.0846      2.40 1.63e- 2</code></pre>
+<pre class="r"><code>yhat5 &lt;- predict(logparch, test, type = &quot;raw&quot;)
+phat5 &lt;- exp(yhat5)/(1 + exp(yhat5))
+test &lt;- test %&gt;%
+  bind_cols(yhat5 = yhat5, phat5 = phat5)
+
+logparchaug &lt;- augment(logparch$fit) %&gt;%
+  mutate(prob5 = exp(.fitted)/(1+exp(.fitted)))</code></pre>
+<pre class="r"><code>ggplot(logparchaug, aes(x = Parch)) +
+  geom_point(aes(y = as.numeric(Survived), color = Survived), alpha = 0.5) +
+  scale_y_continuous(breaks = c(0,1)) +
+  guides(color = &quot;none&quot;) +
+  geom_line(aes(y = prob5)) +
+  geom_point(data = test, aes(x = Parch, y = phat5),
+             stroke = 1, size = 6) +
+  labs(
+    x = &quot;Parents and Children&quot;,
+    y = &quot;Survived&quot;, 
+    title = &quot;Survived vs. Number of Parents and Children&quot;
+  )</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-40-1.png" width="672" /></p>
+</div>
+<div id="fare" class="section level2">
+<h2>Fare</h2>
+<pre class="r"><code>logfare &lt;- logistic_reg() %&gt;%
+  set_engine(&quot;glm&quot;) %&gt;%
+  fit(Survived~Fare, data = train, family = &quot;binomial&quot;)
+
+tidy(logfare)</code></pre>
+<pre><code>## # A tibble: 2 x 5
+##   term        estimate std.error statistic  p.value
+##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+## 1 (Intercept)  -0.941    0.0951      -9.90 4.36e-23
+## 2 Fare          0.0152   0.00223      6.81 9.79e-12</code></pre>
+<pre class="r"><code>yhat6 &lt;- predict(logfare, test, type = &quot;raw&quot;)
+phat6 &lt;- exp(yhat6)/(1 + exp(yhat6))
+test &lt;- test %&gt;%
+  bind_cols(yhat6 = yhat6, phat6 = phat6)
+
+logfareaug &lt;- augment(logfare$fit) %&gt;%
+  mutate(prob6 = exp(.fitted)/(1+exp(.fitted)))</code></pre>
+<pre class="r"><code>ggplot(logfareaug, aes(x = Fare)) +
+  geom_point(aes(y = as.numeric(Survived), color = Survived), alpha = 0.5) +
+  scale_y_continuous(breaks = c(0,1)) +
+  guides(color = &quot;none&quot;) +
+  geom_line(aes(y = prob6)) +
+  geom_point(data = test, aes(x = Fare, y = phat6),
+             stroke = 1, size = 6) +
+  labs(
+    x = &quot;Fare&quot;,
+    y = &quot;Survived&quot;, 
+    title = &quot;Survived vs. Fare&quot;
+  )</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-43-1.png" width="672" /></p>
 </div>
 </div>
