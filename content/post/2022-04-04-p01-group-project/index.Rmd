@@ -1,0 +1,140 @@
+---
+title: "P01 Group Project"
+author: "Cadence Fisher et al."
+date: '2022-04-04'
+slug: p01-group-project
+categories: []
+tags: []
+---
+Your task is to build a model to predict the churn of the bank customer by performing following steps:
+The Main Question:
+What factors affected wether the customer closed the bank account and left or continues to be a loyal customer?
+
+# Perform Exploratory Data Analysis as necessary
+```{r, warning=FALSE}
+library(openintro)
+library(tidyverse)
+library(ggridges)
+library(tidymodels)
+library(data.table)
+set.seed(1)
+
+```
+```{r}
+Bank_Churn <- read_csv("https://raw.githubusercontent.com/fisherca/website_experiment/main/Bank_Churn.csv")
+attach(Bank_Churn)
+```
+```{r}
+head(Bank_Churn)
+```
+```{r}
+summary(Bank_Churn)
+```
+
+## Check for NA and Blank values
+```{r}
+Bank_Churn <- Bank_Churn %>% mutate_all(na_if, "")
+```
+
+```{r}
+isna <- apply(Bank_Churn,2, function(x) any(is.na(x)))
+isna
+```
+None of the columns contain NA values or blank values
+## Observation of the Variables
+### Credit Score
+```{r}
+ggplot(Bank_Churn, aes(CreditScore)) + geom_bar(fill = "steelblue") +
+  theme_minimal()
+```
+
+```{r}
+ggplot(Bank_Churn, aes(x = CreditScore, fill = Exited)) +
+  geom_bar(position = "fill") +
+  labs(
+    x = 'Credit Score', 
+    fill = "Exited", 
+    y = NULL,
+    title = 'Exited vs. Credit Score') +
+  scale_fill_manual(values = c("#DEB4A0", "#CA235F"))
+```
+### Geography:
+```{r}
+ggplot(Bank_Churn, aes(Geography)) + geom_bar(fill = "steelblue") +
+  theme_minimal()
+```
+```{r}
+Bank_Churn %>%
+  ggplot(aes(x = Geography, fill = Exited)) +
+  geom_bar(position = "fill") +
+  labs(
+    x = 'Geography', 
+    fill = "Exited", 
+    y = NULL,
+    title = 'Exited vs. Geography') +
+  scale_fill_manual(values = c("#DEB4A0", "#CA235F"))
+```
+### Gender
+```{r}
+ggplot(Bank_Churn, aes(Gender)) + geom_bar(fill = "steelblue") + theme_minimal()
+```
+
+```{r}
+Bank_Churn %>%
+  ggplot(aes(x = Gender, fill = Exited)) +
+  geom_bar(position = "fill") +
+  labs(
+    x = 'Gender', 
+    fill = "Exited", 
+    y = NULL,
+    title = 'Exited vs. Gender') +
+  scale_fill_manual(values = c("#DEB4A0", "#CA235F"))
+```
+### Age
+```{r}
+ggplot(Bank_Churn, aes(Age)) + geom_bar(fill = "steelblue") +
+  theme_minimal()
+```
+### Tenure (Number of years since opening bank account)
+```{r}
+ggplot(Bank_Churn, aes(Tenure)) + geom_bar(fill = "steelblue") +
+  theme_minimal()
+```
+### Balance (current balance in bank account)
+```{r}
+ggplot(Bank_Churn, aes(Balance)) + geom_histogram(aes(fill = Balance, color = Balance), bins = 20) + theme_minimal()
+```
+### NumOfProducts 
+```{r}
+ggplot(Bank_Churn, aes(NumOfProducts)) + geom_bar()
+```
+### HasCrCard
+```{r}
+ggplot(Bank_Churn, aes(HasCrCard)) + geom_bar(fill = "steelblue") +
+  theme_minimal()
+```
+### IsActiveMember
+```{r}
+ggplot(Bank_Churn, aes(IsActiveMember)) + geom_bar(fill = "steelblue") +
+  theme_minimal()
+```
+### Estimated Salary
+```{r}
+ggplot(Bank_Churn, aes(EstimatedSalary)) + geom_histogram( aes(fill = EstimatedSalary), bins = 50) + theme_minimal()
+```
+### Exited: have they closed the bank account or stayed loyal. This is the best candidate for a dependent variable.
+```{r}
+ggplot(Bank_Churn, aes(Exited)) + geom_bar(fill = "steelblue") +
+  theme_minimal()
+```
+
+
+#Balance the dataset before modeling (https://rpubs.com/DeclanStockdale/799284 (Links to an external site.)). Use any one of the over sampling, under sampling or SMOTE.
+
+#Build a Logistic Regression model.
+
+#Improve the model performance through transforming predictors (z-transform or log transform) or probability cut-off point of p.
+
+#Evaluate and compare 2 - 3 different models.
+
+#Explicitly write your assumptions and draw the conclusions.
