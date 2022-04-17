@@ -72,7 +72,9 @@ In this video, Joy Boulamwini discusses something called  'the coded gaze', whic
 
 
 # Imbeding picture of certificate
+![Certificate](C:\Users\cfish\Downloads\privacy_certificate_datacamp.pdf)
 
-![Alt text](/Users/cfish/Downloads/privacy_certificate_datacamp)
+
+
 
 
